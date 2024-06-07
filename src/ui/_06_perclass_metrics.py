@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -122,14 +123,39 @@ iframe_perclass_R = IFrame("static/06_3_perclass_R.html", width=620, height=520)
 # txt1 = Text("Per-class Precision and Recall (Sorted by F1)")
 # txt2 = Text("Per-class Precision (Sorted by F1)")
 # txt3 = Text("Per-class Recall (Sorted by F1)")
+markdown = Markdown(
+    """
+## Precision
+
+This section measures the accuracy of the positive predictions made by the model.
+Precision (?) = 0.66
+
+*(?) - Precision is the portion of correct predictions (true positives) over all model's predictions (true positives + false positives). A precision of 0.8 means that 80% of the instances that the model predicted as positive (e.g., detected objects) are actually positive (correct detections).
+Precision is averaged across all classes and IoU thresholds [0.50:0.95].*
+
+**50 of 60 predicted instances are actually correct predictions.** There are 60 instances predicted by the model, 50 of them are actually correct.
+
+## Recall
+
+This section measures the ability of the model to detect all relevant instances in the dataset.
+
+**Recall** (?) = 0.51 (green-red color scale)
+
+*(?) - Recall is the portion of correct predictions (true positives) over all actual instances in the dataset (true positives + false negative). A recall of 0.7 indicates that the model identifies 70% of all actual positives in the dataset.
+Recall is averaged across all classes and IoU thresholds [0.50:0.95].*
+
+**46 of 90 instances were correctly identified by the model.** There are 90 instances in the dataset, 46 of them were correctly identified by the model.
+""",
+    show_border=False,
+)
 
 # Input card with all widgets.
 card = Card(
-    "Outcome Counts",
+    "Per-Class Metrics",
     "Description",
     content=Container(
         widgets=[
-            # txt1,
+            markdown,
             iframe_perclass_PR,
             # txt2,
             iframe_perclass_P,

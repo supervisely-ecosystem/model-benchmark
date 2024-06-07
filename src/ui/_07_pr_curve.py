@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -100,6 +101,21 @@ txt = Text("text")
 iframe_pr = IFrame("static/07_01_pr_curve.html", width=620, height=520)
 iframe_pr_perclass = IFrame("static/07_02_pr_curve_perclass.html", width=820, height=620)
 
+markdown = Markdown(
+    """
+PR curve provides a more informative picture of a model's trade-offs between precision and recall, than numerical metrics, like mAP. This helps in selecting a model that best balances precision and recall according to your requirements (e.g., aiming fewer false positives). PR curve visualizes how well the model maximizes true positives while minimizing false positives and false negatives.
+
+More information 🔽 (collapsable)\n
+*For instance, a point at recall = 0.3, and precision = 0.8 shows that on all dataset the model is capable of finding only 30% of instances, while maintaining a precision of 80%. Usually, they are the most confident instances.*
+
+*A system with high recall but low precision returns many results, but most of its predictions are incorrect or redundant (false positive). A system with high precision but low recall is just the opposite, returning very few results, most of its predictions are correct. An ideal system with high precision and high recall will return many results, with all results predicted correctly.*
+
+*показать идеальный график, написать что чем ближе к идеальному графику, тем лучше модель.*
+
+**PR-curve AUC** (area under curve) = 0.94
+""",
+    show_border=False,
+)
 
 # Input card with all widgets.
 card = Card(
@@ -107,7 +123,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_pr,
             iframe_pr_perclass,
         ]

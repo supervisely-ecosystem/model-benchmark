@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -43,116 +44,116 @@ def perclass_ap():
     # fill points
     fig.update_traces(fill="toself")
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/12_01_perclass_ap.html")
+    fig.write_html(g.STATIC_DIR + "/12_01_perclass.html")
 
 
 def perclass_outcome_counts():
-    score_profile = g.m_full.confidence_score_profile()
-    f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
-    global df_down
+    # Per-class Counts
+    iou_thres = 0
 
-    df = pd.DataFrame(score_profile)
-    df.columns = ["scores", "Precision", "Recall", "F1"]
+    tp = g.m.true_positives[:, iou_thres]
+    fp = g.m.false_positives[:, iou_thres]
+    fn = g.m.false_negatives[:, iou_thres]
 
-    # downsample
-    if len(df) > 5000:
-        df_down = df.iloc[:: len(df) // 1000]
-    else:
-        df_down = df
+    # normalize
+    support = tp + fn
+    tp_rel = tp / support
+    fp_rel = fp / support
+    fn_rel = fn / support
 
-    color_map = {
-        "Precision": "#1f77b4",
-        "Recall": "orange",
+    # sort by f1
+    sort_scores = 2 * tp / (2 * tp + fp + fn)
+
+    K = len(g.m.cat_names)
+    sort_indices = np.argsort(sort_scores)
+    cat_names_sorted = [g.m.cat_names[i] for i in sort_indices]
+    tp_rel, fn_rel, fp_rel = tp_rel[sort_indices], fn_rel[sort_indices], fp_rel[sort_indices]
+
+    # Stacked per-class counts
+    data = {
+        "count": np.concatenate([tp_rel, fn_rel, fp_rel]),
+        "type": ["TP"] * K + ["FN"] * K + ["FP"] * K,
+        "category": cat_names_sorted * 3,
     }
-    fig = px.line(
-        df_down,
-        x="scores",
-        y=["Precision", "Recall", "F1"],
-        title="Confidence Score Profile",
-        labels={"value": "Value", "variable": "Metric", "scores": "Confidence Score"},
-        width=None,
-        height=500,
+
+    df = pd.DataFrame(data)
+
+    color_map = {"TP": "#1fb466", "FN": "#dd3f3f", "FP": "#d5a5a5"}
+    fig = px.bar(
+        df,
+        x="category",
+        y="count",
+        color="type",
+        title="Per-class Outcome Counts",
+        labels={"count": "Total Count", "category": "Category"},
         color_discrete_map=color_map,
     )
-    fig.update_layout(yaxis=dict(range=[0, 1]), xaxis=dict(range=[0, 1], tick0=0, dtick=0.1))
 
-    # Add vertical line for the best threshold
-    fig.add_shape(
-        type="line",
-        x0=f1_optimal_conf,
-        x1=f1_optimal_conf,
-        y0=0,
-        y1=best_f1,
-        line=dict(color="gray", width=2, dash="dash"),
-    )
-    fig.add_annotation(
-        x=f1_optimal_conf,
-        y=best_f1 + 0.04,
-        text=f"F1-optimal threshold: {f1_optimal_conf:.2f}",
-        showarrow=False,
-    )
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/12_02_perclass_outcome_counts.html")
+    fig.write_html(g.STATIC_DIR + "/12_02_perclass.html")
 
+    # Stacked per-class counts
+    data = {
+        "count": np.concatenate([tp[sort_indices], fn[sort_indices], fp[sort_indices]]),
+        "type": ["TP"] * K + ["FN"] * K + ["FP"] * K,
+        "category": cat_names_sorted * 3,
+    }
 
-def perclass_outcome_counts_stacked():
-    score_profile = g.m_full.confidence_score_profile()
-    f1s = g.m_full.score_profile_f1s
+    df = pd.DataFrame(data)
 
-    # downsample
-    f1s_down = f1s[:, :: f1s.shape[1] // 1000]
-    iou_names = list(map(lambda x: str(round(x, 2)), g.m.iouThrs.tolist()))
-    df = pd.DataFrame(
-        np.concatenate([df_down["scores"].values[:, None], f1s_down.T], 1),
-        columns=["scores"] + iou_names,
-    )
-
-    fig = px.line(
+    color_map = {"TP": "#1fb466", "FN": "#dd3f3f", "FP": "#d5a5a5"}
+    fig = px.bar(
         df,
-        x="scores",
-        y=iou_names,
-        title="F1-Score at different IoU Thresholds",
-        labels={"value": "Value", "variable": "IoU threshold", "scores": "Confidence Score"},
-        color_discrete_sequence=px.colors.sequential.Viridis,
-        width=None,
-        height=500,
+        x="category",
+        y="count",
+        color="type",
+        title="Per-class Outcome Counts",
+        labels={"count": "Total Count", "category": "Category"},
+        color_discrete_map=color_map,
     )
-    fig.update_layout(yaxis=dict(range=[0, 1]), xaxis=dict(range=[0, 1], tick0=0, dtick=0.1))
 
-    # add annotations for maximum F1-Score for each IoU threshold
-    for i, iou in enumerate(iou_names):
-        argmax_f1 = f1s[i].argmax()
-        max_f1 = f1s[i][argmax_f1]
-        score = score_profile["scores"][argmax_f1]
-        fig.add_annotation(
-            x=score,
-            y=max_f1,
-            text=f"Best score: {score:.2f}",
-            showarrow=True,
-            arrowhead=1,
-            arrowcolor="black",
-            ax=0,
-            ay=-30,
-        )
-
-    # fig.show()
-    fig.write_html(g.STATIC_DIR + "/12_03_perclass_outcome_counts_stacked.html")
+    fig.write_html(g.STATIC_DIR + "/12_03_perclass.html")
 
 
 if g.RECALC_PLOTS:
     perclass_ap()
     perclass_outcome_counts()
-    perclass_outcome_counts_stacked()
 
-txt = Text("text")
+
+markdown_1 = Markdown(
+    """
+# Per-class Analysis
+
+This section analyzes the model's performance for each specific class. It discovers which classes the model identifies correctly, and which ones it often gets wrong.
+
+## Per-class Average Precision
+
+A quick visual comparison of how well the model performs across all classes. Each axis in the chart represents a different class, and the distance to the center indicates the Average Precision for that class.
+""",
+    show_border=False,
+)
+markdown_2 = Markdown(
+    """
+## Per-class Outcome Counts
+
+A detailed analysis of the model's performance for each class.
+
+1. TP: The graph shows the number of correct detections, where the model accurately identified objects that are actually present in annotations (True Positives).
+
+2. FN: It indicates the number of misses, where the model failed to detect an object that should have been detected according to annotations (False Negatives).
+
+3. FP: The graph displays the number of incorrect (redundant) detections, where the model mistakenly identified something as an object when there wasn't any object in annotations (False Positives).
+
+The graph is sorted by F1-score, which is calculated for each class. F1-score balances all three types of predictions: TP, FN and FP. Thus, the leftmost classes are lower in F1-score, and the rightmost are higher in F1-score.
+
+Each bar is normalized by the number of ground truth instances of the corresponding class, meaning the value of 1.0 represents the number of total ground truth instances in the dataset, and values higher than 1.0 are False Positives (i.e, excessive predictions). You can turn off the normalization switching to absolute values.
+""",
+    show_border=False,
+)
 # table_model_preds = Table(g.m.prediction_table())
-iframe_perclass_ap = IFrame("static/12_01_perclass_ap.html", width=820, height=820)
-iframe_perclass_outcome_counts = IFrame(
-    "static/12_02_perclass_outcome_counts.html", width=820, height=520
-)
-iframe_perclass_outcome_counts_stacked = IFrame(
-    "static/12_03_perclass_outcome_counts_stacked.html", width=820, height=520
-)
+iframe_perclass_ap = IFrame("static/12_01_perclass.html", width=820, height=820)
+iframe_perclass_outcome_counts = IFrame("static/12_02_perclass.html", width=820, height=520)
+iframe_perclass_outcome_counts_stacked = IFrame("static/12_03_perclass.html", width=820, height=520)
 
 
 # Input card with all widgets.
@@ -161,8 +162,9 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown_1,
             iframe_perclass_ap,
+            markdown_2,
             iframe_perclass_outcome_counts,
             iframe_perclass_outcome_counts_stacked,
         ]

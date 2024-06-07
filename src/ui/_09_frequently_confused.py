@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Text,
 )
@@ -51,7 +52,17 @@ def frequently_confused():
 if g.RECALC_PLOTS:
     frequently_confused()
 
-txt = Text("text")
+markdown = Markdown(
+    """
+# Frequently Confused Classes
+
+This chart displays the top-20 pairs of classes (or fewer, depending on the dataset and model performance) that are most frequently confused by the model. These are class pairs where the model correctly localizes a bounding box, but incorrectly predicts one class in place of another. The chart indicates the probability of confusion between different pairs of classes. For instance, if the probability of confusion for the pair “car - truck” is 0.15, this means that when the model predicts 'car' or 'truck', there is a 15% chance that it might mistakenly predict one instead of the other. This percentage indicates how often the model confuses these two classes with each other when attempting to make a prediction.
+
+*switch: Probability / Amount*
+
+""",
+    show_border=False,
+)
 iframe_frequently_confused = IFrame("static/09_frequently_confused.html", width=620, height=520)
 
 
@@ -61,12 +72,8 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_frequently_confused,
-            # dataset_thumbnail,
-            # select_dataset,
-            # load_button,
-            # no_dataset_message,
         ]
     ),
     # content_top_right=change_dataset_button,

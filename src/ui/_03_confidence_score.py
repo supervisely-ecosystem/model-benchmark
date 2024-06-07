@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -77,7 +78,16 @@ def confidence_score():
 
 if g.RECALC_PLOTS:
     confidence_score()
-txt = Text("text")
+
+markdown = Markdown(
+    """
+This chart helps determine an optimal confidence threshold for the model based on your requirements. Plotting F1-score against confidence thresholds, you can see how changes in the confidence level affect the balance between precision and recall. The maximum of the F1 score indicates the best balance between precision and recall.
+
+*How is it calculated: To build this plot, we cumulatively calculate precision, recall and F1 for each confidence threshold that the model predicts (scores are sorted in descending order), and draw them on the plot, where x-axis is a score, and y-axis is a metric (precision, recall, f1).*
+
+""",
+    show_border=False,
+)
 # table_model_preds = Table(g.m.prediction_table())
 iframe_confidence_score = IFrame("static/03_confidence_score.html", width=620, height=520)
 
@@ -88,7 +98,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_confidence_score,
         ]
     ),

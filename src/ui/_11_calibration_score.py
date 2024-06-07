@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -239,7 +240,24 @@ if g.RECALC_PLOTS:
     f1score_at_different_iou()
     confidence_histogram()
 
-txt = Text("text")
+markdown = Markdown(
+    """
+# Calibration Score
+
+This analysis is crucial for applications where decisions are made based on the predicted probabilities, such as risk assessment, medical diagnostics, and other probabilistic decision-making systems.
+
+**Brier Score** (?) = 0.85
+
+*Brier score measures the mean squared difference between predicted probability and actual outcome.*
+
+*Посчитать вероятность, вместо BS. 0.1-0, 0.9-1*
+
+## Reliability Diagram
+
+*Reliability diagram, also known as a Calibration curve, helps in understanding whether the confidence scores of detections accurately represent the true probability of a correct detection. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.*
+""",
+    show_border=False,
+)
 # table_model_preds = Table(g.m.prediction_table())
 iframe_calibration = IFrame("static/11_01_calibration_curve.html", width=720, height=520)
 iframe_confidence_score = IFrame("static/11_02_confidence_score.html", width=820, height=520)
@@ -257,7 +275,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_calibration,
             iframe_confidence_score,
             iframe_f1score_at_different_iou,

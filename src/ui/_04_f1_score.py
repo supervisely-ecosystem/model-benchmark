@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Table,
     Text,
@@ -69,7 +70,14 @@ def f1_score():
 
 if g.RECALC_PLOTS:
     f1_score()
-txt = Text("text")
+markdown = Markdown(
+    """
+This chart shows the outcomes of predictions – True Positives (TP), False Positives (FP), and False Negatives (FN). The chart helps to assess overall performance of the model in terms of outcomes. For example, if the chart shows a large number of False Negatives, it means that the model is failing to identify many objects that are actually present in the images.
+
+*Hint: You can select a class in the dropdown menu to show outcomes only for the class of interest.*\n
+""",
+    show_border=False,
+)
 # table_model_preds = Table(g.m.prediction_table())
 iframe_f1_score = IFrame("static/04_f1_score.html", width=620, height=520)
 
@@ -80,7 +88,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            # markdown,
             iframe_f1_score,
         ]
     ),

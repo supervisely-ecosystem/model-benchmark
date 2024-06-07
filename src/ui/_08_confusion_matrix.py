@@ -20,6 +20,7 @@ from supervisely.app.widgets import (
     DatasetThumbnail,
     FastTable,
     IFrame,
+    Markdown,
     SelectDataset,
     Text,
 )
@@ -111,7 +112,23 @@ if g.RECALC_PLOTS:
     # prepare()
     _confusion_matrix()
     confusion_matrix_mini()
-txt = Text("text")
+markdown = Markdown(
+    """
+# Classification Accuracy
+
+This section investigates cases where the model correctly localizes a bounding box, but predicts a wrong class label. For example, the model may often confuse a motorbike with a bicycle. Confusion matrix is designed to discover these mistakes.
+
+**Classification Accuracy**: 0.96
+
+**52 of 54 total predictions were misclassified by the model.**
+
+## Confusion Matrix
+
+Confusion matrix helps to find confusions between different classes of objects made by the model. Each row of the matrix represents the instances in a predicted class, while each column represents the instances in an actual class. The diagonal elements represent the number of correct predictions for each class (True Positives), and the off-diagonal elements show the misclassifications.
+
+""",
+    show_border=False,
+)
 
 iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1020, height=1020)
 iframe_confusion_matrix_mini = IFrame("static/08_2_confusion_matrix.html", width=620, height=520)
@@ -123,7 +140,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_confusion_matrix,
             iframe_confusion_matrix_mini,
         ]

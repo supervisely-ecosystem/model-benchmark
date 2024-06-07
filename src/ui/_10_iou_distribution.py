@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     Container,
     DatasetThumbnail,
     IFrame,
+    Markdown,
     SelectDataset,
     Text,
 )
@@ -57,7 +58,27 @@ def iou_distribution():
 if g.RECALC_PLOTS:
     iou_distribution()
 
-txt = Text("text")
+markdown = Markdown(
+    """
+# Localization Accuracy (IoU)
+
+This section measures how closely the predicted bounding boxes match the actual (ground truth) bounding boxes.
+
+**Avg. IoU** (?) = 0.86
+
+<img src="https://github.com/dataset-ninja/model-benchmark-template/assets/78355358/8d7c63d0-2f3b-4f3f-9fd8-c6383a4bfba4" alt="alt text" width="300" />
+
+
+*(?) IoU (Intersection over Union) is calculated by dividing the area of overlap between the predicted bounding box and the ground truth bounding box by the area of union of these two boxes. IoU measures the extent of overlap of two instances.*
+
+## IoU Distribution
+
+A histogram of the Intersection over Union (IoU) scores across detections made by the model, where the x-axis represents the IoU score from 0.5 to 1.0, and the y-axis represents the frequency of detections for each score range.
+
+
+""",
+    show_border=False,
+)
 iframe_iou_distribution = IFrame("static/10_iou_distribution.html", width=620, height=520)
 
 
@@ -67,7 +88,7 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            txt,
+            markdown,
             iframe_iou_distribution,
         ]
     ),
