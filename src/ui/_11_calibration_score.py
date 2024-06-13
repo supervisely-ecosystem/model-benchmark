@@ -244,17 +244,17 @@ markdown = Markdown(
     """
 # Calibration Score
 
-This analysis is crucial for applications where decisions are made based on the predicted probabilities, such as risk assessment, medical diagnostics, and other probabilistic decision-making systems.
+In some applications, it's not enough for a model to make correct predictions; we also need to trust the probabilities associated with those predictions. Well-calibrated probabilities enable better decision-making based on the model's output.. 
 
-**Brier Score** (?) = 0.85
+**Expected Calibration Error** (ECE) (?) = **0.15**
 
-*Brier score measures the mean squared difference between predicted probability and actual outcome.*
-
-*Посчитать вероятность, вместо BS. 0.1-0, 0.9-1*
+Expected Calibration Error measures how well a model's predicted probabilities reflect the true likelihood of prediction. For example, if the model assigns an 0.9 confidence score to a detected pedestrian, but in reality, the detection is correct only 50% of the time, the model is overconfident. 
 
 ## Reliability Diagram
 
-*Reliability diagram, also known as a Calibration curve, helps in understanding whether the confidence scores of detections accurately represent the true probability of a correct detection. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.*
+Reliability diagram, also known as Calibration curve, helps in understanding whether the confidence scores of detections accurately represent the true probability of a correct detection. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.
+
+If the model assigns 90% confidence score to a detection, but in reality, the detection is correct only 50% of the time, the model is overconfident. Overconfident models may give a false sense of security, leading to risky decisions. For instance, an autonomous vehicle might rely too heavily on an overconfident detection and fail to take necessary precautions. The other side is Underconfidence. Underconfident models assign lower confidence scores than the actual likelihood of their predictions being correct. In applications like autonomous driving, underconfidence can reduce the system's efficiency. For example, the vehicle might brake or slow down too often, affecting the overall performance.
 """,
     show_border=False,
 )
