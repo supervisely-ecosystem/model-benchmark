@@ -43,7 +43,7 @@ def grid_gallery_model_preds():
 
     global grid_gallery
     # initialize widgets we will use in UI
-    grid_gallery = GridGalleryV2(columns_number=3, enable_zoom=False)
+    grid_gallery = GridGalleryV2(columns_number=3)
 
     gt_image_info = g.api.image.get_list(dataset_id=gt_dataset_id)[0]
 
@@ -94,8 +94,68 @@ You can choose different sorting method:\n
 """,
     show_border=False,
 )
-# table_model_preds = FastTable(g.m.prediction_table())
+table_model_preds = FastTable(g.m.prediction_table())
 # iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
+
+
+def handle(grid_gallery, selected_image_name="000000575815.jpg"):
+    gt_project_id = 38685
+    gt_dataset_id = 91896
+    pred_project_id = 38684
+    pred_dataset_id = 91895
+    diff_project_id = 38740
+    diff_dataset_id = 92002
+
+    gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=gt_project_id))
+    pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=pred_project_id))
+    diff_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=diff_project_id))
+
+    for image in g.api.image.get_list(dataset_id=gt_dataset_id):
+        if image.name == selected_image_name:
+            gt_image_info = image
+            break
+
+    for image in g.api.image.get_list(dataset_id=pred_dataset_id):
+        if image.name == gt_image_info.name:
+            pred_image_info = image
+            break
+
+    for image in g.api.image.get_list(dataset_id=diff_dataset_id):
+        if image.name == "000000575815.jpg":  # gt_image_info.name:
+            diff_image_info = image
+            break
+
+    images_infos = [gt_image_info, pred_image_info, diff_image_info]
+    anns_infos = [g.api.annotation.download(x.id) for x in images_infos]
+    project_metas = [gt_project_meta, pred_project_meta, diff_project_meta]
+
+    for idx, (image_info, ann_info, project_meta) in enumerate(
+        zip(images_infos, anns_infos, project_metas)
+    ):
+        image_name = image_info.name
+        image_url = image_info.full_storage_url
+        grid_gallery.append(
+            title=image_name,
+            image_url=image_url,
+            annotation_info=ann_info,
+            column_index=idx,
+            project_meta=project_meta,
+        )
+
+
+@table_model_preds.row_click
+def handle_table_row(clicked_row: sly.app.widgets.FastTable.ClickedRow):
+    global grid_gallery
+    grid_gallery.clean_up()
+    handle(grid_gallery, clicked_row.row[0])
+    grid_gallery.update_data()
+
+    # grid_gallery.get_table_row(table_model_preds.widget_id, clicked_row)
+
+    # sly.app.show_dialog(
+    #     f"{clicked_row.row[0]}",
+    #     f"You clicked table row with idx={clicked_row.row_index} in source data",
+    # )
 
 
 # Input card with all widgets.
@@ -104,9 +164,9 @@ card = Card(
     "Description",
     content=Container(
         widgets=[
-            # markdown,
+            markdown,
             grid_gallery,
-            # table_model_preds,
+            table_model_preds,
         ]
     ),
     # content_top_right=change_dataset_button,
