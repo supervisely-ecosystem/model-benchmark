@@ -1,0 +1,52 @@
+Evaluation info:
+
+- model_name: yolov8-l
+- display_model_name: YOLOv8-L
+- architecture: yolov8
+- deploy_params: {...}
+- pretrained_checkpoint_info:
+  - dataset: "COCO"
+  ...
+- custom_checkpoint_info:  - path/to/checkpoint.pt
+                    - weights, config ...
+                    - path in team files ...
+                    - pretrained_project: {id, name}
+                    - model_meta: {...}
+                    # see checkpoint schema of YOLOv8
+- app_info:
+  - name
+  - version
+  - url
+  - ...
+
+
+Speed test results:
+
+[
+  {
+    - runtime: pytorch
+    - device: cuda
+    - hardware: NVIDIA GeForce RTX 4090 (run `nvidia-smi --query-gpu=name --format=csv`)
+    - batch_size: 8
+    - num_iterations: 100
+    - benchmark:
+      - total: 0.053
+      - preprocess: 0.012
+      - inference: 0.041
+      - postprocess: 0.000
+  },
+  {...}
+...
+]
+
+
+inference_settings:
+  - conf: 0.05
+  - input_size: 640
+  - ...
+
+
+Behchmark results:
+
+- cocoDt: path/to/cocoDt.json
+- eval_data: path/to/eval_data.pkl

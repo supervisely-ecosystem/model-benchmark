@@ -1,0 +1,10 @@
+Inference class:
+- add fallback for bs=1, if predict_batch is not implemented
+- убрать изменения, которые были лишними (inference_image_path, etc)
+- Сделать warmup в run_becnchmark
+- добавить в get_session_info
+    дефолтный runtime: pytorch
+- унифицировать возвращаемые значения из get_session_info
+- добавить эндоинт get_hardware
+- добавить эндоинт get_app_info (name, version, url)
+- изменения в set/update inference_settings - проверять, правильные ли параметры передаются (по ключам)
