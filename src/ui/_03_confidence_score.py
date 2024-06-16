@@ -81,6 +81,8 @@ if g.RECALC_PLOTS:
 
 markdown = Markdown(
     """
+# Confidence Score Profile
+
 This chart helps determine an optimal confidence threshold for the model based on your requirements. Plotting F1-score against confidence thresholds, you can see how changes in the confidence level affect the balance between precision and recall. The maximum of the F1 score indicates the best balance between precision and recall.
 
 *How is it calculated: To build this plot, we cumulatively calculate precision, recall and F1 for each confidence threshold that the model predicts (scores are sorted in descending order), and draw them on the plot, where x-axis is a score, and y-axis is a metric (precision, recall, f1).*
@@ -91,6 +93,12 @@ This chart helps determine an optimal confidence threshold for the model based o
 # table_model_preds = Table(g.m.prediction_table())
 iframe_confidence_score = IFrame("static/03_confidence_score.html", width=620, height=520)
 
+container = Container(
+    widgets=[
+        markdown,
+        iframe_confidence_score,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(

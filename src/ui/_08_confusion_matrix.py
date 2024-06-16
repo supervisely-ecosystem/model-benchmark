@@ -114,6 +114,8 @@ if g.RECALC_PLOTS:
     confusion_matrix_mini()
 markdown = Markdown(
     """
+# Confusion Matrix
+
 # Classification Accuracy
 
 This section investigates cases where the model correctly localizes a bounding box, but predicts a wrong class label. For example, the model may often confuse a motorbike with a bicycle. Confusion matrix is designed to discover these mistakes.
@@ -133,6 +135,13 @@ Confusion matrix helps to find confusions between different classes of objects m
 iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1020, height=1020)
 iframe_confusion_matrix_mini = IFrame("static/08_2_confusion_matrix.html", width=620, height=520)
 
+container = Container(
+    widgets=[
+        markdown,
+        iframe_confusion_matrix,
+        iframe_confusion_matrix_mini,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(

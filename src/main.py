@@ -12,7 +12,7 @@ import src.ui._10_iou_distribution as iou_distribution
 import src.ui._11_calibration_score as calibration_score
 import src.ui._12_perclass as perclass
 import supervisely as sly
-from supervisely.app.widgets import Container
+from supervisely.app.widgets import Card, Container
 
 # import src.ui.input as input
 # import src.ui.output as output
@@ -20,18 +20,26 @@ from supervisely.app.widgets import Container
 
 layout = Container(
     widgets=[
-        overview.card,
-        model_preds.card,
-        conf_score.card,
-        f1_score.card,
-        outcome_counts.card,
-        perclass_metrics.card,
-        pr_curve.card,
-        confusion_matrix.card,
-        frequently_confused.card,
-        iou_distribution.card,
-        calibration_score.card,
-        perclass.card,
+        Card(
+            "Model Benchmark",
+            "Description",
+            content=Container(
+                widgets=[
+                    overview.container,
+                    model_preds.container,
+                    conf_score.container,
+                    f1_score.container,
+                    outcome_counts.container,
+                    perclass_metrics.container,
+                    pr_curve.container,
+                    confusion_matrix.container,
+                    frequently_confused.container,
+                    iou_distribution.container,
+                    calibration_score.container,
+                    perclass.container,
+                ],
+            ),
+        ),
     ]
 )
 

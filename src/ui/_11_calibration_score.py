@@ -268,7 +268,15 @@ iframe_confidence_histogram = IFrame(
     "static/11_04_confidence_histogram.html", width=820, height=520
 )
 
-
+container = Container(
+    widgets=[
+        markdown,
+        iframe_calibration,
+        iframe_confidence_score,
+        iframe_f1score_at_different_iou,
+        iframe_confidence_histogram,
+    ]
+)
 # Input card with all widgets.
 card = Card(
     "Calibration Score",

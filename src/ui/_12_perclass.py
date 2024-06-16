@@ -122,6 +122,8 @@ if g.RECALC_PLOTS:
 
 markdown_1 = Markdown(
     """
+
+# Per-Class Statistics    
 # Per-class Analysis
 
 This section analyzes the model's performance for each specific class. It discovers which classes the model identifies correctly, and which ones it often gets wrong.
@@ -155,6 +157,15 @@ iframe_perclass_ap = IFrame("static/12_01_perclass.html", width=820, height=820)
 iframe_perclass_outcome_counts = IFrame("static/12_02_perclass.html", width=820, height=520)
 iframe_perclass_outcome_counts_stacked = IFrame("static/12_03_perclass.html", width=820, height=520)
 
+container = Container(
+    widgets=[
+        markdown_1,
+        iframe_perclass_ap,
+        markdown_2,
+        iframe_perclass_outcome_counts,
+        iframe_perclass_outcome_counts_stacked,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(

@@ -103,6 +103,8 @@ iframe_pr_perclass = IFrame("static/07_02_pr_curve_perclass.html", width=820, he
 
 markdown = Markdown(
     """
+# PR Curves
+
 PR curve provides a more informative picture of a model's trade-offs between precision and recall, than numerical metrics, like mAP. This helps in selecting a model that best balances precision and recall according to your requirements (e.g., aiming fewer false positives). PR curve visualizes how well the model maximizes true positives while minimizing false positives and false negatives.
 
 More information 🔽 (collapsable)\n
@@ -115,6 +117,14 @@ More information 🔽 (collapsable)\n
 **PR-curve AUC** (area under curve) = 0.94
 """,
     show_border=False,
+)
+
+container = Container(
+    widgets=[
+        markdown,
+        iframe_pr,
+        iframe_pr_perclass,
+    ]
 )
 
 # Input card with all widgets.

@@ -60,6 +60,8 @@ if g.RECALC_PLOTS:
 
 markdown = Markdown(
     """
+# IoU Distribution
+
 # Localization Accuracy (IoU)
 
 This section measures how closely the predicted bounding boxes match the actual (ground truth) bounding boxes.
@@ -81,6 +83,12 @@ A histogram of the Intersection over Union (IoU) scores across detections made b
 )
 iframe_iou_distribution = IFrame("static/10_iou_distribution.html", width=620, height=520)
 
+container = Container(
+    widgets=[
+        markdown,
+        iframe_iou_distribution,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(
@@ -95,13 +103,3 @@ card = Card(
     # content_top_right=change_dataset_button,
     collapsable=True,
 )
-
-
-def clean_static_dir():
-    # * Utility function to clean static directory, it can be securely removed if not needed.
-    static_files = os.listdir(g.STATIC_DIR)
-
-    sly.logger.debug(f"Cleaning static directory. Number of files to delete: {len(static_files)}.")
-
-    for static_file in static_files:
-        os.remove(os.path.join(g.STATIC_DIR, static_file))

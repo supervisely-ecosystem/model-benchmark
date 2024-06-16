@@ -84,6 +84,8 @@ if g.RECALC_PLOTS:
 
 markdown = Markdown(
     """
+# Model Predictions
+    
 Here are samples of model predictions. The images are sorted using our Auto-insights ranking algorithm. The algorithm is trying to gather a diverse set of images that illustrate the model's performance across various scenarios. It takes into account per-image metrics (precision, recall, TP, FP, FN counts), model predictions, and ground truth annotations to provide a comprehensive view of how the model performs in different conditions, revealing the edge cases.\n
 
 You can choose different sorting method:\n
@@ -138,6 +140,14 @@ def handle_table_row(clicked_row: sly.app.widgets.FastTable.ClickedRow):
     handle(grid_gallery, clicked_row.row[0])
     grid_gallery.update_data()
 
+
+container = Container(
+    widgets=[
+        markdown,
+        grid_gallery,
+        table_model_preds,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(

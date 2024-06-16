@@ -54,6 +54,8 @@ if g.RECALC_PLOTS:
 
 markdown = Markdown(
     """
+# Frequently confused class pairs
+
 # Frequently Confused Classes
 
 This chart displays the top-20 pairs of classes (or fewer, depending on the dataset and model performance) that are most frequently confused by the model. These are class pairs where the model correctly localizes a bounding box, but incorrectly predicts one class in place of another. The chart indicates the probability of confusion between different pairs of classes. For instance, if the probability of confusion for the pair “car - truck” is 0.15, this means that when the model predicts 'car' or 'truck', there is a 15% chance that it might mistakenly predict one instead of the other. This percentage indicates how often the model confuses these two classes with each other when attempting to make a prediction.
@@ -65,6 +67,12 @@ This chart displays the top-20 pairs of classes (or fewer, depending on the data
 )
 iframe_frequently_confused = IFrame("static/09_frequently_confused.html", width=620, height=520)
 
+container = Container(
+    widgets=[
+        markdown,
+        iframe_frequently_confused,
+    ]
+)
 
 # Input card with all widgets.
 card = Card(
@@ -79,13 +87,3 @@ card = Card(
     # content_top_right=change_dataset_button,
     collapsable=True,
 )
-
-
-def clean_static_dir():
-    # * Utility function to clean static directory, it can be securely removed if not needed.
-    static_files = os.listdir(g.STATIC_DIR)
-
-    sly.logger.debug(f"Cleaning static directory. Number of files to delete: {len(static_files)}.")
-
-    for static_file in static_files:
-        os.remove(os.path.join(g.STATIC_DIR, static_file))

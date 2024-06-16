@@ -125,6 +125,8 @@ iframe_perclass_R = IFrame("static/06_3_perclass_R.html", width=620, height=520)
 # txt3 = Text("Per-class Recall (Sorted by F1)")
 markdown = Markdown(
     """
+# Per-Class Metrics
+
 ## Precision
 
 This section measures the accuracy of the positive predictions made by the model.
@@ -147,6 +149,15 @@ Recall is averaged across all classes and IoU thresholds [0.50:0.95].*
 **46 of 90 instances were correctly identified by the model.** There are 90 instances in the dataset, 46 of them were correctly identified by the model.
 """,
     show_border=False,
+)
+
+container = Container(
+    widgets=[
+        markdown,
+        iframe_perclass_PR,
+        iframe_perclass_P,
+        iframe_perclass_R,
+    ]
 )
 
 # Input card with all widgets.
