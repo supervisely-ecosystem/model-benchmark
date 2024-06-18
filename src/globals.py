@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
 
+import supervisely as sly
 from dotenv import load_dotenv
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
-
-import supervisely as sly
+from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -24,7 +24,10 @@ cocoGt_path = "APP_DATA/data/cocoGt_remap.json"
 cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
 eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-cocoGt = COCO(cocoGt_path)
+# Remove COCO read logs
+with HiddenCocoPrints():
+    cocoGt = COCO(cocoGt_path)
+
 cocoDt = cocoGt.loadRes(cocoDt_path)
 # cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
 m_full = None
