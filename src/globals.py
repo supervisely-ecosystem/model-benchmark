@@ -6,6 +6,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
+from supervisely.nn.benchmark.metric_provider import MetricProvider
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -27,8 +28,8 @@ eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_
 cocoGt = COCO(cocoGt_path)
 cocoDt = cocoGt.loadRes(cocoDt_path)
 # cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
-m_full = None
-m = None
+m_full : MetricProvider = None
+m : MetricProvider = None
 score_profile = None
 df_down = None
 import pickle
