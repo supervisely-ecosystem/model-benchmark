@@ -1,4 +1,4 @@
 supervisely
-
-# code formatter
-black
+pycocotools
+plotly
+scikit-learn
