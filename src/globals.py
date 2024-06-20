@@ -1,13 +1,6 @@
 import os
 from pathlib import Path
 
-<<<<<<< HEAD
-import supervisely as sly
-from dotenv import load_dotenv
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval, Params
-from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
-=======
 import pandas as pd
 from dotenv import load_dotenv
 from pycocotools.coco import COCO
@@ -16,7 +9,6 @@ from pycocotools.cocoeval import COCOeval, Params
 import supervisely as sly
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
->>>>>>> origin/master
 
 if sly.is_development():
     load_dotenv("local.env")
