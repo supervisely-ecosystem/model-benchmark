@@ -7,6 +7,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
+from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
