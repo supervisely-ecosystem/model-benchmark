@@ -20,6 +20,7 @@ from supervisely.app.widgets import (
     DatasetThumbnail,
     IFrame,
     Markdown,
+    NotificationBox,
     SelectDataset,
     Table,
     Text,
@@ -113,56 +114,108 @@ iframe_perclass_PR = IFrame("static/06_1_perclass_PR.html", width=620, height=52
 iframe_perclass_P = IFrame("static/06_2_perclass_P.html", width=620, height=520)
 iframe_perclass_R = IFrame("static/06_3_perclass_R.html", width=620, height=520)
 
+# txt1 = Text("Per-class Precision and Recall (Sorted by F1)")
+# txt2 = Text("Per-class Precision (Sorted by F1)")
+# txt3 = Text("Per-class Recall (Sorted by F1)")
 
-markdown = Markdown(
-    """
-# Per-Class Metrics
+base_metrics = g.m.base_metrics()
 
-## Precision
 
-This section measures the accuracy of the positive predictions made by the model.
-Precision (?) = 0.66
+markdown_R = Markdown(
+    """## Recall
 
-*(?) - Precision is the portion of correct predictions (true positives) over all model's predictions (true positives + false positives). A precision of 0.8 means that 80% of the instances that the model predicted as positive (e.g., detected objects) are actually positive (correct detections).
-Precision is averaged across all classes and IoU thresholds [0.50:0.95].*
+This section measures the ability of the model to detect **all relevant instances in the dataset**. In other words, this answers the question: “Of all instances in the dataset, how many of them is the model managed to find out?”
 
-**50 of 60 predicted instances are actually correct predictions.** There are 60 instances predicted by the model, 50 of them are actually correct.
-
-## Recall
-
-This section measures the ability of the model to detect all relevant instances in the dataset.
-
-**Recall** (?) = 0.51 (green-red color scale)
-
-*(?) - Recall is the portion of correct predictions (true positives) over all actual instances in the dataset (true positives + false negative). A recall of 0.7 indicates that the model identifies 70% of all actual positives in the dataset.
-Recall is averaged across all classes and IoU thresholds [0.50:0.95].*
-
-**46 of 90 instances were correctly identified by the model.** There are 90 instances in the dataset, 46 of them were correctly identified by the model.
+To measure this, we calculate **Recall**. Recall counts errors, when the model does not detect an object that actually is present in a dataset and should be detected. Recall is calculated as the portion of correct predictions (true positives) over all instances in the dataset (true positives + false negatives).
 """,
     show_border=False,
 )
 
+recall_metric = NotificationBox(
+    f"Recall = {base_metrics['recall']:.4f}",
+    f"The model correctly found <b>{g.m.TP_count} of {g.m.TP_count + g.m.FN_count}</b> total instances in the dataset.",
+)
+
+markdown_R_perclass = Markdown(
+    """### Per-class Recall
+
+This chart further analyzes Recall, breaking it down to each class in separate.
+
+Since the overall recall is calculated as an average across all classes, we provide a chart showing the recall for each individual class. This illustrates how much each class contributes to the overall recall.
+
+_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._
+""",
+    show_border=False,
+)
+
+
+markdown_P = Markdown(
+    """## Precision
+
+This section measures the accuracy of all predictions made by the model. In other words, this answers the question: “Of all predictions made by the model, how many of them are actually correct?”.
+
+To measure this, we calculate **Precision**. Precision counts errors, when the model predicts an object (bounding box), but the image has no objects in this place (or it has another class than the model predicted). Precision is calculated as a portion of correct predictions (true positives) over all model’s predictions (true positives + false positives).
+""",
+    show_border=False,
+)
+
+precision_metric = NotificationBox(
+    f"Precision = {base_metrics['precision']:.4f}",
+    f"The model correctly predicted <b>{g.m.TP_count} of {g.m.TP_count + g.m.FP_count}</b> predictions made by the model in total.",
+)
+
+markdown_P_perclass = Markdown(
+    """### Per-class Precision
+
+This chart further analyzes Precision, breaking it down to each class in separate.
+
+Since the overall precision is computed as an average across all classes, we provide a chart showing the precision for each class individually. This illustrates how much each class contributes to the overall precision.
+
+_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._""",
+    show_border=False,
+)
+
+
+markdown_PR = Markdown(
+    """## Recall vs. Precision
+
+This section compares Precision and Recall on a common graph, identifying **disbalance** between these two.
+
+_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._
+""",
+    show_border=False,
+)
+
+
 container = Container(
     widgets=[
-        markdown,
-        iframe_perclass_PR,
-        iframe_perclass_P,
+        markdown_R,
+        recall_metric,
+        markdown_R_perclass,
         iframe_perclass_R,
+        markdown_P,
+        precision_metric,
+        markdown_P_perclass,
+        iframe_perclass_P,
+        markdown_PR,
+        iframe_perclass_PR,
     ]
 )
 
 # Input card with all widgets.
-card = Card(
-    "Per-Class Metrics",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_perclass_PR,
-            iframe_perclass_P,
-            iframe_perclass_R,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
-)
+# card = Card(
+#     "Per-Class Metrics",
+#     "Description",
+#     content=Container(
+#         widgets=[
+#             markdown_R,
+#             iframe_perclass_PR,
+#             # txt2,
+#             iframe_perclass_P,
+#             # txt3,
+#             iframe_perclass_R,
+#         ]
+#     ),
+#     # content_top_right=change_dataset_button,
+#     collapsable=True,
+# )

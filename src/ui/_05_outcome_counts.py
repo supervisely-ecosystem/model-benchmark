@@ -62,12 +62,9 @@ def outcome_counts():
 # if g.RECALC_PLOTS:
 #     outcome_counts()
 markdown = Markdown(
-    """
-# Outcome Counts
+    """## Outcome Counts
 
-This chart shows the outcomes of predictions – True Positives (TP), False Positives (FP), and False Negatives (FN). The chart helps to assess overall performance of the model in terms of outcomes. For example, if the chart shows a large number of False Negatives, it means that the model is failing to identify many objects that are actually present in the images.
-
-*Hint: You can select a class in the dropdown menu to show outcomes only for the class of interest.*\n
+This chart is used to evaluate the overall model performance by breaking down all predictions into True Positives (TP), False Positives (FP), and False Negatives (FN). This helps to visually assess the type of errors the model often encounters.
 """,
     show_border=False,
 )
@@ -82,15 +79,15 @@ container = Container(
 )
 
 # Input card with all widgets.
-card = Card(
-    "Outcome Counts",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_outcome_counts,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
-)
+# card = Card(
+#     "Outcome Counts",
+#     "Description",
+#     content=Container(
+#         widgets=[
+#             markdown,
+#             iframe_outcome_counts,
+#         ]
+#     ),
+#     # content_top_right=change_dataset_button,
+#     collapsable=True,
+# )
