@@ -52,11 +52,8 @@ def iou_distribution():
     )
     fig.add_annotation(x=mean_iou, y=y1, text=f"Mean IoU: {mean_iou:.2f}", showarrow=False)
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/10_iou_distribution.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    iou_distribution()
 
 markdown = Markdown(
     """

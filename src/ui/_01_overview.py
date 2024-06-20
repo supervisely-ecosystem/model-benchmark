@@ -18,44 +18,20 @@ from supervisely.app.widgets import (
     Card,
     Container,
     DatasetThumbnail,
+    GridGallery,
+    GridGalleryV2,
     IFrame,
     Markdown,
     SelectDataset,
     Text,
 )
-from supervisely.nn.benchmark import metric_provider
-from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
 def overall():
-    from importlib import reload
-
-    reload(metric_provider)
-    m_full = metric_provider.MetricProvider(
-        g.eval_data["matches"],
-        g.eval_data["coco_metrics"],
-        g.eval_data["params"],
-        g.cocoGt,
-        g.cocoDt,
-    )
-    g.m_full = m_full
-
-    score_profile = m_full.confidence_score_profile()
-    g.score_profile = score_profile
-    # score_profile = m_full.confidence_score_profile_v0()
-    f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
-    print(f"F1-Optimal confidence: {f1_optimal_conf:.4f} with f1: {best_f1:.4f}")
-
-    matches_thresholded = metric_provider.filter_by_conf(g.eval_data["matches"], f1_optimal_conf)
-    m = metric_provider.MetricProvider(
-        matches_thresholded, g.eval_data["coco_metrics"], g.eval_data["params"], g.cocoGt, g.cocoDt
-    )
-    # m.base_metrics()
-    g.m = m
     # Overall Metrics
-    base_metrics = m.base_metrics()
+    base_metrics = g.m.base_metrics()
     r = list(base_metrics.values())
-    theta = [metric_provider.METRIC_NAMES[k] for k in base_metrics.keys()]
+    theta = [g.metric_provider.METRIC_NAMES[k] for k in base_metrics.keys()]
     fig = go.Figure()
     fig.add_trace(
         go.Scatterpolar(
@@ -74,50 +50,112 @@ def overall():
         width=600,
         height=500,
     )
+    return fig
 
-    fig.write_html(g.STATIC_DIR + "/01_overview.html")
+
+def explorer(grid_gallery, selected_image_name="000000575815.jpg"):
+    gt_project_id = 38685
+    gt_dataset_id = 91896
+    pred_project_id = 38684
+    pred_dataset_id = 91895
+    diff_project_id = 38914
+    diff_dataset_id = 92290
+
+    gt_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
+    pred_image_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[:5]
+    diff_image_infos = g.api.image.get_list(dataset_id=diff_dataset_id)[:5]
+
+    # gt_image_info = g.api.image.get_info_by_name(gt_dataset_id, selected_image_name)
+    # pred_image_info = g.api.image.get_info_by_name(pred_dataset_id, selected_image_name)
+    # diff_image_info = g.api.image.get_info_by_name(diff_dataset_id, selected_image_name)
+
+    project_metas = [
+        sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
+        for x in [gt_project_id, pred_project_id, diff_project_id]
+    ]
+
+    for gt_image, pred_image, diff_image in zip(gt_image_infos, pred_image_infos, diff_image_infos):
+        image_infos = [gt_image, pred_image, diff_image]
+        ann_infos = [g.api.annotation.download(x.id) for x in image_infos]
+
+        for idx, (image_info, ann_info, project_meta) in enumerate(
+            zip(image_infos, ann_infos, project_metas)
+        ):
+            image_name = image_info.name
+            image_url = image_info.full_storage_url
+            grid_gallery.append(
+                title=image_name,
+                image_url=image_url,
+                annotation_info=ann_info,
+                column_index=idx,
+                project_meta=project_meta,
+            )
 
 
-if g.RECALC_PLOTS:
-    overall()
+# if g.RECALC_PLOTS:
+#     overall()
 
-markdown = Markdown(
-    """
-# Overall Metrics    
 
-Overview of the model performance across a set of key metrics. Greater values are better. \n\n
+checkpoint_name = "YOLOv8-L (COCO 2017 val)"
 
-При наведении на (?) вопросик на бар чартах:\n
-* **Mean Average Precision (mAP)**: A measure of the precision-recall trade-off across different thresholds, reflecting the model's overall detection performance.\n
-* **Precision**: The ratio of true positive detections to the total number of positive detections made by the model, indicating its accuracy in identifying objects correctly.\n
-* **Recall**: The ratio of true positive detections to the total number of actual objects, measuring the model's ability to find all relevant objects.\n
-* **Intersection over Union (IoU)**: The overlap between the predicted bounding boxes and the ground truth, providing insight into the spatial accuracy of detections.\n
-* **Classification Accuracy**: The proportion of correctly classified objects among all detected objects, highlighting the model's capability in correctly labeling objects.\n
-* **Calibration Score**: A metric evaluating how well the predicted probabilities align with the actual outcomes, assessing the confidence calibration of the model. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.\n
-* **Inference Speed**: The number of frames per second (FPS) the model can process, measured with a batch size of 1 on the full COCO dataset on RTX3060 GPU.\n
+model_overview = Markdown(
+    f"""# {checkpoint_name}
 
+## Overview
+
+- **Model**: [YOLOv8-L]()
+- **Year**: 2023
+- **Authors**: ultralytics
+- **Task type**: object detection
+- **Training dataset (?)**: COCO 2017 train
+- **Model classes (?)**: (80): a, b, c, … (collapse)
+- **Model weights (?)**: [/path/to/yolov8l.pt]()
+- **License (?)**: AGPL-3.0
+- [GitHub](https://github.com/ultralytics/ultralytics)
 """,
+    show_border=False,
+)
+
+key_metrics = Markdown(
+    """## Key Metrics
+
+Here, we comprehensively assess the model's performance by presenting a broad set of metrics, including mAP (mean Average Precision), Precision, Recall, IoU (Intersection over Union), Classification Accuracy, Calibration Score, and Inference Speed.
+
+- **Mean Average Precision (mAP)**: An overall measure of detection performance. mAP calculates the average precision across all classes at different levels of IoU thresholds and precision-recall trade-offs.
+- **Precision**: Precision indicates how often the model's predictions are actually correct when it predicts an object. This calculates the ratio of correct detections to the total number of detections made by the model.
+- **Recall**: Recall measures the model's ability to find all relevant objects in a dataset. This calculates the ratio of correct detections to the total number of instances in a dataset.
+- **Intersection over Union (IoU)**: IoU measures how closely predicted bounding boxes match the actual (ground truth) bounding boxes. It is calculated as the area of overlap between the predicted bounding box and the ground truth bounding box, divided by the area of union of these bounding boxes.
+- **Classification Accuracy**: We separately measure the model's capability to correctly classify objects. It’s calculated as a proportion of correctly classified objects among all matched detections. The predicted detection is considered matched if it overlaps a ground true bounding box with IoU higher than 0.5.
+- **Calibration Score**: This score represents the consistency of predicted probabilities (or confidence scores) made by the model, evaluating how well the predicted probabilities align with actual outcomes. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.
+- **Inference Speed**: The number of frames per second (FPS) the model can process, measured with a batch size of 1. The inference speed is important in applications, where real-time object detection is required. Additionally, slower models pour more GPU resources, so their inference cost is higher.
+"""
+,
     show_border=False,
 )
 iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
 
+explorer_grid = GridGalleryV2(columns_number=3, enable_zoom=False)
+explorer(explorer_grid)
+
 container = Container(
     widgets=[
-        markdown,
+        model_overview,
+        key_metrics,
         iframe_overview,
+        explorer_grid,
     ]
 )
 
 # Input card with all widgets.
-card = Card(
-    "Overall Metrics",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_overview,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
-)
+# card = Card(
+#     "Overall Metrics",
+#     "Description",
+#     content=Container(
+#         widgets=[
+#             key_metrics,
+#             iframe_overview,
+#         ]
+#     ),
+#     # content_top_right=change_dataset_button,
+#     collapsable=True,
+# )

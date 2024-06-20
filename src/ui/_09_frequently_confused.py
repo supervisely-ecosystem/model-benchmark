@@ -46,11 +46,8 @@ def frequently_confused():
     )
     fig.update_traces(text=confused_prob.round(2))
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/09_frequently_confused.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    frequently_confused()
 
 markdown = Markdown(
     """

@@ -65,29 +65,29 @@ def calibration_curve():
     )
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/11_01_calibration_curve.html")
+    return fig
 
 
 def confidence_score():
-    score_profile = g.m_full.confidence_score_profile()
-    f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
-    global df_down
+    # score_profile = g.m_full.confidence_score_profile()
+    # f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
+    # global df_down
 
-    df = pd.DataFrame(score_profile)
-    df.columns = ["scores", "Precision", "Recall", "F1"]
+    # df = pd.DataFrame(score_profile)
+    # df.columns = ["scores", "Precision", "Recall", "F1"]
 
-    # downsample
-    if len(df) > 5000:
-        df_down = df.iloc[:: len(df) // 1000]
-    else:
-        df_down = df
+    # # downsample
+    # if len(df) > 5000:
+    #     df_down = df.iloc[:: len(df) // 1000]
+    # else:
+    #     df_down = df
 
     color_map = {
         "Precision": "#1f77b4",
         "Recall": "orange",
     }
     fig = px.line(
-        df_down,
+        g.dfsp_down,
         x="scores",
         y=["Precision", "Recall", "F1"],
         title="Confidence Score Profile",
@@ -101,31 +101,31 @@ def confidence_score():
     # Add vertical line for the best threshold
     fig.add_shape(
         type="line",
-        x0=f1_optimal_conf,
-        x1=f1_optimal_conf,
+        x0=g.f1_optimal_conf,
+        x1=g.f1_optimal_conf,
         y0=0,
-        y1=best_f1,
+        y1=g.best_f1,
         line=dict(color="gray", width=2, dash="dash"),
     )
     fig.add_annotation(
-        x=f1_optimal_conf,
-        y=best_f1 + 0.04,
-        text=f"F1-optimal threshold: {f1_optimal_conf:.2f}",
+        x=g.f1_optimal_conf,
+        y=g.best_f1 + 0.04,
+        text=f"F1-optimal threshold: {g.f1_optimal_conf:.2f}",
         showarrow=False,
     )
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/11_02_confidence_score.html")
+    return fig
 
 
 def f1score_at_different_iou():
-    score_profile = g.m_full.confidence_score_profile()
+    # score_profile = g.m_full.confidence_score_profile()
     f1s = g.m_full.score_profile_f1s
 
     # downsample
     f1s_down = f1s[:, :: f1s.shape[1] // 1000]
     iou_names = list(map(lambda x: str(round(x, 2)), g.m.iouThrs.tolist()))
     df = pd.DataFrame(
-        np.concatenate([df_down["scores"].values[:, None], f1s_down.T], 1),
+        np.concatenate([g.dfsp_down["scores"].values[:, None], f1s_down.T], 1),
         columns=["scores"] + iou_names,
     )
 
@@ -145,7 +145,7 @@ def f1score_at_different_iou():
     for i, iou in enumerate(iou_names):
         argmax_f1 = f1s[i].argmax()
         max_f1 = f1s[i][argmax_f1]
-        score = score_profile["scores"][argmax_f1]
+        score = g.score_profile["scores"][argmax_f1]
         fig.add_annotation(
             x=score,
             y=max_f1,
@@ -158,7 +158,7 @@ def f1score_at_different_iou():
         )
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/11_03_f1score_at_different_iou.html")
+    return fig
 
 
 def confidence_histogram():
@@ -231,14 +231,8 @@ def confidence_histogram():
     fig.update_xaxes(title_text="Confidence Score", range=[0, 1])
     fig.update_yaxes(title_text="Count", range=[0, tp_y.max() * 1.3])
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/11_04_confidence_histogram.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    calibration_curve()
-    confidence_score()
-    f1score_at_different_iou()
-    confidence_histogram()
 
 markdown = Markdown(
     """
