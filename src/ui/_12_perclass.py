@@ -44,7 +44,7 @@ def perclass_ap():
     # fill points
     fig.update_traces(fill="toself")
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/12_01_perclass.html")
+    return fig
 
 
 def perclass_outcome_counts():
@@ -90,7 +90,6 @@ def perclass_outcome_counts():
     )
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/12_02_perclass.html")
 
     # Stacked per-class counts
     data = {
@@ -102,7 +101,7 @@ def perclass_outcome_counts():
     df = pd.DataFrame(data)
 
     color_map = {"TP": "#1fb466", "FN": "#dd3f3f", "FP": "#d5a5a5"}
-    fig = px.bar(
+    fig_ = px.bar(
         df,
         x="category",
         y="count",
@@ -112,12 +111,7 @@ def perclass_outcome_counts():
         color_discrete_map=color_map,
     )
 
-    fig.write_html(g.STATIC_DIR + "/12_03_perclass.html")
-
-
-if g.RECALC_PLOTS:
-    perclass_ap()
-    perclass_outcome_counts()
+    return fig, fig_
 
 
 markdown_1 = Markdown(

@@ -29,24 +29,13 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 
 
 def confidence_score():
-    f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
-    df = pd.DataFrame(g.score_profile)
-    df.columns = ["scores", "Precision", "Recall", "F1"]
-
-    # downsample
-    if len(df) > 5000:
-        df_down = df.iloc[:: len(df) // 1000]
-    else:
-        df_down = df
-
-    g.df_down = df_down
 
     color_map = {
         "Precision": "#1f77b4",
         "Recall": "orange",
     }
     fig = px.line(
-        df_down,
+        g.dfsp_down,
         x="scores",
         y=["Precision", "Recall", "F1"],
         # title="Confidence Score Profile",
@@ -60,24 +49,21 @@ def confidence_score():
     # Add vertical line for the best threshold
     fig.add_shape(
         type="line",
-        x0=f1_optimal_conf,
-        x1=f1_optimal_conf,
+        x0=g.f1_optimal_conf,
+        x1=g.f1_optimal_conf,
         y0=0,
-        y1=best_f1,
+        y1=g.best_f1,
         line=dict(color="gray", width=2, dash="dash"),
     )
     fig.add_annotation(
-        x=f1_optimal_conf,
-        y=best_f1 + 0.04,
-        text=f"F1-optimal threshold: {f1_optimal_conf:.2f}",
+        x=g.f1_optimal_conf,
+        y=g.best_f1 + 0.04,
+        text=f"F1-optimal threshold: {g.f1_optimal_conf:.2f}",
         showarrow=False,
     )
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/03_confidence_score.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    confidence_score()
 
 markdown = Markdown(
     """
@@ -90,7 +76,6 @@ This chart helps determine an optimal confidence threshold for the model based o
 """,
     show_border=False,
 )
-# table_model_preds = Table(g.m.prediction_table())
 iframe_confidence_score = IFrame("static/03_confidence_score.html", width=620, height=520)
 
 container = Container(

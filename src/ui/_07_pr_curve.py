@@ -66,7 +66,7 @@ def _pr_curve():
     )
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/07_01_pr_curve.html")
+    return fig
 
 
 def pr_curve_perclass():
@@ -88,13 +88,8 @@ def pr_curve_perclass():
     fig.update_xaxes(range=[0, 1])
     # fig.show()
 
-    fig.write_html(g.STATIC_DIR + "/07_02_pr_curve_perclass.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    prepare()
-    _pr_curve()
-    pr_curve_perclass()
 
 txt = Text("text")
 # table_model_preds = Table(g.m.prediction_table())

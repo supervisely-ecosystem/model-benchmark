@@ -43,7 +43,6 @@ def grid_gallery_model_preds():
 
     global grid_gallery
     # initialize widgets we will use in UI
-    grid_gallery = GridGalleryV2(columns_number=3)
 
     gt_image_info = g.api.image.get_list(dataset_id=gt_dataset_id)[0]
 
@@ -79,8 +78,8 @@ def grid_gallery_model_preds():
         )
 
 
-if g.RECALC_PLOTS:
-    grid_gallery_model_preds()
+# if g.RECALC_PLOTS:
+#     grid_gallery_model_preds()
 
 markdown = Markdown(
     """
@@ -96,11 +95,12 @@ You can choose different sorting method:\n
 """,
     show_border=False,
 )
+grid_gallery = GridGalleryV2(columns_number=3, enable_zoom=False)
 table_model_preds = FastTable(g.m.prediction_table())
 # iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
 
 
-def handle(grid_gallery, selected_image_name="000000575815.jpg"):
+def handle(_grid_gallery, selected_image_name="000000575815.jpg"):
     gt_project_id = 38685
     gt_dataset_id = 91896
     pred_project_id = 38684
@@ -124,7 +124,7 @@ def handle(grid_gallery, selected_image_name="000000575815.jpg"):
     ):
         image_name = image_info.name
         image_url = image_info.full_storage_url
-        grid_gallery.append(
+        _grid_gallery.append(
             title=image_name,
             image_url=image_url,
             annotation_info=ann_info,

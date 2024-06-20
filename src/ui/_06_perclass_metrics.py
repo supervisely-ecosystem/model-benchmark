@@ -63,7 +63,7 @@ def perclass_PR():
     fig.update_xaxes(title_text="Category")
     fig.update_yaxes(title_text="Value", range=[0, 1])
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/06_1_perclass_PR.html")
+    return fig
 
 
 def perclass_P():
@@ -84,7 +84,7 @@ def perclass_P():
     fig.update_xaxes(title_text="Category")
     fig.update_yaxes(title_text="Precision", range=[0, 1])
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/06_2_perclass_P.html")
+    return fig
 
 
 def perclass_R():
@@ -105,14 +105,7 @@ def perclass_R():
     fig.update_xaxes(title_text="Category")
     fig.update_yaxes(title_text="Recall", range=[0, 1])
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/06_3_perclass_R.html")
-
-
-if g.RECALC_PLOTS:
-    prepare()
-    perclass_PR()
-    perclass_P()
-    perclass_R()
+    return fig
 
 
 # table_model_preds = Table(g.m.prediction_table())
@@ -120,9 +113,7 @@ iframe_perclass_PR = IFrame("static/06_1_perclass_PR.html", width=620, height=52
 iframe_perclass_P = IFrame("static/06_2_perclass_P.html", width=620, height=520)
 iframe_perclass_R = IFrame("static/06_3_perclass_R.html", width=620, height=520)
 
-# txt1 = Text("Per-class Precision and Recall (Sorted by F1)")
-# txt2 = Text("Per-class Precision (Sorted by F1)")
-# txt3 = Text("Per-class Recall (Sorted by F1)")
+
 markdown = Markdown(
     """
 # Per-Class Metrics
@@ -168,9 +159,7 @@ card = Card(
         widgets=[
             markdown,
             iframe_perclass_PR,
-            # txt2,
             iframe_perclass_P,
-            # txt3,
             iframe_perclass_R,
         ]
     ),

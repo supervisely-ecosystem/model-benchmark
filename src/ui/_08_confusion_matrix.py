@@ -61,7 +61,7 @@ def _confusion_matrix():
         fig.update_traces(text=confusion_matrix, texttemplate="%{text}")
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/08_1_confusion_matrix.html")
+    return fig
 
 
 def confusion_matrix_mini():
@@ -105,13 +105,9 @@ def confusion_matrix_mini():
         fig.update_traces(text=confusion_matrix_mini, texttemplate="%{text}")
 
     # fig.show()
-    fig.write_html(g.STATIC_DIR + "/08_2_confusion_matrix.html")
+    return fig
 
 
-if g.RECALC_PLOTS:
-    # prepare()
-    _confusion_matrix()
-    confusion_matrix_mini()
 markdown = Markdown(
     """
 # Confusion Matrix

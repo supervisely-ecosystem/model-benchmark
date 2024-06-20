@@ -34,7 +34,7 @@ def f1_score():
     f1s_down = f1s[:, :: f1s.shape[1] // 1000]
     iou_names = list(map(lambda x: str(round(x, 2)), g.m.iouThrs.tolist()))
     df = pd.DataFrame(
-        np.concatenate([g.df_down["scores"].values[:, None], f1s_down.T], 1),
+        np.concatenate([g.dfsp_down["scores"].values[:, None], f1s_down.T], 1),
         columns=["scores"] + iou_names,
     )
     fig = px.line(
@@ -65,11 +65,8 @@ def f1_score():
             ay=-30,
         )
 
-    fig.write_html(g.STATIC_DIR + "/04_f1_score.html")
+    return fig
 
-
-if g.RECALC_PLOTS:
-    f1_score()
 
 markdown = Markdown(
     """

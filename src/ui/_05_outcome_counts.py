@@ -56,11 +56,11 @@ def outcome_counts():
     fig.update_xaxes(title_text="Count")
     fig.update_yaxes(tickangle=-90)
 
-    fig.write_html(g.STATIC_DIR + "/05_outcome_counts.html")
+    return fig
 
 
-if g.RECALC_PLOTS:
-    outcome_counts()
+# if g.RECALC_PLOTS:
+#     outcome_counts()
 markdown = Markdown(
     """
 # Outcome Counts
