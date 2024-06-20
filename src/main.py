@@ -68,8 +68,8 @@ right_content = Card(
     ),
 )
 
-layout = Container(
+layout2 = Container(
     widgets=[Sidebar(left_content=left_content, right_content=right_content, width_percent=20)]
 )
 
-app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
+app = sly.Application(layout=layout2, static_dir=g.STATIC_DIR)
