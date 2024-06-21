@@ -34,10 +34,10 @@ with HiddenCocoPrints():
 
 cocoDt = cocoGt.loadRes(cocoDt_path)
 # cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
-m_full: MetricProvider = None
-m: MetricProvider = None
-score_profile = None
-df_down = None
+# m_full: MetricProvider = None
+# m: MetricProvider = None
+# score_profile = None
+# df_down = None
 import pickle
 
 with open(eval_data_path, "rb") as f:

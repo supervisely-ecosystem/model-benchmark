@@ -53,7 +53,7 @@ def overall():
     return fig
 
 
-def explorer(grid_gallery, selected_image_name="000000575815.jpg"):
+def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
     gt_project_id = 38685
     gt_dataset_id = 91896
     pred_project_id = 38684
@@ -65,15 +65,18 @@ def explorer(grid_gallery, selected_image_name="000000575815.jpg"):
     pred_image_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[:5]
     diff_image_infos = g.api.image.get_list(dataset_id=diff_dataset_id)[:5]
 
-    # gt_image_info = g.api.image.get_info_by_name(gt_dataset_id, selected_image_name)
-    # pred_image_info = g.api.image.get_info_by_name(pred_dataset_id, selected_image_name)
-    # diff_image_info = g.api.image.get_info_by_name(diff_dataset_id, selected_image_name)
+    # gt_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
+    # pred_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
+    # diff_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
 
     project_metas = [
         sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
         for x in [gt_project_id, pred_project_id, diff_project_id]
     ]
-
+    # project_metas = [
+    #     sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
+    #     for x in [gt_project_id, gt_project_id, gt_project_id]
+    # ]
     for gt_image, pred_image, diff_image in zip(gt_image_infos, pred_image_infos, diff_image_infos):
         image_infos = [gt_image, pred_image, diff_image]
         ann_infos = [g.api.annotation.download(x.id) for x in image_infos]
@@ -128,8 +131,7 @@ Here, we comprehensively assess the model's performance by presenting a broad se
 - **Classification Accuracy**: We separately measure the model's capability to correctly classify objects. It’s calculated as a proportion of correctly classified objects among all matched detections. The predicted detection is considered matched if it overlaps a ground true bounding box with IoU higher than 0.5.
 - **Calibration Score**: This score represents the consistency of predicted probabilities (or confidence scores) made by the model, evaluating how well the predicted probabilities align with actual outcomes. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.
 - **Inference Speed**: The number of frames per second (FPS) the model can process, measured with a batch size of 1. The inference speed is important in applications, where real-time object detection is required. Additionally, slower models pour more GPU resources, so their inference cost is higher.
-"""
-,
+""",
     show_border=False,
 )
 iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
