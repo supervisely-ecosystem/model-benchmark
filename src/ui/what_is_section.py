@@ -1,5 +1,4 @@
 import src.globals as g
-import src.ui.settings as settings
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -11,7 +10,6 @@ from supervisely.app.widgets import (
     SelectDataset,
     Text,
 )
-
 
 markdown = Markdown(
     """## What is YOLOv8 model? (collapse)

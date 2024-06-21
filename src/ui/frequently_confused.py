@@ -11,7 +11,6 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-import src.ui.settings as settings
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,

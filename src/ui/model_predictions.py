@@ -11,7 +11,6 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-import src.ui.settings as settings
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -34,8 +33,8 @@ def grid_gallery_model_preds():
     gt_dataset_id = 91896
     pred_project_id = 38684
     pred_dataset_id = 91895
-    diff_project_id = 38740
-    diff_dataset_id = 92002
+    diff_project_id = 38914
+    diff_dataset_id = 92290
 
     gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=gt_project_id))
     pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=pred_project_id))
@@ -115,12 +114,12 @@ def handle(_grid_gallery, selected_image_name="000000575815.jpg"):
     gt_dataset_id = 91896
     pred_project_id = 38684
     pred_dataset_id = 91895
-    diff_project_id = 38740
-    diff_dataset_id = 92002
+    diff_project_id = 38914
+    diff_dataset_id = 92290
 
     gt_image_info = g.api.image.get_info_by_name(gt_dataset_id, selected_image_name)
     pred_image_info = g.api.image.get_info_by_name(pred_dataset_id, selected_image_name)
-    diff_image_info = g.api.image.get_info_by_name(diff_dataset_id, "000000575815.jpg")
+    diff_image_info = g.api.image.get_info_by_name(diff_dataset_id, selected_image_name)
 
     images_infos = [gt_image_info, pred_image_info, diff_image_info]
     anns_infos = [g.api.annotation.download(x.id) for x in images_infos]
