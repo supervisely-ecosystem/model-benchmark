@@ -238,8 +238,6 @@ Reliability diagram, also known as a Calibration curve, helps in understanding w
 1. **The curve is above the Ideal Line (Underconfidence):** If the calibration curve is consistently above the ideal line, this indicates underconfidence. The model’s predictions are more correct than the confidence scores suggest. For example, if the model predicts a detection with 70% confidence but, empirically, 90% of such detections are correct, the model is underconfident.
 2. **The curve is below the Ideal Line (Overconfidence):** If the calibration curve is below the ideal line, the model exhibits overconfidence. This means it is too sure of its predictions. For instance, if the model predicts with 80% confidence but only 60% of these predictions are correct, it is overconfident.
 
-
-
 To quantify the calibration score, we calculate **Expected Calibration Error (ECE).** Intuitively, ECE can be viewed as a deviation of the Calibration curve from the Perfectly calibrated line. When ECE is high, we can not trust predicted probabilities so much.
 
 **| Expected Calibration Error (ECE)** (?) **= 0.15**

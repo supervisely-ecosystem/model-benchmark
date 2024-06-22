@@ -94,8 +94,14 @@ left_content = Card(
                 "Frequently confused class pairs",
                 scroll_to_widget=frequently_confused.container.widget_id,
             ),
+            Text(
+                "Localization Accuracy (IoU)", scroll_to_widget=iou_distribution.container.widget_id
+            ),
             Text("IoU Distribution", scroll_to_widget=iou_distribution.container.widget_id),
-            Text("Calibration Score", scroll_to_widget=calibration_score.container.widget_id),
+            Text(
+                "Calibration Score",
+                scroll_to_widget=calibration_score.markdown_calibration_score.widget_id,
+            ),
             Text("Per-Class Statistics", scroll_to_widget=perclass.container.widget_id),
         ]
     ),

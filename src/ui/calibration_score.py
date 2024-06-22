@@ -15,6 +15,7 @@ import supervisely as sly
 from supervisely.app.widgets import (
     Button,
     Card,
+    Collapse,
     Container,
     DatasetThumbnail,
     IFrame,
@@ -233,26 +234,36 @@ def confidence_histogram():
     return fig
 
 
-markdown = Markdown(
+markdown_calibration_score = Markdown(
     """
-# Calibration Score
+## Calibration Score
 
-In some applications, it's not enough for a model to make correct predictions; we also need to trust the probabilities associated with those predictions. Well-calibrated probabilities enable better decision-making based on the model's output.. 
-
-**Expected Calibration Error** (ECE) (?) = **0.15**
-
-Expected Calibration Error measures how well a model's predicted probabilities reflect the true likelihood of prediction. For example, if the model assigns an 0.9 confidence score to a detected pedestrian, but in reality, the detection is correct only 50% of the time, the model is overconfident. 
-
-## Reliability Diagram
-
-Reliability diagram, also known as Calibration curve, helps in understanding whether the confidence scores of detections accurately represent the true probability of a correct detection. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.
-
-If the model assigns 90% confidence score to a detection, but in reality, the detection is correct only 50% of the time, the model is overconfident. Overconfident models may give a false sense of security, leading to risky decisions. For instance, an autonomous vehicle might rely too heavily on an overconfident detection and fail to take necessary precautions. The other side is Underconfidence. Underconfident models assign lower confidence scores than the actual likelihood of their predictions being correct. In applications like autonomous driving, underconfidence can reduce the system's efficiency. For example, the vehicle might brake or slow down too often, affecting the overall performance.
+This section analyzes confidence scores (or predicted probabilities) that the model generates for every predicted bounding box.
 """,
     show_border=False,
+    height=80,
 )
-# table_model_preds = Table(g.m.prediction_table())
-iframe_calibration = IFrame("static/11_01_calibration_curve.html", width=720, height=520)
+collapsable_calibaration = Collapse(
+    [
+        Collapse.Item(
+            "What is calibration?",
+            "What is calibration?",
+            Container(
+                [
+                    Markdown(
+                        "In some applications, it's crucial for a model not only to make accurate predictions but also to provide reliable **confidence levels**. A well-calibrated model aligns its confidence scores with the actual likelihood of predictions being correct. For example, if a model claims 90% confidence for predictions but they are correct only half the time, it is **overconfident**. Conversely, **underconfidence** occurs when a model assigns lower confidence scores than the actual likelihood of its predictions. In the context of autonomous driving, this might cause a vehicle to brake or slow down too frequently, reducing travel efficiency and potentially causing traffic issues.",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        )
+    ]
+)
+text_info = Text(
+    "To evaluate the calibration, we draw a <b>Reliability Diagram</b> and calculate <b>Expected Calibration Error</b> (ECE) and <b>Maximum Calibration Error</b> (MCE).",
+    "info",
+)
+iframe_calibration_curve = IFrame("static/11_01_calibration_curve.html", width=720, height=520)
 iframe_confidence_score = IFrame("static/11_02_confidence_score.html", width=820, height=520)
 iframe_f1score_at_different_iou = IFrame(
     "static/11_03_f1score_at_different_iou.html", width=820, height=520
@@ -260,29 +271,26 @@ iframe_f1score_at_different_iou = IFrame(
 iframe_confidence_histogram = IFrame(
     "static/11_04_confidence_histogram.html", width=820, height=520
 )
+markdown_calibration_score = Markdown(
+    """
+## Calibration Score
 
+This section analyzes confidence scores (or predicted probabilities) that the model generates for every predicted bounding box.
+
+🔽(Collapse) **What is calibration?**
+
+In some applications, it's crucial for a model not only to make accurate predictions but also to provide reliable **confidence levels**. A well-calibrated model aligns its confidence scores with the actual likelihood of predictions being correct. For example, if a model claims 90% confidence for predictions but they are correct only half the time, it is **overconfident**. Conversely, **underconfidence** occurs when a model assigns lower confidence scores than the actual likelihood of its predictions. In the context of autonomous driving, this might cause a vehicle to brake or slow down too frequently, reducing travel efficiency and potentially causing traffic issues.
+""",
+    show_border=False,
+)
 container = Container(
     widgets=[
-        markdown,
-        iframe_calibration,
+        markdown_calibration_score,
+        collapsable_calibaration,
+        iframe_calibration_curve,
+        text_info,
         iframe_confidence_score,
         iframe_f1score_at_different_iou,
         iframe_confidence_histogram,
     ]
-)
-# Input card with all widgets.
-card = Card(
-    "Calibration Score",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_calibration,
-            iframe_confidence_score,
-            iframe_f1score_at_different_iou,
-            iframe_confidence_histogram,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
 )
