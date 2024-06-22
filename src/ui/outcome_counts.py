@@ -87,17 +87,3 @@ container = Container(
         iframe_outcome_counts,
     ]
 )
-
-# Input card with all widgets.
-# card = Card(
-#     "Outcome Counts",
-#     "Description",
-#     content=Container(
-#         widgets=[
-#             markdown,
-#             iframe_outcome_counts,
-#         ]
-#     ),
-#     # content_top_right=change_dataset_button,
-#     collapsable=True,
-# )

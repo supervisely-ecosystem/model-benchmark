@@ -109,20 +109,11 @@ def confusion_matrix_mini():
 
 markdown = Markdown(
     """
-# Confusion Matrix
-
-# Classification Accuracy
-
-This section investigates cases where the model correctly localizes a bounding box, but predicts a wrong class label. For example, the model may often confuse a motorbike with a bicycle. Confusion matrix is designed to discover these mistakes.
-
-**Classification Accuracy**: 0.96
-
-**52 of 54 total predictions were misclassified by the model.**
-
 ## Confusion Matrix
 
-Confusion matrix helps to find confusions between different classes of objects made by the model. Each row of the matrix represents the instances in a predicted class, while each column represents the instances in an actual class. The diagonal elements represent the number of correct predictions for each class (True Positives), and the off-diagonal elements show the misclassifications.
-
+Confusion matrix helps to find the number of confusions between different classes made by the model. 
+Each row of the matrix represents the instances in a ground truth class, while each column represents the instances in a predicted class. 
+The diagonal elements represent the number of correct predictions for each class (True Positives), and the off-diagonal elements show misclassifications.
 """,
     show_border=False,
 )
@@ -134,7 +125,7 @@ container = Container(
     widgets=[
         markdown,
         iframe_confusion_matrix,
-        iframe_confusion_matrix_mini,
+        # iframe_confusion_matrix_mini,
     ]
 )
 

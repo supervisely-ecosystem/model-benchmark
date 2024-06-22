@@ -19,7 +19,9 @@ from supervisely.app.widgets import (
     DatasetThumbnail,
     IFrame,
     Markdown,
+    OneOf,
     SelectDataset,
+    Switch,
     Text,
 )
 from supervisely.nn.benchmark import metric_provider
@@ -33,53 +35,85 @@ def frequently_confused():
     confused_df = g.m.frequently_confused(confusion_matrix, topk_pairs=20)
     confused_name_pairs = confused_df["category_pair"]
     confused_prob = confused_df["probability"]
+    confused_cnt = confused_df["count"]
     x_labels = [f"{pair[0]} - {pair[1]}" for pair in confused_name_pairs]
-    fig = go.Figure()
-    fig.add_trace(
-        go.Bar(x=x_labels, y=confused_prob, marker=dict(color=confused_prob, colorscale="Reds"))
-    )
-    fig.update_layout(
-        # title="Frequently confused class pairs",
-        xaxis_title="Class pair",
-        yaxis_title="Probability",
-    )
-    fig.update_traces(text=confused_prob.round(2))
-    # fig.show()
-    return fig
+    figs = []
+    for y_labels in (confused_prob, confused_cnt):
+        fig = go.Figure()
+        fig.add_trace(
+            go.Bar(x=x_labels, y=y_labels, marker=dict(color=confused_prob, colorscale="Reds"))
+        )
+        fig.update_layout(
+            # title="Frequently confused class pairs",
+            xaxis_title="Class pair",
+            yaxis_title=y_labels.name.capitalize(),
+        )
+        fig.update_traces(text=y_labels.round(2))
+        figs.append(fig)
+    return figs
 
+
+df = g.m.frequently_confused(g.m.confusion_matrix(), topk_pairs=20)
+pair = df["category_pair"][0]
+prob = df["probability"][0]
+# markdown_1 = Markdown(
+#     f"""
+# ### Frequently Confused Classes
+
+# This chart displays the most frequently confused pairs of classes.
+# In general, it finds out which classes visually seem very similar to the model.
+# """,
+#     show_border=False,
+#     height=50,
+# )
+# info = Text(
+#     f"""The chart calculates the <b>probability of confusion</b> between different pairs of classes. For instance, if the probability of confusion for the pair “{pair[0]} - {pair[1]}” is {prob:.2f}, this means that when the model predicts either “{pair[0]}” or “{pair[1]}”, there is a {prob*100:.0f}% chance that the model might mistakenly predict one instead of the other.""",
+#     status="info",
+# )
+# markdown_2 = Markdown(
+#     f"""
+# The measure is class-symmetric, meaning that the probability of confusing a {pair[0]} with a {pair[1]} is equal to the probability of confusing a {pair[1]} with a {pair[0]}.
+# """,
+#     show_border=False,
+#     height=50,
+# )
 
 markdown = Markdown(
-    """
-# Frequently confused class pairs
+    f"""
+### Frequently Confused Classes
 
-# Frequently Confused Classes
+This chart displays the most frequently confused pairs of classes.
+In general, it finds out which classes visually seem very similar to the model.
 
-This chart displays the top-20 pairs of classes (or fewer, depending on the dataset and model performance) that are most frequently confused by the model. These are class pairs where the model correctly localizes a bounding box, but incorrectly predicts one class in place of another. The chart indicates the probability of confusion between different pairs of classes. For instance, if the probability of confusion for the pair “car - truck” is 0.15, this means that when the model predicts 'car' or 'truck', there is a 15% chance that it might mistakenly predict one instead of the other. This percentage indicates how often the model confuses these two classes with each other when attempting to make a prediction.
+The chart calculates the **probability of confusion** between different pairs of classes. 
+For instance, if the probability of confusion for the pair “{pair[0]} - {pair[1]}” is {prob:.2f}, this means that when the model predicts either “{pair[0]}” or “{pair[1]}”, there is a {prob*100:.0f}% chance that the model might mistakenly predict one instead of the other.
 
-*switch: Probability / Amount*
-
+The measure is class-symmetric, meaning that the probability of confusing a {pair[0]} with a {pair[1]} is equal to the probability of confusing a {pair[1]} with a {pair[0]}.
 """,
     show_border=False,
 )
-iframe_frequently_confused = IFrame("static/09_frequently_confused.html", width=620, height=520)
+
+iframe_frequently_confused_prob = IFrame(
+    "static/09_01_frequently_confused.html", width=620, height=520
+)
+iframe_frequently_confused_count = IFrame(
+    "static/09_02_frequently_confused.html", width=620, height=520
+)
+
+swicther = Switch(
+    switched=True,
+    on_text="Probability",
+    off_text="Count",
+    width=100,
+    on_content=iframe_frequently_confused_prob,
+    off_content=iframe_frequently_confused_count,
+)
+switch_one_of = OneOf(swicther)
 
 container = Container(
     widgets=[
         markdown,
-        iframe_frequently_confused,
+        swicther,
+        switch_one_of,
     ]
-)
-
-# Input card with all widgets.
-card = Card(
-    "Frequently confused class pairs",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_frequently_confused,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
 )

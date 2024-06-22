@@ -15,10 +15,12 @@ import supervisely as sly
 from supervisely.app.widgets import (
     Button,
     Card,
+    Collapse,
     Container,
     DatasetThumbnail,
     IFrame,
     Markdown,
+    NotificationBox,
     SelectDataset,
     Table,
     Text,
@@ -37,7 +39,7 @@ def _pr_curve():
     fig = px.line(
         x=g.m.recThrs,
         y=pr_curve.mean(-1),
-        title="Precision-Recall Curve",
+        # title="Precision-Recall Curve",
         labels={"x": "Recall", "y": "Precision"},
         width=600,
         height=500,
@@ -76,7 +78,7 @@ def pr_curve_perclass():
         df,
         x=g.m.recThrs,
         y=df.columns,
-        title="Precision-Recall Curve per Class",
+        # title="Precision-Recall Curve per Class",
         labels={"x": "Recall", "value": "Precision", "variable": "Category"},
         color_discrete_sequence=px.colors.qualitative.Prism,
         width=800,
@@ -90,48 +92,81 @@ def pr_curve_perclass():
     return fig
 
 
-txt = Text("text")
-# table_model_preds = Table(g.m.prediction_table())
 iframe_pr = IFrame("static/07_01_pr_curve.html", width=620, height=520)
 iframe_pr_perclass = IFrame("static/07_02_pr_curve_perclass.html", width=820, height=620)
 
-markdown = Markdown(
+markdown_pr_curve = Markdown(
     """
-# PR Curves
+## Precision-Recall Curve
 
-PR curve provides a more informative picture of a model's trade-offs between precision and recall, than numerical metrics, like mAP. This helps in selecting a model that best balances precision and recall according to your requirements (e.g., aiming fewer false positives). PR curve visualizes how well the model maximizes true positives while minimizing false positives and false negatives.
-
-More information 🔽 (collapsable)\n
-*For instance, a point at recall = 0.3, and precision = 0.8 shows that on all dataset the model is capable of finding only 30% of instances, while maintaining a precision of 80%. Usually, they are the most confident instances.*
-
-*A system with high recall but low precision returns many results, but most of its predictions are incorrect or redundant (false positive). A system with high precision but low recall is just the opposite, returning very few results, most of its predictions are correct. An ideal system with high precision and high recall will return many results, with all results predicted correctly.*
-
-*показать идеальный график, написать что чем ближе к идеальному графику, тем лучше модель.*
-
-**PR-curve AUC** (area under curve) = 0.94
+Precision-Recall curve is an overall performance indicator. It helps to visually assess both precision and recall for all predictions made by the model on the whole dataset. This gives you an understanding of how precision changes as you attempt to increase recall, providing a view of **trade-offs between precision and recall**. Ideally, a high-quality model will maintain strong precision as recall increases. This means that as you move from left to right on the curve, there should not be a significant drop in precision. Such a model is capable of finding many relevant instances, maintaining a high level of precision.
 """,
     show_border=False,
 )
 
-container = Container(
-    widgets=[
-        markdown,
-        iframe_pr,
-        iframe_pr_perclass,
+collapsables = Collapse(
+    [
+        Collapse.Item(
+            "About Trade-offs between precision and recall",
+            "About Trade-offs between precision and recall",
+            Container(
+                [
+                    Markdown(
+                        "A system with high recall but low precision returns many results, but most of its predictions are incorrect or redundant (false positive). A system with high precision but low recall is just the opposite, returning very few results, most of its predictions are correct. An ideal system with high precision and high recall will return many results, with all results predicted correctly.",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        ),
+        Collapse.Item(
+            "What is PR curve?",
+            "What is PR curve?",
+            Container(
+                [
+                    Markdown(
+                        "Imagine you sort all the predictions by their confidence scores from highest to lowest and write it down in a table. As you iterate over each sorted prediction, you classify it as a true positive (TP) or a false positive (FP). For each prediction, you then calculate the cumulative precision and recall so far. Each prediction is plotted as a point on a graph, with recall on the x-axis and precision on the y-axis. Now you have a plot very similar to the PR-curve, but it appears as a zig-zag curve due to variations as you move from one prediction to the next.",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        ),
     ]
 )
 
-# Input card with all widgets.
-card = Card(
-    "PR Curves",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_pr,
-            iframe_pr_perclass,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
+markdown_forming_actual_pr = Markdown(
+    """#### Forming the Actual PR Curve
+
+The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. 
+This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.
+""",
+    show_border=False,
+)
+
+notibox_forming_actual_pr = NotificationBox(
+    "Forming the Actual PR Curve",
+    "The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.",
+)
+
+
+notibox_map = NotificationBox(f"mAP = {g.m.base_metrics()['mAP']:.2f}")
+
+markdown_pr_by_class = Markdown(
+    """
+### Precision-Recall Curve by Class
+
+In this plot, you can evaluate PR curve for each class individually.""",
+    show_border=False,
+    height=70,
+)
+
+container = Container(
+    widgets=[
+        markdown_pr_curve,
+        collapsables,
+        notibox_forming_actual_pr,
+        notibox_map,
+        iframe_pr,
+        markdown_pr_by_class,
+        iframe_pr_perclass,
+    ]
 )

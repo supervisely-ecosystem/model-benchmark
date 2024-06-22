@@ -1,5 +1,6 @@
 import src.globals as g
 import src.ui.calibration_score as calibration_score
+import src.ui.classification_accuracy as classification_accuracy
 import src.ui.confusion_matrix as confusion_matrix
 import src.ui.detailed_metrics as detailed_metrics
 import src.ui.frequently_confused as frequently_confused
@@ -11,8 +12,8 @@ import src.ui.model_predictions as model_preds
 import src.ui.outcome_counts as outcome_counts
 import src.ui.overview as overview
 import src.ui.perclass as perclass
-import src.ui.perclass_metrics as perclass_metrics
 import src.ui.pr_curve as pr_curve
+import src.ui.pr_metrics as pr_metrics
 import src.ui.what_is_section as what_is
 import supervisely as sly
 from supervisely.app import StateJson
@@ -27,12 +28,12 @@ model_preds.grid_gallery_model_preds()
 # fig.write_html(g.STATIC_DIR + "/04_f1_score.html")
 fig = outcome_counts.outcome_counts()
 fig.write_html(g.STATIC_DIR + "/05_outcome_counts.html")
-perclass_metrics.prepare()
-fig = perclass_metrics.perclass_PR()
+pr_metrics.prepare()
+fig = pr_metrics.perclass_PR()
 fig.write_html(g.STATIC_DIR + "/06_1_perclass_PR.html")
-fig = perclass_metrics.perclass_P()
+fig = pr_metrics.perclass_P()
 fig.write_html(g.STATIC_DIR + "/06_2_perclass_P.html")
-fig = perclass_metrics.perclass_R()
+fig = pr_metrics.perclass_R()
 fig.write_html(g.STATIC_DIR + "/06_3_perclass_R.html")
 pr_curve.prepare()
 fig = pr_curve._pr_curve()
@@ -43,8 +44,9 @@ fig = confusion_matrix._confusion_matrix()
 fig.write_html(g.STATIC_DIR + "/08_1_confusion_matrix.html")
 fig = confusion_matrix.confusion_matrix_mini()
 fig.write_html(g.STATIC_DIR + "/08_2_confusion_matrix.html")
-fig = frequently_confused.frequently_confused()
-fig.write_html(g.STATIC_DIR + "/09_frequently_confused.html")
+fig1, fig2 = frequently_confused.frequently_confused()
+fig1.write_html(g.STATIC_DIR + "/09_01_frequently_confused.html")
+fig2.write_html(g.STATIC_DIR + "/09_02_frequently_confused.html")
 fig = iou_distribution.iou_distribution()
 fig.write_html(g.STATIC_DIR + "/10_iou_distribution.html")
 fig = calibration_score.calibration_curve()
@@ -67,7 +69,9 @@ left_content = Card(
     title="Table of Content",
     content=Container(
         [
-            Text("Overall Metrics", scroll_to_widget=overview.container.widget_id),
+            Text("Overview", scroll_to_widget=overview.markdown_overview.widget_id),
+            Text("Key Metrics", scroll_to_widget=overview.markdown_key_metrics.widget_id),
+            Text("Explore Predictions", scroll_to_widget=overview.markdown_explorer.widget_id),
             Text("Model Predictions", scroll_to_widget=model_preds.container.widget_id),
             Text("What is", scroll_to_widget=what_is.container.widget_id),
             Text("Detailed Metrics", scroll_to_widget=detailed_metrics.container.widget_id),
@@ -77,8 +81,14 @@ left_content = Card(
             #     scroll_to_widget=f1_score.container.widget_id,
             # ),
             Text("Outcome Counts", scroll_to_widget=outcome_counts.container.widget_id),
-            Text("Per-Class Metrics", scroll_to_widget=perclass_metrics.container.widget_id),
-            Text("PR Curves", scroll_to_widget=pr_curve.container.widget_id),
+            Text("Recall", scroll_to_widget=pr_metrics.markdown_R.widget_id),
+            Text("Precision", scroll_to_widget=pr_metrics.markdown_P.widget_id),
+            Text("Recall vs Precision", scroll_to_widget=pr_metrics.markdown_PR.widget_id),
+            Text("Precision-Recall Curve", scroll_to_widget=pr_curve.container.widget_id),
+            Text(
+                "Classification Accuracy",
+                scroll_to_widget=classification_accuracy.container.widget_id,
+            ),
             Text("Confusion Matrix", scroll_to_widget=confusion_matrix.container.widget_id),
             Text(
                 "Frequently confused class pairs",
@@ -103,8 +113,9 @@ right_content = Card(
             # conf_score.container,
             # f1_score.container,
             outcome_counts.container,
-            perclass_metrics.container,
+            pr_metrics.container,
             pr_curve.container,
+            classification_accuracy.container,
             confusion_matrix.container,
             frequently_confused.container,
             iou_distribution.container,

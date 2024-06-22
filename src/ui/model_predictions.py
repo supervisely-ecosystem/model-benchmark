@@ -158,18 +158,3 @@ container = Container(
         table_model_preds,
     ]
 )
-
-# Input card with all widgets.
-# card = Card(
-#     "Model Predictions",
-#     "Description",
-#     content=Container(
-#         widgets=[
-#             markdown,
-#             grid_gallery,
-#             table_model_preds,
-#         ]
-#     ),
-#     # content_top_right=change_dataset_button,
-#     collapsable=True,
-# )

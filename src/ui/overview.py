@@ -100,7 +100,7 @@ def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"
 
 checkpoint_name = "YOLOv8-L (COCO 2017 val)"
 
-model_overview = Markdown(
+markdown_overview = Markdown(
     f"""# {checkpoint_name}
 
 ## Overview
@@ -118,7 +118,7 @@ model_overview = Markdown(
     show_border=False,
 )
 
-key_metrics = Markdown(
+markdown_key_metrics = Markdown(
     """## Key Metrics
 
 Here, we comprehensively assess the model's performance by presenting a broad set of metrics, including mAP (mean Average Precision), Precision, Recall, IoU (Intersection over Union), Classification Accuracy, Calibration Score, and Inference Speed.
@@ -133,30 +133,22 @@ Here, we comprehensively assess the model's performance by presenting a broad se
 """,
     show_border=False,
 )
+markdown_explorer = Markdown(
+    """## Explore Predictions
+""",
+    show_border=False,
+)
 iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
 
-explorer_grid = GridGalleryV2(columns_number=3, enable_zoom=False)
-explorer(explorer_grid)
+gridgallery_explorer = GridGalleryV2(columns_number=3, enable_zoom=False)
+explorer(gridgallery_explorer)
 
 container = Container(
     widgets=[
-        model_overview,
-        key_metrics,
+        markdown_overview,
+        markdown_key_metrics,
         iframe_overview,
-        explorer_grid,
+        markdown_explorer,
+        gridgallery_explorer,
     ]
 )
-
-# Input card with all widgets.
-# card = Card(
-#     "Overall Metrics",
-#     "Description",
-#     content=Container(
-#         widgets=[
-#             key_metrics,
-#             iframe_overview,
-#         ]
-#     ),
-#     # content_top_right=change_dataset_button,
-#     collapsable=True,
-# )

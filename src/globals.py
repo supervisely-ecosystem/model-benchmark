@@ -18,11 +18,9 @@ if sly.is_development():
 
 api = sly.Api.from_env()
 
-
 SLY_APP_DATA_DIR = sly.app.get_data_dir()
 STATIC_DIR = os.path.join(SLY_APP_DATA_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
-
 
 cocoGt_path = "APP_DATA/data/cocoGt_remap.json"
 cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
@@ -33,11 +31,6 @@ with HiddenCocoPrints():
     cocoGt = COCO(cocoGt_path)
 
 cocoDt = cocoGt.loadRes(cocoDt_path)
-# cocoEval = COCOeval(cocoGt, cocoDt, 'bbox')
-# m_full: MetricProvider = None
-# m: MetricProvider = None
-# score_profile = None
-# df_down = None
 import pickle
 
 with open(eval_data_path, "rb") as f:

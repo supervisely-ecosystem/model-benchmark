@@ -113,10 +113,6 @@ iframe_perclass_PR = IFrame("static/06_1_perclass_PR.html", width=620, height=52
 iframe_perclass_P = IFrame("static/06_2_perclass_P.html", width=620, height=520)
 iframe_perclass_R = IFrame("static/06_3_perclass_R.html", width=620, height=520)
 
-# txt1 = Text("Per-class Precision and Recall (Sorted by F1)")
-# txt2 = Text("Per-class Precision (Sorted by F1)")
-# txt3 = Text("Per-class Recall (Sorted by F1)")
-
 base_metrics = g.m.base_metrics()
 
 
@@ -200,21 +196,3 @@ container = Container(
         iframe_perclass_PR,
     ]
 )
-
-# Input card with all widgets.
-# card = Card(
-#     "Per-Class Metrics",
-#     "Description",
-#     content=Container(
-#         widgets=[
-#             markdown_R,
-#             iframe_perclass_PR,
-#             # txt2,
-#             iframe_perclass_P,
-#             # txt3,
-#             iframe_perclass_R,
-#         ]
-#     ),
-#     # content_top_right=change_dataset_button,
-#     collapsable=True,
-# )
