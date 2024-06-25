@@ -19,6 +19,7 @@ from supervisely.app.widgets import (
     DatasetThumbnail,
     IFrame,
     Markdown,
+    PlotlyChart,
     SelectDataset,
     Table,
     Text,
@@ -75,11 +76,8 @@ This chart is used to evaluate the overall model performance by breaking down al
 """,
     show_border=False,
 )
-iframe_outcome_counts = IFrame("static/05_outcome_counts.html", width=620, height=320)
+# iframe_outcome_counts = IFrame("static/05_outcome_counts.html", width=620, height=320)
+fig = outcome_counts()
+plotly_outcome_counts = PlotlyChart(fig)
 
-container = Container(
-    widgets=[
-        markdown,
-        iframe_outcome_counts,
-    ]
-)
+container = Container(widgets=[markdown, plotly_outcome_counts])
