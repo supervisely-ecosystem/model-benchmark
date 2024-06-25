@@ -20,6 +20,7 @@ from supervisely.app.widgets import (
     DatasetThumbnail,
     IFrame,
     Markdown,
+    NotificationBox,
     SelectDataset,
     Table,
     Text,
@@ -28,7 +29,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-def calibration_curve():
+def reliability_diagram():
     # Calibration curve (only positive predictions)
     true_probs, pred_probs = g.m_full.calibration_metrics.calibration_curve()
 
@@ -54,7 +55,7 @@ def calibration_curve():
     )
 
     fig.update_layout(
-        title="Calibration Curve (only positive predictions)",
+        # title="Calibration Curve (only positive predictions)",
         xaxis_title="Confidence Score",
         yaxis_title="Fraction of True Positives",
         legend=dict(x=0.6, y=0.1),
@@ -69,18 +70,6 @@ def calibration_curve():
 
 
 def confidence_score():
-    # score_profile = g.m_full.confidence_score_profile()
-    # f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
-    # global df_down
-
-    # df = pd.DataFrame(score_profile)
-    # df.columns = ["scores", "Precision", "Recall", "F1"]
-
-    # # downsample
-    # if len(df) > 5000:
-    #     df_down = df.iloc[:: len(df) // 1000]
-    # else:
-    #     df_down = df
 
     color_map = {
         "Precision": "#1f77b4",
@@ -90,7 +79,7 @@ def confidence_score():
         g.dfsp_down,
         x="scores",
         y=["Precision", "Recall", "F1"],
-        title="Confidence Score Profile",
+        # title="Confidence Score Profile",
         labels={"value": "Value", "variable": "Metric", "scores": "Confidence Score"},
         width=None,
         height=500,
@@ -133,7 +122,7 @@ def f1score_at_different_iou():
         df,
         x="scores",
         y=iou_names,
-        title="F1-Score at different IoU Thresholds",
+        # title="F1-Score at different IoU Thresholds",
         labels={"value": "Value", "variable": "IoU threshold", "scores": "Confidence Score"},
         color_discrete_sequence=px.colors.sequential.Viridis,
         width=None,
@@ -161,7 +150,7 @@ def f1score_at_different_iou():
     return fig
 
 
-def confidence_histogram():
+def confidence_distribution():
     f1_optimal_conf, best_f1 = g.m_full.get_f1_optimal_conf()
 
     # Histogram of confidence scores (TP vs FP)
@@ -243,7 +232,7 @@ This section analyzes confidence scores (or predicted probabilities) that the mo
     show_border=False,
     height=80,
 )
-collapsable_calibaration = Collapse(
+collapsable_what_is_calibration_curve = Collapse(
     [
         Collapse.Item(
             "What is calibration?",
@@ -263,34 +252,111 @@ text_info = Text(
     "To evaluate the calibration, we draw a <b>Reliability Diagram</b> and calculate <b>Expected Calibration Error</b> (ECE) and <b>Maximum Calibration Error</b> (MCE).",
     "info",
 )
-iframe_calibration_curve = IFrame("static/11_01_calibration_curve.html", width=720, height=520)
-iframe_confidence_score = IFrame("static/11_02_confidence_score.html", width=820, height=520)
-iframe_f1score_at_different_iou = IFrame(
-    "static/11_03_f1score_at_different_iou.html", width=820, height=520
-)
-iframe_confidence_histogram = IFrame(
-    "static/11_04_confidence_histogram.html", width=820, height=520
-)
-markdown_calibration_score = Markdown(
+markdown_reliability_diagram = Markdown(
     """
-## Calibration Score
+### Reliability Diagram
 
-This section analyzes confidence scores (or predicted probabilities) that the model generates for every predicted bounding box.
-
-🔽(Collapse) **What is calibration?**
-
-In some applications, it's crucial for a model not only to make accurate predictions but also to provide reliable **confidence levels**. A well-calibrated model aligns its confidence scores with the actual likelihood of predictions being correct. For example, if a model claims 90% confidence for predictions but they are correct only half the time, it is **overconfident**. Conversely, **underconfidence** occurs when a model assigns lower confidence scores than the actual likelihood of its predictions. In the context of autonomous driving, this might cause a vehicle to brake or slow down too frequently, reducing travel efficiency and potentially causing traffic issues.
+Reliability diagram, also known as a Calibration curve, helps in understanding whether the confidence scores of detections accurately represent the true probability of a correct detection. A well-calibrated model means that when it predicts a detection with, say, 80% confidence, approximately 80% of those predictions should actually be correct.
 """,
     show_border=False,
 )
+collapsable_reliabilty_diagram = Collapse(
+    [
+        Collapse.Item(
+            "How to interpret the Calibration curve",
+            "How to interpret the Calibration curve",
+            Container(
+                [
+                    Markdown(
+                        """
+1. **The curve is above the Ideal Line (Underconfidence):** If the calibration curve is consistently above the ideal line, this indicates underconfidence. The model’s predictions are more correct than the confidence scores suggest. For example, if the model predicts a detection with 70% confidence but, empirically, 90% of such detections are correct, the model is underconfident.
+2. **The curve is below the Ideal Line (Overconfidence):** If the calibration curve is below the ideal line, the model exhibits overconfidence. This means it is too sure of its predictions. For instance, if the model predicts with 80% confidence but only 60% of these predictions are correct, it is overconfident.
+
+To quantify the calibration score, we calculate **Expected Calibration Error (ECE).** Intuitively, ECE can be viewed as a deviation of the Calibration curve from the Perfectly calibrated line. When ECE is high, we can not trust predicted probabilities so much.
+""",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        )
+    ]
+)
+notibox_ECE = NotificationBox(f"Expected Calibration Error (ECE) = <b>add ECE</b>")
+iframe_reliability_diagram = IFrame("static/11_01_reliability_diagram.html", width=720, height=520)
+markdown_confidence_score_1 = Markdown(
+    """
+## Confidence Score Profile
+
+This section is going deeper in analyzing confidence scores. It gives you an intuition about how these scores are distributed and helps to find the best confidence threshold suitable for your task or application.
+""",
+    show_border=False,
+)
+iframe_confidence_score = IFrame("static/11_02_confidence_score.html", width=820, height=520)
+markdown_confidence_score_2 = Markdown(
+    """
+This chart provides a comprehensive view about predicted confidence scores. It is used to determine an optimal _confidence threshold_ based on your requirements.
+
+The plot shows you what the metrics will be if you choose a specific confidence threshold. For example, if you set the threshold to 0.32, you can see on the plot what the precision, recall and f1-score will be for this threshold.
+""",
+    show_border=False,
+)
+collapsable_howto_plot_confidence_score = Collapse(
+    [
+        Collapse.Item(
+            "How to plot Confidence score Profile?",
+            "How to plot Confidence score Profile?",
+            Container(
+                [
+                    Markdown(
+                        """
+First, we sort all predictions by confidence scores from highest to lowest. As we iterate over each prediction we calculate the cumulative precision, recall and f1-score so far. Each prediction is plotted as a point on a graph, with a confidence score on the x-axis and one of three metrics on the y-axis (precision, recall, f1-score).
+
+**To find an optimal threshold**, you can select the confidence score under the maximum of the f1-score line. This f1-optimal threshold ensures the balance between precision and recall. You can select a threshold according to your desired trade-offs.
+""",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        )
+    ]
+)
+base_metric = g.m.base_metrics()
+notibox_F1 = NotificationBox(f"F1-optimal confidence threshold = {base_metric['f1']:.2f}")
+iframe_f1score_at_different_iou = IFrame(
+    "static/11_03_f1score_at_different_iou.html", width=820, height=520
+)
+markdown_confidence_distribution = Markdown(
+    """
+### Confidence Distribution
+    
+This graph helps to assess whether high confidence scores correlate with correct detections (True Positives) and whether low confidence scores are mostly associated with incorrect detections (False Positives).
+
+Additionally, it provides a view of how predicted probabilities are distributed. Whether the model skews probabilities to lower or higher values, leading to imbalance?
+
+Ideally, the histogram for TP predictions should have higher confidence, indicating that the model is sure about its correct predictions, and the FP predictions should have very low confidence, or not present at all.
+""",
+    show_border=False,
+)
+iframe_confidence_distribution = IFrame(
+    "static/11_04_confidence_distribution.html", width=820, height=520
+)
+
 container = Container(
     widgets=[
         markdown_calibration_score,
-        collapsable_calibaration,
-        iframe_calibration_curve,
+        collapsable_what_is_calibration_curve,
         text_info,
+        markdown_reliability_diagram,
+        collapsable_reliabilty_diagram,
+        notibox_ECE,
+        iframe_reliability_diagram,
+        markdown_confidence_score_1,
         iframe_confidence_score,
+        markdown_confidence_score_2,
+        collapsable_howto_plot_confidence_score,
+        notibox_F1,
         iframe_f1score_at_different_iou,
-        iframe_confidence_histogram,
+        markdown_confidence_distribution,
+        iframe_confidence_distribution,
     ]
 )

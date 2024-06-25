@@ -59,7 +59,6 @@ def outcome_counts():
     )
     fig.update_layout(
         barmode="stack",
-        # title="Outcome Counts",
         width=600,
         height=300,
     )
@@ -69,8 +68,6 @@ def outcome_counts():
     return fig
 
 
-# if g.RECALC_PLOTS:
-#     outcome_counts()
 markdown = Markdown(
     """## Outcome Counts
 
@@ -78,7 +75,6 @@ This chart is used to evaluate the overall model performance by breaking down al
 """,
     show_border=False,
 )
-# table_model_preds = Table(g.m.prediction_table())
 iframe_outcome_counts = IFrame("static/05_outcome_counts.html", width=620, height=320)
 
 container = Container(

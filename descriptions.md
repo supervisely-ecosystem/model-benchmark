@@ -284,8 +284,6 @@ This section analyzes the model's performance for all classes in a common plot. 
 
 A quick visual comparison of the model performance across all classes. Each axis in the chart represents a different class, and the distance to the center indicates the Average Precision for that class.
 
-
-
 ### Outcome Counts by Class
 
 This chart breaks down all predictions into True Positives (TP), False Positives (FP), and False Negatives (FN) by classes. This helps to visually assess the type of errors the model often encounters for each class.

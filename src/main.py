@@ -49,14 +49,14 @@ fig1.write_html(g.STATIC_DIR + "/09_01_frequently_confused.html")
 fig2.write_html(g.STATIC_DIR + "/09_02_frequently_confused.html")
 fig = iou_distribution.iou_distribution()
 fig.write_html(g.STATIC_DIR + "/10_iou_distribution.html")
-fig = calibration_score.calibration_curve()
-fig.write_html(g.STATIC_DIR + "/11_01_calibration_curve.html")
+fig = calibration_score.reliability_diagram()
+fig.write_html(g.STATIC_DIR + "/11_01_reliability_diagram.html")
 fig = calibration_score.confidence_score()
 fig.write_html(g.STATIC_DIR + "/11_02_confidence_score.html")
 fig = calibration_score.f1score_at_different_iou()
 fig.write_html(g.STATIC_DIR + "/11_03_f1score_at_different_iou.html")
-fig = calibration_score.confidence_histogram()
-fig.write_html(g.STATIC_DIR + "/11_04_confidence_histogram.html")
+fig = calibration_score.confidence_distribution()
+fig.write_html(g.STATIC_DIR + "/11_04_confidence_distribution.html")
 fig = perclass.perclass_ap()
 fig.write_html(g.STATIC_DIR + "/12_01_perclass.html")
 fig, fig_ = perclass.perclass_outcome_counts()
@@ -102,7 +102,29 @@ left_content = Card(
                 "Calibration Score",
                 scroll_to_widget=calibration_score.markdown_calibration_score.widget_id,
             ),
-            Text("Per-Class Statistics", scroll_to_widget=perclass.container.widget_id),
+            Text(
+                "Reliability Diagram",
+                scroll_to_widget=calibration_score.markdown_reliability_diagram.widget_id,
+            ),
+            Text(
+                "Confidence Score Profile",
+                scroll_to_widget=calibration_score.markdown_confidence_score_1.widget_id,
+            ),
+            Text(
+                "Confidence Distribution",
+                scroll_to_widget=calibration_score.markdown_confidence_distribution.widget_id,
+            ),
+            Text(
+                "Average Precision by Class", scroll_to_widget=perclass.markdown_class_ap.widget_id
+            ),
+            Text(
+                "Outcome Counts by Class",
+                scroll_to_widget=perclass.markdown_class_outcome_counts.widget_id,
+            ),
+            Text(
+                "Inference speed",
+                scroll_to_widget=perclass.markdown_inference_speed_1.widget_id,
+            ),
         ]
     ),
 )
