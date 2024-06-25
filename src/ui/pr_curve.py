@@ -106,45 +106,36 @@ Precision-Recall curve is an overall performance indicator. It helps to visually
 
 collapsables = Collapse(
     [
-        Collapse.Item(
-            "About Trade-offs between precision and recall",
-            "About Trade-offs between precision and recall",
-            Container(
-                [
-                    Markdown(
-                        "A system with high recall but low precision returns many results, but most of its predictions are incorrect or redundant (false positive). A system with high precision but low recall is just the opposite, returning very few results, most of its predictions are correct. An ideal system with high precision and high recall will return many results, with all results predicted correctly.",
-                        show_border=False,
-                    ),
-                ]
-            ),
-        ),
+        # Collapse.Item(
+        #     "About Trade-offs between precision and recall",
+        #     "About Trade-offs between precision and recall",
+        #     Container(
+        #         [
+        #             Markdown(
+        #                 "A system with high recall but low precision returns many results, but most of its predictions are incorrect or redundant (false positive). A system with high precision but low recall is just the opposite, returning very few results, most of its predictions are correct. An ideal system with high precision and high recall will return many results, with all results predicted correctly.",
+        #                 show_border=False,
+        #             ),
+        #         ]
+        #     ),
+        # ),
         Collapse.Item(
             "What is PR curve?",
             "What is PR curve?",
             Container(
                 [
                     Markdown(
-                        "Imagine you sort all the predictions by their confidence scores from highest to lowest and write it down in a table. As you iterate over each sorted prediction, you classify it as a true positive (TP) or a false positive (FP). For each prediction, you then calculate the cumulative precision and recall so far. Each prediction is plotted as a point on a graph, with recall on the x-axis and precision on the y-axis. Now you have a plot very similar to the PR-curve, but it appears as a zig-zag curve due to variations as you move from one prediction to the next.",
+                        """
+Imagine you sort all the predictions by their confidence scores from highest to lowest and write it down in a table. As you iterate over each sorted prediction, you classify it as a true positive (TP) or a false positive (FP). For each prediction, you then calculate the cumulative precision and recall so far. Each prediction is plotted as a point on a graph, with recall on the x-axis and precision on the y-axis. Now you have a plot very similar to the PR-curve, but it appears as a zig-zag curve due to variations as you move from one prediction to the next.
+                        
+**Forming the Actual PR Curve**: The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. 
+This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.
+""",
                         show_border=False,
                     ),
                 ]
             ),
         ),
     ]
-)
-
-markdown_forming_actual_pr = Markdown(
-    """#### Forming the Actual PR Curve
-
-The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. 
-This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.
-""",
-    show_border=False,
-)
-
-notibox_forming_actual_pr = NotificationBox(
-    "Forming the Actual PR Curve",
-    "The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.",
 )
 
 
@@ -163,7 +154,6 @@ container = Container(
     widgets=[
         markdown_pr_curve,
         collapsables,
-        notibox_forming_actual_pr,
         notibox_map,
         iframe_pr,
         markdown_pr_by_class,

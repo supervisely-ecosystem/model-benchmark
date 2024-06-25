@@ -20,6 +20,7 @@ from supervisely.app.widgets import (
     IFrame,
     Markdown,
     OneOf,
+    RadioGroup,
     SelectDataset,
     Switch,
     Text,
@@ -100,20 +101,18 @@ iframe_frequently_confused_count = IFrame(
     "static/09_02_frequently_confused.html", width=620, height=520
 )
 
-swicther = Switch(
-    switched=True,
-    on_text="Probability",
-    off_text="Count",
-    width=100,
-    on_content=iframe_frequently_confused_prob,
-    off_content=iframe_frequently_confused_count,
+radio_group = RadioGroup(
+    [
+        RadioGroup.Item("probabilty", "Probability", content=iframe_frequently_confused_prob),
+        RadioGroup.Item("count", "Count", content=iframe_frequently_confused_count),
+    ]
 )
-switch_one_of = OneOf(swicther)
+radio_one_of = OneOf(radio_group)
 
 container = Container(
     widgets=[
         markdown,
-        swicther,
-        switch_one_of,
+        radio_group,
+        radio_one_of,
     ]
 )

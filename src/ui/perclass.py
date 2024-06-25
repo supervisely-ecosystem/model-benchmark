@@ -22,6 +22,7 @@ from supervisely.app.widgets import (
     Markdown,
     NotificationBox,
     OneOf,
+    RadioGroup,
     SelectDataset,
     Switch,
     Table,
@@ -133,50 +134,65 @@ A quick visual comparison of the model performance across all classes. Each axis
     show_border=False,
 )
 iframe_perclass_ap = IFrame("static/12_01_perclass.html", width=820, height=820)
-markdown_class_outcome_counts = Markdown(
+markdown_class_outcome_counts_1 = Markdown(
     """
 ### Outcome Counts by Class
 
 This chart breaks down all predictions into True Positives (TP), False Positives (FP), and False Negatives (FN) by classes. This helps to visually assess the type of errors the model often encounters for each class.
 """,
     show_border=False,
+    height=80,
 )
 
-iframe_perclass_outcome_counts_relative = IFrame(
+collapsable_normalization = Collapse(
+    [
+        Collapse.Item(
+            "Normalization",
+            "Normalization",
+            Container(
+                [
+                    Markdown(
+                        "By default, the normalization is used for better intraclass comparison. The total outcome counts are divided by the number of ground truth instances of the corresponding class. This is useful, because the sum of TP + FN always gives 1.0, representing all ground truth instances for a class, that gives a visual understanding of what portion of instances the model detected. So, if a green bar (TP outcomes) reaches the 1.0, this means the model is managed to predict all objects for the class. Everything that is higher than 1.0 corresponds to False Positives, i.e, redundant predictions. You can turn off the normalization switching to absolute values.",
+                        show_border=False,
+                    ),
+                ]
+            ),
+        )
+    ]
+)
+
+iframe_perclass_outcome_counts_normalized = IFrame(
     "static/12_02_perclass.html", width=820, height=520
 )
 iframe_perclass_outcome_counts_absolute = IFrame(
     "static/12_03_perclass.html", width=820, height=520
 )
 
-swicther = Switch(
-    switched=True,
-    on_text="Relative",
-    off_text="Absolute",
-    width=100,
-    on_content=iframe_perclass_outcome_counts_relative,
-    off_content=iframe_perclass_outcome_counts_absolute,
+radio_group = RadioGroup(
+    [
+        RadioGroup.Item(
+            "normalized", "Normalized", content=iframe_perclass_outcome_counts_normalized
+        ),
+        RadioGroup.Item("absolute", "Absolute", content=iframe_perclass_outcome_counts_absolute),
+    ]
 )
-switch_one_of = OneOf(swicther)
+radio_one_of = OneOf(radio_group)
 
-markdown_normalization = Markdown(
+markdown_class_outcome_counts_2 = Markdown(
     """
-#### Normalization
-
-By default, the normalization is used for better intraclass comparison. The total outcome counts are divided by the number of ground truth instances of the corresponding class. This is useful, because the sum of TP + FN always gives 1.0, representing all ground truth instances for a class, that gives a visual understanding of what portion of instances the model detected. So, if a green bar (TP outcomes) reaches the 1.0, this means the model is managed to predict all objects for the class. Everything that is higher than 1.0 corresponds to False Positives, i.e, redundant predictions. You can turn off the normalization switching to absolute values.
-
-_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._
-_switch to absolute values:_
+_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._ You can choose the plot view between normalized and absolute values:
 """,
     show_border=False,
+    height=50,
 )
 container = Container(
     widgets=[
         markdown_class_ap,
         iframe_perclass_ap,
-        markdown_class_outcome_counts,
-        swicther,
-        switch_one_of,
-        markdown_normalization,
+        markdown_class_outcome_counts_1,
+        collapsable_normalization,
+        markdown_class_outcome_counts_2,
+        radio_group,
+        radio_one_of,
     ]
 )

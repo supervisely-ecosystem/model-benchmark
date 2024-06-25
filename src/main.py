@@ -64,54 +64,61 @@ left_content = Card(
     content=Container(
         [
             Text("Overview", scroll_to_widget=overview.markdown_overview.widget_id),
-            Text("Key Metrics", scroll_to_widget=overview.markdown_key_metrics.widget_id),
+            Text("  Key Metrics", scroll_to_widget=overview.markdown_key_metrics.widget_id),
             Text("Explore Predictions", scroll_to_widget=overview.markdown_explorer.widget_id),
-            Text("Model Predictions", scroll_to_widget=model_preds.container.widget_id),
-            Text("What is YOLOv8", scroll_to_widget=what_is.container.widget_id),
+            Text("  Model Predictions", scroll_to_widget=model_preds.container.widget_id),
+            Text("  What is YOLOv8", scroll_to_widget=what_is.markdown_what_is.widget_id),
+            Text("  Experts Insights", scroll_to_widget=what_is.markdown_experts.widget_id),
+            Text("  How To Use", scroll_to_widget=what_is.markdown_how_to_use.widget_id),
             Text("Detailed Metrics", scroll_to_widget=detailed_metrics.container.widget_id),
-            Text("Outcome Counts", scroll_to_widget=outcome_counts.container.widget_id),
-            Text("Recall", scroll_to_widget=pr_metrics.markdown_R.widget_id),
-            Text("Precision", scroll_to_widget=pr_metrics.markdown_P.widget_id),
-            Text("Recall vs Precision", scroll_to_widget=pr_metrics.markdown_PR.widget_id),
-            Text("Precision-Recall Curve", scroll_to_widget=pr_curve.container.widget_id),
+            Text("  Outcome Counts", scroll_to_widget=outcome_counts.container.widget_id),
+            Text("  Recall", scroll_to_widget=pr_metrics.markdown_R.widget_id),
+            Text("  Precision", scroll_to_widget=pr_metrics.markdown_P.widget_id),
+            Text("  Recall vs Precision", scroll_to_widget=pr_metrics.markdown_PR.widget_id),
+            Text("  Precision-Recall Curve", scroll_to_widget=pr_curve.markdown_pr_curve.widget_id),
             Text(
-                "Classification Accuracy",
+                "      PR Curve by Class", scroll_to_widget=pr_curve.markdown_pr_by_class.widget_id
+            ),
+            Text(
+                "   Classification Accuracy",
                 scroll_to_widget=classification_accuracy.container.widget_id,
             ),
-            Text("Confusion Matrix", scroll_to_widget=confusion_matrix.container.widget_id),
+            Text("      Confusion Matrix", scroll_to_widget=confusion_matrix.container.widget_id),
             Text(
-                "Frequently Confused Class Pairs",
+                "       Frequently Confused Class Pairs",
                 scroll_to_widget=frequently_confused.container.widget_id,
             ),
             Text(
-                "Localization Accuracy (IoU)", scroll_to_widget=iou_distribution.container.widget_id
+                "   Localization Accuracy (IoU)",
+                scroll_to_widget=iou_distribution.container.widget_id,
             ),
-            Text("IoU Distribution", scroll_to_widget=iou_distribution.container.widget_id),
+            Text("      IoU Distribution", scroll_to_widget=iou_distribution.container.widget_id),
             Text(
-                "Calibration Score",
-                scroll_to_widget=calibration_score.markdown_calibration_score.widget_id,
+                "   Calibration Score",
+                scroll_to_widget=calibration_score.markdown_calibration_score_1.widget_id,
             ),
             Text(
-                "Reliability Diagram",
+                "       Reliability Diagram",
                 scroll_to_widget=calibration_score.markdown_reliability_diagram.widget_id,
             ),
             Text(
-                "Confidence Score Profile",
+                "   Confidence Score Profile",
                 scroll_to_widget=calibration_score.markdown_confidence_score_1.widget_id,
             ),
             Text(
-                "Confidence Distribution",
+                "       Confidence Distribution",
                 scroll_to_widget=calibration_score.markdown_confidence_distribution.widget_id,
             ),
             Text(
-                "Average Precision by Class", scroll_to_widget=perclass.markdown_class_ap.widget_id
+                "       Average Precision by Class",
+                scroll_to_widget=perclass.markdown_class_ap.widget_id,
             ),
             Text(
-                "Outcome Counts by Class",
-                scroll_to_widget=perclass.markdown_class_outcome_counts.widget_id,
+                "       Outcome Counts by Class",
+                scroll_to_widget=perclass.markdown_class_outcome_counts_1.widget_id,
             ),
             Text(
-                "Inference Speed",
+                "   Inference Speed",
                 scroll_to_widget=inference_speed.markdown_inference_speed_1.widget_id,
             ),
         ]

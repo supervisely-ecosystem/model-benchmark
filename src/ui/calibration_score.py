@@ -223,7 +223,7 @@ def confidence_distribution():
     return fig
 
 
-markdown_calibration_score = Markdown(
+markdown_calibration_score_1 = Markdown(
     """
 ## Calibration Score
 
@@ -248,10 +248,17 @@ collapsable_what_is_calibration_curve = Collapse(
         )
     ]
 )
-text_info = Text(
-    "To evaluate the calibration, we draw a <b>Reliability Diagram</b> and calculate <b>Expected Calibration Error</b> (ECE) and <b>Maximum Calibration Error</b> (MCE).",
-    "info",
+markdown_calibration_score_2 = Markdown(
+    """
+To evaluate the calibration, we draw a <b>Reliability Diagram</b> and calculate <b>Expected Calibration Error</b> (ECE) and <b>Maximum Calibration Error</b> (MCE).
+""",
+    show_border=False,
+    height=30,
 )
+# text_info = Text(
+#     "To evaluate the calibration, we draw a <b>Reliability Diagram</b> and calculate <b>Expected Calibration Error</b> (ECE) and <b>Maximum Calibration Error</b> (MCE).",
+#     "info",
+# )
 markdown_reliability_diagram = Markdown(
     """
 ### Reliability Diagram
@@ -343,9 +350,9 @@ iframe_confidence_distribution = IFrame(
 
 container = Container(
     widgets=[
-        markdown_calibration_score,
+        markdown_calibration_score_1,
         collapsable_what_is_calibration_curve,
-        text_info,
+        markdown_calibration_score_2,
         markdown_reliability_diagram,
         collapsable_reliabilty_diagram,
         notibox_ECE,
