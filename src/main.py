@@ -4,6 +4,7 @@ import src.ui.classification_accuracy as classification_accuracy
 import src.ui.confusion_matrix as confusion_matrix
 import src.ui.detailed_metrics as detailed_metrics
 import src.ui.frequently_confused as frequently_confused
+import src.ui.inference_speed as inference_speed
 import src.ui.iou_distribution as iou_distribution
 import src.ui.model_predictions as model_preds
 
@@ -73,7 +74,7 @@ left_content = Card(
             Text("Key Metrics", scroll_to_widget=overview.markdown_key_metrics.widget_id),
             Text("Explore Predictions", scroll_to_widget=overview.markdown_explorer.widget_id),
             Text("Model Predictions", scroll_to_widget=model_preds.container.widget_id),
-            Text("What is", scroll_to_widget=what_is.container.widget_id),
+            Text("What is YOLOv8", scroll_to_widget=what_is.container.widget_id),
             Text("Detailed Metrics", scroll_to_widget=detailed_metrics.container.widget_id),
             # Text("Confidence Score Profile", scroll_to_widget=conf_score.container.widget_id),
             # Text(
@@ -91,7 +92,7 @@ left_content = Card(
             ),
             Text("Confusion Matrix", scroll_to_widget=confusion_matrix.container.widget_id),
             Text(
-                "Frequently confused class pairs",
+                "Frequently Confused Class Pairs",
                 scroll_to_widget=frequently_confused.container.widget_id,
             ),
             Text(
@@ -122,8 +123,8 @@ left_content = Card(
                 scroll_to_widget=perclass.markdown_class_outcome_counts.widget_id,
             ),
             Text(
-                "Inference speed",
-                scroll_to_widget=perclass.markdown_inference_speed_1.widget_id,
+                "Inference Speed",
+                scroll_to_widget=inference_speed.markdown_inference_speed_1.widget_id,
             ),
         ]
     ),
@@ -149,6 +150,7 @@ right_content = Card(
             iou_distribution.container,
             calibration_score.container,
             perclass.container,
+            inference_speed.container,
         ],
     ),
 )
