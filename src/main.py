@@ -7,9 +7,6 @@ import src.ui.frequently_confused as frequently_confused
 import src.ui.inference_speed as inference_speed
 import src.ui.iou_distribution as iou_distribution
 import src.ui.model_predictions as model_preds
-
-# import src.ui._03_confidence_score as conf_score
-# import src.ui._04_f1_score as f1_score
 import src.ui.outcome_counts as outcome_counts
 import src.ui.overview as overview
 import src.ui.perclass as perclass
@@ -23,10 +20,6 @@ from supervisely.app.widgets import Card, Container, Sidebar, Text
 fig = overview.overall()
 fig.write_html(g.STATIC_DIR + "/01_overview.html")
 model_preds.grid_gallery_model_preds()
-# fig = conf_score.confidence_score()
-# fig.write_html(g.STATIC_DIR + "/03_confidence_score.html")
-# fig = f1_score.f1_score()
-# fig.write_html(g.STATIC_DIR + "/04_f1_score.html")
 fig = outcome_counts.outcome_counts()
 fig.write_html(g.STATIC_DIR + "/05_outcome_counts.html")
 pr_metrics.prepare()
@@ -76,11 +69,6 @@ left_content = Card(
             Text("Model Predictions", scroll_to_widget=model_preds.container.widget_id),
             Text("What is YOLOv8", scroll_to_widget=what_is.container.widget_id),
             Text("Detailed Metrics", scroll_to_widget=detailed_metrics.container.widget_id),
-            # Text("Confidence Score Profile", scroll_to_widget=conf_score.container.widget_id),
-            # Text(
-            #     "F1-Score at different IoU Thresholds",
-            #     scroll_to_widget=f1_score.container.widget_id,
-            # ),
             Text("Outcome Counts", scroll_to_widget=outcome_counts.container.widget_id),
             Text("Recall", scroll_to_widget=pr_metrics.markdown_R.widget_id),
             Text("Precision", scroll_to_widget=pr_metrics.markdown_P.widget_id),
@@ -139,8 +127,6 @@ right_content = Card(
             model_preds.container,
             what_is.container,
             detailed_metrics.container,
-            # conf_score.container,
-            # f1_score.container,
             outcome_counts.container,
             pr_metrics.container,
             pr_curve.container,
