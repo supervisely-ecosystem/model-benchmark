@@ -1,4 +1,6 @@
 import os
+import json
+import pickle
 from pathlib import Path
 
 import pandas as pd
@@ -10,6 +12,9 @@ import supervisely as sly
 from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
+
+from src.click_data import ClickData
+from src.utils import IdMapper
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -26,18 +31,21 @@ cocoGt_path = "APP_DATA/data/cocoGt_remap.json"
 cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
 eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
+with open(cocoGt_path, 'r') as f:
+    cocoGt_dataset = json.load(f)
+with open(cocoDt_path, 'r') as f:
+    cocoDt_dataset = json.load(f)
+
 # Remove COCO read logs
 with HiddenCocoPrints():
-    cocoGt = COCO(cocoGt_path)
-
-cocoDt = cocoGt.loadRes(cocoDt_path)
-import pickle
+    cocoGt = COCO()
+    cocoGt.dataset = cocoGt_dataset
+    cocoGt.createIndex()
+    cocoDt = cocoGt.loadRes(cocoDt_dataset['annotations'])
 
 with open(eval_data_path, "rb") as f:
     eval_data = pickle.load(f)
-from importlib import reload
 
-reload(metric_provider)
 m_full = metric_provider.MetricProvider(
     eval_data["matches"],
     eval_data["coco_metrics"],
@@ -62,3 +70,10 @@ if len(df_score_profile) > 5000:
     dfsp_down = df_score_profile.iloc[:: len(df_score_profile) // 1000]
 else:
     dfsp_down = df_score_profile
+
+# Click data
+gt_id_mapper = IdMapper(cocoGt_dataset)
+dt_id_mapper = IdMapper(cocoDt_dataset)
+
+click_data = ClickData(m, gt_id_mapper, dt_id_mapper)
+click_data.create_data()
