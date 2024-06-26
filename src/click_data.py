@@ -19,12 +19,12 @@ class ClickData:
             "FP": self._gather_matches(self.m.fp_matches),
         }
 
-        oucome_counts_by_class = defaultdict(lambda: {"TP": [], "FN": [], "FP": []})
+        outcome_counts_by_class = defaultdict(lambda: {"TP": [], "FN": [], "FP": []})
         for match in self.m.matches:
             cat_id = match["category_id"]
             cat_name = self.m.cocoGt.cats[cat_id]["name"]
-            oucome_counts_by_class[cat_name][match["type"]].append(self._gather(match))
-        self.oucome_counts_by_class = dict(oucome_counts_by_class)
+            outcome_counts_by_class[cat_name][match["type"]].append(self._gather(match))
+        self.outcome_counts_by_class = dict(outcome_counts_by_class)
 
         self.objects_by_class = {cat_name: [] for cat_name in self.m.cat_names}
         for match in self.m.matches:
