@@ -21,8 +21,8 @@ sly.fs.mkdir(STATIC_DIR)
 
 
 cocoGt_path = "APP_DATA/data/cocoGt_remap.json"
-cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
-eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
+cocoDt_path = "APP_DATA/data/COCO 2017 val (YOLOv8-L, conf-0.01)/cocoDt.json"
+eval_data_path = "APP_DATA/data/COCO 2017 val (YOLOv8-L, conf-0.01)/eval_data.pkl"
 
 cocoGt = COCO(cocoGt_path)
 cocoDt = cocoGt.loadRes(cocoDt_path)
