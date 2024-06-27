@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+from src.ui import definitions
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -70,14 +71,10 @@ def outcome_counts():
 
     return fig
 
-TP_hint = "True Positives (TP): These are correctly detected objects. For a prediction to be counted as a true positive, the predicted bounding box must align with a ground truth bounding box with an Intersection over Union (IoU) of 0.5 or more, and the object must be correctly classified"
-FP_hint = "False Positives (FP): These are incorrect detections made by the model. They occur when the model predicts a bounding box that either does not overlap sufficiently with any ground truth box (IoU less than 0.5) or incorrectly classifies the object within the bounding box. For example, the model detects a car in the image, but there is no car in the ground truth."
-FN_hint = "False Negatives (FN): These are the missed detections. They occur when an actual object in the ground truth is not detected by the model, meaning there is no predicted bounding box with an IoU of 0.5 or more for this object. For example, there is a car in the image, but the model fails to detect it."
-
 markdown = Markdown(
     f"""## Outcome Counts
 
-This chart is used to evaluate the overall model performance by breaking down all predictions into <abbr title="{TP_hint}">True Positives</abbr> (TP), <abbr title="{FP_hint}">False Positives</abbr> (FP), and <abbr title="{FN_hint}">False Negatives</abbr> (FN). This helps to visually assess the type of errors the model often encounters.
+This chart is used to evaluate the overall model performance by breaking down all predictions into <abbr title="{definitions.true_positives}">True Positives</abbr> (TP), <abbr title="{definitions.false_positives}">False Positives</abbr> (FP), and <abbr title="{definitions.false_negatives}">False Negatives</abbr> (FN). This helps to visually assess the type of errors the model often encounters.
 """,
     show_border=False,
 )
