@@ -23,42 +23,15 @@ def evaluate(
         save_path="APP_DATA"
         ):
     api = sly.Api()
+    gt_project_info = api.project.get_info_by_id(gt_project_id)
+
     dt_project_info = run_inference(api, model_session_id, inference_settings, gt_project_id, gt_dataset_ids, batch_size, cache_project)
-    
     base_dir = os.path.join(save_path, dt_project_info.name)
-    gt_path = os.path.join(base_dir, "gt_project")
-    dt_path = os.path.join(base_dir, "dt_project")
-    print(f"GT annotations will be downloaded to: {gt_path}")
-    sly.download_project(api, gt_project_id, gt_path, gt_dataset_ids, log_progress=True, save_images=False, save_image_info=True)
-    print(f"DT annotations will be downloaded to: {dt_path}")
-    sly.download_project(api, dt_project_info.id, dt_path, log_progress=True, save_images=False, save_image_info=True)
-    
-    # 3. Sly2Coco
-    cocoGt_json = sly2coco(gt_path, is_dt_dataset=False)
-    cocoGt_path = os.path.join(base_dir, "cocoGt.json")
-    with open(cocoGt_path, 'w') as f:
-        json.dump(cocoGt_json, f)
-    print(f"cocoGt.json: {cocoGt_path}")
-
-    cocoDt_json = sly2coco(dt_path, is_dt_dataset=True)
-    cocoDt_path = os.path.join(base_dir, "cocoDt.json")
-    with open(cocoDt_path, 'w') as f:
-        json.dump(cocoDt_json, f)
-    print(f"cocoDt.json: {cocoDt_path}")
-
-    assert cocoDt_json['categories'] == cocoGt_json['categories']
-    assert [x['id'] for x in cocoDt_json['images']] == [x['id'] for x in cocoGt_json['images']]
-
-    # 4. Calculate metrics
-    cocoGt = COCO()
-    cocoGt.dataset = cocoGt_json
-    cocoGt.createIndex()
-    cocoDt = cocoGt.loadRes(cocoDt_json['annotations'])
-    eval_data = calculate_metrics(cocoGt, cocoDt)
-    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
-    with open(eval_data_path, "wb") as f:
-        pickle.dump(eval_data, f)
-    print(f"eval_data.pkl: {eval_data_path}")
+    download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids)
+    cocoGt_json, cocoDt_json = convert_to_coco(base_dir)
+    cocoGt, cocoDt = read_coco_datasets(cocoGt_json, cocoDt_json)
+    eval_data = create_eval_data(base_dir, cocoGt, cocoDt)
+    add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
 
     # MetricProvider
     m = MetricProvider(eval_data['matches'], eval_data['coco_metrics'], eval_data['params'], cocoGt, cocoDt)
@@ -137,6 +110,7 @@ def run_inference(
 
 
 def add_tags_to_dt_project(api: sly.Api, matches: list, dt_project_id: int, cocoGt_dataset: dict, cocoDt_dataset: dict):
+    print("Adding tags to dt project...")
     # outcome_tag_meta = sly.TagMeta("outcome", sly.TagValueType.ANY_STRING, applicable_to=sly.TagApplicableTo.OBJECTS_ONLY)
     match_tag_meta = sly.TagMeta("matched_gt_id", sly.TagValueType.ANY_NUMBER, applicable_to=sly.TagApplicableTo.OBJECTS_ONLY)
     iou_tag_meta = sly.TagMeta("iou", sly.TagValueType.ANY_NUMBER, applicable_to=sly.TagApplicableTo.OBJECTS_ONLY)
@@ -188,12 +162,94 @@ def get_id_mappings(coco_dataset: dict):
     return img_mapping, ann_mapping
 
 
+def get_project_paths(base_dir):
+    gt_path = os.path.join(base_dir, "gt_project")
+    dt_path = os.path.join(base_dir, "dt_project")
+    return gt_path, dt_path
+
+
+def download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids):
+    gt_path, dt_path = get_project_paths(base_dir)
+    if not os.path.exists(gt_path):
+        print(f"GT annotations will be downloaded to: {gt_path}")
+        sly.download_project(api, gt_project_info.id, gt_path, gt_dataset_ids, log_progress=True, save_images=False, save_image_info=True)
+    else:
+        print(f"GT annotations already exist: {gt_path}")
+    if not os.path.exists(dt_path):
+        print(f"DT annotations will be downloaded to: {dt_path}")
+        sly.download_project(api, dt_project_info.id, dt_path, log_progress=True, save_images=False, save_image_info=True)
+    else:
+        print(f"DT annotations already exist: {dt_path}")
+    gt_project_info_path = save_project_info(gt_project_info, gt_path)
+    dt_project_info_path = save_project_info(dt_project_info, dt_path)
+    return gt_path, dt_path
+
+
+def convert_to_coco(base_dir):
+    gt_path, dt_path = get_project_paths(base_dir)
+
+    cocoGt_json = sly2coco(gt_path, is_dt_dataset=False, accepted_shapes=["rectangle"])
+    cocoGt_path = os.path.join(base_dir, "cocoGt.json")
+    with open(cocoGt_path, 'w') as f:
+        json.dump(cocoGt_json, f)
+    print(f"cocoGt.json: {cocoGt_path}")
+
+    cocoDt_json = sly2coco(dt_path, is_dt_dataset=True, accepted_shapes=["rectangle"])
+    cocoDt_path = os.path.join(base_dir, "cocoDt.json")
+    with open(cocoDt_path, 'w') as f:
+        json.dump(cocoDt_json, f)
+    print(f"cocoDt.json: {cocoDt_path}")
+
+    assert cocoDt_json['categories'] == cocoGt_json['categories']
+    assert [x['id'] for x in cocoDt_json['images']] == [x['id'] for x in cocoGt_json['images']]
+    return cocoGt_json, cocoDt_json
+
+
+def read_coco_datasets(cocoGt_json, cocoDt_json):
+    if isinstance(cocoGt_json, str):
+        with open(cocoGt_json, 'r') as f:
+            cocoGt_json = json.load(f)
+    if isinstance(cocoDt_json, str):
+        with open(cocoDt_json, 'r') as f:
+            cocoDt_json = json.load(f)
+    cocoGt = COCO()
+    cocoGt.dataset = cocoGt_json
+    cocoGt.createIndex()
+    cocoDt = cocoGt.loadRes(cocoDt_json['annotations'])
+    return cocoGt, cocoDt
+
+
+def create_eval_data(base_dir, cocoGt: COCO, cocoDt: COCO):
+    eval_data = calculate_metrics(cocoGt, cocoDt)
+    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
+    with open(eval_data_path, "wb") as f:
+        pickle.dump(eval_data, f)
+    print(f"eval_data.pkl: {eval_data_path}")
+    return eval_data
+
+
+def save_project_info(project_info: sly.ProjectInfo, project_path):
+    project_info_path = os.path.join(project_path, "project_info.json")
+    with open(project_info_path, 'w') as f:
+        json.dump(project_info._asdict(), f, indent=2)
+    print(f"project_info.json: {project_info_path}")
+    return project_info_path
+
+
+def load_pickle(file_path):
+    with open(file_path, 'rb') as f:
+        data = pickle.load(f)
+    return data
+
+
 if __name__ == "__main__":
-    gt_project_id = 36401
-    model_session_id = 61668
+    gt_project_id = 39099
+    model_session_id = 61913
+
     inference_settings = {
         "conf": 0.05,
     }
+
     # evaluate(
     #     gt_project_id,
     #     model_session_id,
@@ -204,34 +260,16 @@ if __name__ == "__main__":
     #     save_path="APP_DATA"
     #     )
 
-    base_dir = "APP_DATA/COCO 2017 val - Serve YOLO (v8, v9)"
-    gt_path = os.path.join(base_dir, "gt_project")
-    dt_path = os.path.join(base_dir, "dt_project")
-    
-    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
-    with open(eval_data_path, "rb") as f:
-        eval_data = pickle.load(f)
-
+    base_dir = "APP_DATA/COCO-100 (GT) - Serve YOLO (v8, v9)"
+    gt_path, dt_path = get_project_paths(base_dir)
     cocoGt_path = os.path.join(base_dir, "cocoGt.json")
     cocoDt_path = os.path.join(base_dir, "cocoDt.json")
-    with open(cocoGt_path, 'r') as f:
-        cocoGt_dataset= json.load(f)
-    with open(cocoDt_path, 'r') as f:
-        cocoDt_dataset = json.load(f)
+    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
+    dt_project_id = 39141
 
-    cocoGt = COCO()
-    cocoGt.dataset = cocoGt_dataset
-    cocoGt.createIndex()
-    cocoDt = cocoGt.loadRes(cocoDt_dataset['annotations'])
-
-    m = MetricProvider(eval_data['matches'], eval_data['coco_metrics'], eval_data['params'], cocoGt, cocoDt)
-
+    eval_data = load_pickle(eval_data_path)
+    cocoGt_dataset = sly.json.load_json_file(cocoGt_path)
+    cocoDt_dataset = sly.json.load_json_file(cocoDt_path)
+    
     api = sly.Api()
-    matches = eval_data['matches']
-    dt_project_id = 39052
-
-    gt_id_mapper = IdMapper(cocoGt_dataset)
-    dt_id_mapper = IdMapper(cocoDt_dataset)
-
-    click_data = ClickData(m, gt_id_mapper, dt_id_mapper)
-    click_data.create_data()
+    add_tags_to_dt_project(api, eval_data["matches"], dt_project_id, cocoGt_dataset, cocoDt_dataset)
