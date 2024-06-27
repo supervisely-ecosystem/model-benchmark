@@ -103,7 +103,7 @@ def on_click(datapoints: List[PlotlyChart.ClickedDataPoint]):
     datapoint = datapoints[0]
     outcome = datapoint.label
     cat_name = datapoint.x
-    print(click_data.oucome_counts_by_class[cat_name][outcome])
+    print(click_data.outcome_counts_by_class[cat_name][outcome])
 
 layout = Container(
     widgets=[
