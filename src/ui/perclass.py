@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+from src.ui import definitions
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -127,18 +128,18 @@ This section analyzes the model's performance for all classes in a common plot. 
     show_border=False,
 )
 markdown_class_ap = Markdown(
-    """
+    f"""
 ## Average Precision by Class
 
-A quick visual comparison of the model performance across all classes. Each axis in the chart represents a different class, and the distance to the center indicates the Average Precision for that class.""",
+A quick visual comparison of the model performance across all classes. Each axis in the chart represents a different class, and the distance to the center indicates the <abbr title="{definitions.average_precision}">Average Precision</abbr> (AP) for that class.""",
     show_border=False,
 )
 iframe_perclass_ap = IFrame("static/12_01_perclass.html", width=820, height=820)
 markdown_class_outcome_counts_1 = Markdown(
-    """
+    f"""
 ### Outcome Counts by Class
 
-This chart breaks down all predictions into True Positives (TP), False Positives (FP), and False Negatives (FN) by classes. This helps to visually assess the type of errors the model often encounters for each class.
+This chart breaks down all predictions into <abbr title="{definitions.true_positives}">True Positives</abbr> (TP), <abbr title="{definitions.false_positives}">False Positives</abbr> (FP), and <abbr title="{definitions.false_negatives}">False Negatives</abbr> (FN) by classes. This helps to visually assess the type of errors the model often encounters for each class.
 """,
     show_border=False,
     height=80,
@@ -179,8 +180,10 @@ radio_group = RadioGroup(
 radio_one_of = OneOf(radio_group)
 
 markdown_class_outcome_counts_2 = Markdown(
-    """
-_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._ You can choose the plot view between normalized and absolute values:
+    f"""
+You can switch the plot view between normalized and absolute values.
+
+_Bars in the chart are sorted by <abbr title="{definitions.f1_score}">F1-score</abbr> to keep a unified order of classes between different charts._
 """,
     show_border=False,
     height=50,

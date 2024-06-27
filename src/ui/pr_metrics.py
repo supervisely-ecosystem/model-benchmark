@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+from src.ui import definitions
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -132,13 +133,13 @@ recall_metric = NotificationBox(
 )
 
 markdown_R_perclass = Markdown(
-    """### Per-class Recall
+    f"""### Per-class Recall
 
 This chart further analyzes Recall, breaking it down to each class in separate.
 
 Since the overall recall is calculated as an average across all classes, we provide a chart showing the recall for each individual class. This illustrates how much each class contributes to the overall recall.
 
-_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._
+_Bars in the chart are sorted by <abbr title="{definitions.f1_score}">F1-score</abbr> to keep a unified order of classes between different charts._
 """,
     show_border=False,
 )
@@ -149,7 +150,7 @@ markdown_P = Markdown(
 
 This section measures the accuracy of all predictions made by the model. In other words, this answers the question: “Of all predictions made by the model, how many of them are actually correct?”.
 
-To measure this, we calculate **Precision**. Precision counts errors, when the model predicts an object (bounding box), but the image has no objects in this place (or it has another class than the model predicted). Precision is calculated as a portion of correct predictions (true positives) over all model’s predictions (true positives + false positives).
+To measure this, we calculate **Precision**. Precision counts errors, when the model predicts an object (bounding box), but the image has no objects of the predicted class in this place. Precision is calculated as a portion of correct predictions (true positives) over all model’s predictions (true positives + false positives).
 """,
     show_border=False,
 )
@@ -160,23 +161,23 @@ precision_metric = NotificationBox(
 )
 
 markdown_P_perclass = Markdown(
-    """### Per-class Precision
+    f"""### Per-class Precision
 
 This chart further analyzes Precision, breaking it down to each class in separate.
 
 Since the overall precision is computed as an average across all classes, we provide a chart showing the precision for each class individually. This illustrates how much each class contributes to the overall precision.
 
-_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._""",
+_Bars in the chart are sorted by <abbr title="{definitions.f1_score}">F1-score</abbr> to keep a unified order of classes between different charts._""",
     show_border=False,
 )
 
 
 markdown_PR = Markdown(
-    """## Recall vs. Precision
+    f"""## Recall vs. Precision
 
 This section compares Precision and Recall on a common graph, identifying **disbalance** between these two.
 
-_Bars in the chart are sorted by F1-score to keep a unified order of classes between different charts._
+_Bars in the chart are sorted by <abbr title="{definitions.f1_score}">F1-score</abbr> to keep a unified order of classes between different charts._
 """,
     show_border=False,
 )

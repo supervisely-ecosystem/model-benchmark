@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+from src.ui import definitions
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -96,10 +97,10 @@ iframe_pr = IFrame("static/07_01_pr_curve.html", width=620, height=520)
 iframe_pr_perclass = IFrame("static/07_02_pr_curve_perclass.html", width=820, height=620)
 
 markdown_pr_curve = Markdown(
-    """
+    f"""
 ## Precision-Recall Curve
 
-Precision-Recall curve is an overall performance indicator. It helps to visually assess both precision and recall for all predictions made by the model on the whole dataset. This gives you an understanding of how precision changes as you attempt to increase recall, providing a view of **trade-offs between precision and recall**. Ideally, a high-quality model will maintain strong precision as recall increases. This means that as you move from left to right on the curve, there should not be a significant drop in precision. Such a model is capable of finding many relevant instances, maintaining a high level of precision.
+Precision-Recall curve is an overall performance indicator. It helps to visually assess both precision and recall for all predictions made by the model on the whole dataset. This gives you an understanding of how precision changes as you attempt to increase recall, providing a view of **trade-offs between precision and recall** <abbr title="{definitions.f1_score}">(?)</abbr>. Ideally, a high-quality model will maintain strong precision as recall increases. This means that as you move from left to right on the curve, there should not be a significant drop in precision. Such a model is capable of finding many relevant instances, maintaining a high level of precision.
 """,
     show_border=False,
 )
@@ -124,8 +125,8 @@ collapsables = Collapse(
             Container(
                 [
                     Markdown(
-                        """
-Imagine you sort all the predictions by their confidence scores from highest to lowest and write it down in a table. As you iterate over each sorted prediction, you classify it as a true positive (TP) or a false positive (FP). For each prediction, you then calculate the cumulative precision and recall so far. Each prediction is plotted as a point on a graph, with recall on the x-axis and precision on the y-axis. Now you have a plot very similar to the PR-curve, but it appears as a zig-zag curve due to variations as you move from one prediction to the next.
+                        f"""
+Imagine you sort all the predictions by their <abbr title="{definitions.confidence_score}">confidence scores</abbr> from highest to lowest and write it down in a table. As you iterate over each sorted prediction, you classify it as a <abbr title="{definitions.true_positives}">true positive</abbr> (TP) or a <abbr title="{definitions.false_positives}">false positive</abbr> (FP). For each prediction, you then calculate the cumulative precision and recall so far. Each prediction is plotted as a point on a graph, with recall on the x-axis and precision on the y-axis. Now you have a plot very similar to the PR-curve, but it appears as a zig-zag curve due to variations as you move from one prediction to the next.
                         
 **Forming the Actual PR Curve**: The true PR curve is derived by plotting only the maximum precision value for each recall level across all thresholds. 
 This means you connect only the highest points of precision for each segment of recall, smoothing out the zig-zags and forming a curve that typically slopes downward as recall increases.
