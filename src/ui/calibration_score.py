@@ -288,7 +288,7 @@ To quantify the calibration score, we calculate **Expected Calibration Error (EC
         )
     ]
 )
-notibox_ECE = NotificationBox(f"Expected Calibration Error (ECE) = <b>add ECE</b>")
+notibox_ECE = NotificationBox(f"Expected Calibration Error (ECE) = {g.m_full.calibration_metrics.expected_calibration_error():.4f}")
 iframe_reliability_diagram = IFrame("static/11_01_reliability_diagram.html", width=720, height=520)
 markdown_confidence_score_1 = Markdown(
     """
@@ -310,8 +310,8 @@ The plot shows you what the metrics will be if you choose a specific confidence 
 collapsable_howto_plot_confidence_score = Collapse(
     [
         Collapse.Item(
-            "How to plot Confidence score Profile?",
-            "How to plot Confidence score Profile?",
+            "How to plot Confidence Profile?",
+            "How to plot Confidence Profile?",
             Container(
                 [
                     Markdown(
@@ -327,8 +327,14 @@ First, we sort all predictions by confidence scores from highest to lowest. As w
         )
     ]
 )
-base_metric = g.m.base_metrics()
-notibox_F1 = NotificationBox(f"F1-optimal confidence threshold = {base_metric['f1']:.2f}")
+notibox_F1 = NotificationBox(f"F1-optimal confidence threshold = {g.m_full.get_f1_optimal_conf()[0]:.4f}")
+markdown_f1_at_ious = Markdown(
+    """### Confidence Profile at Different IoU thresholds
+
+This chart breaks down the Confidence Profile into multiple curves, each for one IoU threshold. In this way you can understand how the f1-optimal confidence threshold changes with various IoU thresholds. Higher IoU thresholds mean that the model should align bounding boxes very close to ground truth bounding boxes.
+""",
+    show_border=False,
+)
 iframe_f1score_at_different_iou = IFrame(
     "static/11_03_f1score_at_different_iou.html", width=820, height=520
 )

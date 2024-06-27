@@ -33,7 +33,7 @@ markdown_classification_accuracy = Markdown(
 
 This section investigates cases where the model correctly localizes a bounding box, but predicts a wrong class label. For example, the model might confuse a motorbike with a bicycle. In this case, the model correctly identified that the object is present on the image, but assigned a wrong label to it.
 
-To quantify it, we calculate **classification accuracy**. This is a portion of correctly classified objects to the total number of correctly localized  <abbr title="The object is localized correctly if the IoU between a prediction and a ground truth box is more than 0.5">objects</abbr>. In other words, if the model correctly found that an object is present on the image, how often it assigns a correct label to it?
+To quantify it, we calculate **classification accuracy**. This is the portion of correctly classified objects to the total number of correctly <abbr title="The object is localized correctly if the IoU between a prediction and a ground truth box is equal or more than 0.5">localized objects</abbr>. In other words, this answer a question: if the model correctly found that an object is present on the image, how often it assigns correct label?
 """,
     show_border=False,
 )
