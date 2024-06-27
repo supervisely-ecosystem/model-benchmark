@@ -84,8 +84,8 @@ plotly_outcome_counts = PlotlyChart(fig)
 
 grid_gallery_v2 = GridGalleryV2(columns_number=5, enable_zoom=False)
 
-pred_project_id = 39104
-pred_dataset_id = 92816
+pred_project_id = 39147
+pred_dataset_id = 92878
 images_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[: grid_gallery_v2.columns_number]
 anns_infos = [g.api.annotation.download(x.id) for x in images_infos][
     : grid_gallery_v2.columns_number
@@ -115,6 +115,8 @@ def click_handler(datapoints):
         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
         label = datapoint.label
         break
+
+    g.click_data.oucome_counts[label]
 
     dialog.title = label
     dialog.show()
