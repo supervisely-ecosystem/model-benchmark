@@ -55,10 +55,10 @@ def overall():
 def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
     gt_project_id = 39103
     gt_dataset_id = 92815
-    pred_project_id = 39104
-    pred_dataset_id = 92816
-    diff_project_id = 39128
-    diff_dataset_id = 92862
+    pred_project_id = 39147
+    pred_dataset_id = 92878
+    diff_project_id = 39162
+    diff_dataset_id = 92903
 
     gt_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
     pred_image_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[:5]
@@ -85,12 +85,14 @@ def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"
         ):
             image_name = image_info.name
             image_url = image_info.full_storage_url
+            is_ignore = True if idx == 0 else False
             grid_gallery.append(
                 title=image_name,
                 image_url=image_url,
                 annotation_info=ann_info,
                 column_index=idx,
                 project_meta=project_meta,
+                ignore_tags_filtering=is_ignore,
             )
 
 
@@ -140,7 +142,11 @@ markdown_explorer = Markdown(
 )
 iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
 
-gridgallery_explorer = GridGalleryV2(columns_number=3, enable_zoom=False)
+gridgallery_explorer = GridGalleryV2(
+    columns_number=3,
+    enable_zoom=False,
+    default_tag_filters=[{"confidence": [0.6, 1]}, {"outcome": "TP"}],
+)
 explorer(gridgallery_explorer)
 
 container = Container(

@@ -29,18 +29,18 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 
 
 def grid_gallery_model_preds():
-    gt_project_id = 38685
-    gt_dataset_id = 91896
-    pred_project_id = 38684
-    pred_dataset_id = 91895
-    diff_project_id = 38914
-    diff_dataset_id = 92290
+    gt_project_id = 39103
+    gt_dataset_id = 92815
+    pred_project_id = 39147
+    pred_dataset_id = 92878
+    diff_project_id = 39162
+    diff_dataset_id = 92903
 
     gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=gt_project_id))
     pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=pred_project_id))
     diff_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=diff_project_id))
 
-    global grid_gallery
+    global grid_gallery_preds
     # initialize widgets we will use in UI
 
     gt_image_info = g.api.image.get_list(dataset_id=gt_dataset_id)[0]
@@ -65,20 +65,16 @@ def grid_gallery_model_preds():
         image_name = image_info.name
         image_url = image_info.full_storage_url
 
-        # image_ann = sly.Annotation.from_json(data=ann_info, project_meta=project_meta)
-        # g.api.annotation.get_info_by_id(image_info.id)
-
-        grid_gallery.append(
+        is_ignore = True if idx == 0 else False
+        grid_gallery_preds.append(
             title=image_name,
             image_url=image_url,
             annotation_info=ann_info,
             column_index=idx,
             project_meta=project_meta,
+            ignore_tags_filtering=is_ignore,
         )
 
-
-# if g.RECALC_PLOTS:
-#     grid_gallery_model_preds()
 
 markdown = Markdown(
     """## Model Predictions
@@ -104,18 +100,31 @@ The table helps you in finding samples with specific cases of interest. You can 
 """,
     show_border=False,
 )
-grid_gallery = GridGalleryV2(columns_number=3, enable_zoom=False)
-table_model_preds = FastTable(g.m.prediction_table())
-# iframe_overview = IFrame("static/01_overview.html", width=620, height=520)
+grid_gallery_preds = GridGalleryV2(
+    columns_number=3,
+    enable_zoom=False,
+    default_tag_filters=[{"confidence": [0.6, 1]}, {"outcome": "TP"}],
+)
+
+tmp = g.api.image.get_list(dataset_id=92815)
+df = g.m.prediction_table()
+df = df[df["image_name"].isin([x.name for x in tmp])]
+columns_options = [None] * len(df.columns)
+for idx, col in enumerate(columns_options):
+    if idx == 0:
+        continue
+    columns_options[idx] = {"maxValue": df.iloc[:, idx].max()}
+table_model_preds = FastTable(df, columns_options=columns_options)
+# table_model_preds = FastTable(g.m.prediction_table()) #TODO add later
 
 
 def handle(_grid_gallery, selected_image_name="000000575815.jpg"):
-    gt_project_id = 38685
-    gt_dataset_id = 91896
-    pred_project_id = 38684
-    pred_dataset_id = 91895
-    diff_project_id = 38914
-    diff_dataset_id = 92290
+    gt_project_id = 39103
+    gt_dataset_id = 92815
+    pred_project_id = 39147
+    pred_dataset_id = 92878
+    diff_project_id = 39162
+    diff_dataset_id = 92903
 
     gt_image_info = g.api.image.get_info_by_name(gt_dataset_id, selected_image_name)
     pred_image_info = g.api.image.get_info_by_name(pred_dataset_id, selected_image_name)
@@ -144,16 +153,16 @@ def handle(_grid_gallery, selected_image_name="000000575815.jpg"):
 
 @table_model_preds.row_click
 def handle_table_row(clicked_row: sly.app.widgets.FastTable.ClickedRow):
-    global grid_gallery
-    grid_gallery.clean_up()
-    handle(grid_gallery, clicked_row.row[0])
-    grid_gallery.update_data()
+    global grid_gallery_preds
+    grid_gallery_preds.clean_up()
+    handle(grid_gallery_preds, clicked_row.row[0])
+    grid_gallery_preds.update_data()
 
 
 container = Container(
     widgets=[
         markdown,
-        grid_gallery,
+        grid_gallery_preds,
         markdown_table,
         table_model_preds,
     ]

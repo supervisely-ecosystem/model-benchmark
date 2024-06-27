@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import pickle
 from pathlib import Path
 
@@ -9,12 +9,11 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
+from src.click_data import ClickData
+from src.utils import IdMapper
 from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
-
-from src.click_data import ClickData
-from src.utils import IdMapper
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -27,13 +26,13 @@ SLY_APP_DATA_DIR = sly.app.get_data_dir()
 STATIC_DIR = os.path.join(SLY_APP_DATA_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
 
-cocoGt_path = "APP_DATA/data/cocoGt_remap.json"
+cocoGt_path = "APP_DATA/data/cocoGt.json"  # cocoGt_remap.json"
 cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
 eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-with open(cocoGt_path, 'r') as f:
+with open(cocoGt_path, "r") as f:
     cocoGt_dataset = json.load(f)
-with open(cocoDt_path, 'r') as f:
+with open(cocoDt_path, "r") as f:
     cocoDt_dataset = json.load(f)
 
 # Remove COCO read logs
@@ -41,7 +40,7 @@ with HiddenCocoPrints():
     cocoGt = COCO()
     cocoGt.dataset = cocoGt_dataset
     cocoGt.createIndex()
-    cocoDt = cocoGt.loadRes(cocoDt_dataset['annotations'])
+    cocoDt = cocoGt.loadRes(cocoDt_dataset["annotations"])
 
 with open(eval_data_path, "rb") as f:
     eval_data = pickle.load(f)
