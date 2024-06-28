@@ -14,28 +14,31 @@ from src.click_data import ClickData
 
 
 def evaluate(
-        gt_project_id,
-        model_session_id,
-        cache_project=True,
-        gt_dataset_ids=None,
-        inference_settings=None,
-        batch_size=8,
-        save_path="APP_DATA"
+        api: sly.Api,
+        gt_project_id: int,
+        model_session_id: int,
+        cache_project: bool = False,
+        gt_dataset_ids: list = None,
+        inference_settings: dict = None,
+        batch_size: int = 8,
+        save_path: str = "APP_DATA",
         ):
-    api = sly.Api()
     gt_project_info = api.project.get_info_by_id(gt_project_id)
-
     dt_project_info = run_inference(api, model_session_id, inference_settings, gt_project_id, gt_dataset_ids, batch_size, cache_project)
     base_dir = os.path.join(save_path, dt_project_info.name)
     download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids)
     cocoGt_json, cocoDt_json = convert_to_coco(base_dir)
     cocoGt, cocoDt = read_coco_datasets(cocoGt_json, cocoDt_json)
-    eval_data = create_eval_data(base_dir, cocoGt, cocoDt)
-    add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
+    eval_data = calculate_metrics(cocoGt, cocoDt)
 
-    # MetricProvider
+    # Test
     m = MetricProvider(eval_data['matches'], eval_data['coco_metrics'], eval_data['params'], cocoGt, cocoDt)
     print(m.base_metrics())
+    
+    add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
+    dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data)
+    upload_eval_results(api, base_dir)
+
     print("Done!")
 
 
@@ -98,6 +101,7 @@ def run_inference(
             "gt_dataset_ids": gt_dataset_ids,
             "inference_params": {
                 "batch_size": batch_size,
+                "image_size": None,
                 "inference_settings": inference_settings,
             },
             # **evaluation_info,  # TODO: add evaluation_info
@@ -187,19 +191,8 @@ def download_projects(api, base_dir, gt_project_info, dt_project_info, gt_datase
 
 def convert_to_coco(base_dir):
     gt_path, dt_path = get_project_paths(base_dir)
-
     cocoGt_json = sly2coco(gt_path, is_dt_dataset=False, accepted_shapes=["rectangle"])
-    cocoGt_path = os.path.join(base_dir, "cocoGt.json")
-    with open(cocoGt_path, 'w') as f:
-        json.dump(cocoGt_json, f)
-    print(f"cocoGt.json: {cocoGt_path}")
-
     cocoDt_json = sly2coco(dt_path, is_dt_dataset=True, accepted_shapes=["rectangle"])
-    cocoDt_path = os.path.join(base_dir, "cocoDt.json")
-    with open(cocoDt_path, 'w') as f:
-        json.dump(cocoDt_json, f)
-    print(f"cocoDt.json: {cocoDt_path}")
-
     assert cocoDt_json['categories'] == cocoGt_json['categories']
     assert [x['id'] for x in cocoDt_json['images']] == [x['id'] for x in cocoGt_json['images']]
     return cocoGt_json, cocoDt_json
@@ -219,15 +212,6 @@ def read_coco_datasets(cocoGt_json, cocoDt_json):
     return cocoGt, cocoDt
 
 
-def create_eval_data(base_dir, cocoGt: COCO, cocoDt: COCO):
-    eval_data = calculate_metrics(cocoGt, cocoDt)
-    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
-    with open(eval_data_path, "wb") as f:
-        pickle.dump(eval_data, f)
-    print(f"eval_data.pkl: {eval_data_path}")
-    return eval_data
-
-
 def save_project_info(project_info: sly.ProjectInfo, project_path):
     project_info_path = os.path.join(project_path, "project_info.json")
     with open(project_info_path, 'w') as f:
@@ -242,7 +226,34 @@ def load_pickle(file_path):
     return data
 
 
-if __name__ == "__main__":
+def dump_pickle(data, file_path):
+    with open(file_path, 'wb') as f:
+        pickle.dump(data, f)
+
+
+def get_eval_paths(base_dir):
+    cocoGt_path = os.path.join(base_dir, "cocoGt.json")
+    cocoDt_path = os.path.join(base_dir, "cocoDt.json")
+    eval_data_path = os.path.join(base_dir, "eval_data.pkl")
+    return cocoGt_path, cocoDt_path, eval_data_path
+
+
+def dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data):
+    cocoGt_path, cocoDt_path, eval_data_path = get_eval_paths(base_dir)
+    sly.json.dump_json_file(cocoGt_json, cocoGt_path, indent=None)
+    sly.json.dump_json_file(cocoDt_json, cocoDt_path, indent=None)
+    dump_pickle(eval_data, eval_data_path)
+
+
+def upload_eval_results(api: sly.Api, base_dir):
+    team_id = sly.env.team_id()
+    local_eval_paths = get_eval_paths(base_dir)
+    dst_dir = f"/model-benchmark/{base_dir}/"
+    dst_paths = [dst_dir + os.path.basename(x) for x in local_eval_paths]
+    api.file.upload_bulk(team_id, local_eval_paths, dst_paths)
+
+
+if False:
     gt_project_id = 39099
     model_session_id = 61913
 
@@ -273,3 +284,29 @@ if __name__ == "__main__":
     
     api = sly.Api()
     add_tags_to_dt_project(api, eval_data["matches"], dt_project_id, cocoGt_dataset, cocoDt_dataset)
+
+
+if __name__ == "__main__":
+    import argparse
+    import yaml
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gt_project_id", type=int, required=True)
+    parser.add_argument("--model_session_id", type=int, required=True)
+    parser.add_argument("--inference_settings", type=str, default="")
+    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--cache_project", type=bool, default=False)
+    parser.add_argument("--gt_dataset_ids", type=list, default=None)
+    parser.add_argument("--save_path", type=str, default="APP_DATA")
+    args = parser.parse_args()
+
+    api = sly.Api()
+    evaluate(
+        api,
+        args.gt_project_id,
+        args.model_session_id,
+        cache_project=args.cache_project,
+        gt_dataset_ids=args.gt_dataset_ids,
+        inference_settings=yaml.safe_load(args.inference_settings),
+        batch_size=args.batch_size,
+        save_path=args.save_path
+        )
