@@ -13,7 +13,7 @@ class ClickData:
         self.catId2name = {cat_id: cat["name"] for cat_id, cat in m.cocoGt.cats.items()}
 
     def create_data(self):
-        self.oucome_counts = {
+        self.outcome_counts = {
             "TP": self._gather_matches(self.m.tp_matches),
             "FN": self._gather_matches(self.m.fn_matches),
             "FP": self._gather_matches(self.m.fp_matches),

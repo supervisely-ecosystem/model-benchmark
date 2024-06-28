@@ -116,7 +116,7 @@ def click_handler(datapoints):
         label = datapoint.label
         break
 
-    g.click_data.oucome_counts[label]
+    g.click_data.outcome_counts[label]
 
     dialog.title = label
     dialog.show()
