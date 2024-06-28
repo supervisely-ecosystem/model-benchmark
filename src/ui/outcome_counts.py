@@ -11,8 +11,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-from src.ui import definitions
 import supervisely as sly
+from src.ui import definitions
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -71,6 +71,7 @@ def outcome_counts():
 
     return fig
 
+
 markdown = Markdown(
     f"""## Outcome Counts
 
@@ -82,43 +83,39 @@ This chart is used to evaluate the overall model performance by breaking down al
 fig = outcome_counts()
 plotly_outcome_counts = PlotlyChart(fig)
 
-grid_gallery_v2 = GridGalleryV2(columns_number=5, enable_zoom=False)
-
-pred_project_id = 39147
-pred_dataset_id = 92878
-images_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[: grid_gallery_v2.columns_number]
-anns_infos = [g.api.annotation.download(x.id) for x in images_infos][
-    : grid_gallery_v2.columns_number
-]
-pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=pred_project_id))
+grid_gallery_v2 = GridGalleryV2(columns_number=4, enable_zoom=False)
+pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.pred_project_id))
 
 dialog_container = Container([grid_gallery_v2])
 dialog = Dialog(content=dialog_container)
 
-for idx, (image_info, ann_info) in enumerate(zip(images_infos, anns_infos)):
-    image_name = image_info.name
-    image_url = image_info.full_storage_url
-
-    grid_gallery_v2.append(
-        title=image_name,
-        image_url=image_url,
-        annotation_info=ann_info,
-        column_index=idx,
-        project_meta=pred_project_meta,
-    )
-
 
 @plotly_outcome_counts.click
 def click_handler(datapoints):
+    plotly_outcome_counts.loading = True
     texts = ""
     for datapoint in datapoints:
         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
         label = datapoint.label
         break
 
-    g.click_data.oucome_counts[label]
+    image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
+    image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
+    anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
 
+    for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
+        image_name = image_info.name
+        image_url = image_info.full_storage_url
+
+        grid_gallery_v2.append(
+            title=image_name,
+            image_url=image_url,
+            annotation_info=ann_info,
+            column_index=idx % grid_gallery_v2.columns_number,
+            project_meta=pred_project_meta,
+        )
     dialog.title = label
+    plotly_outcome_counts.loading = False
     dialog.show()
 
     print(f"click_handler: {texts}")

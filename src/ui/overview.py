@@ -11,8 +11,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-from src.ui import definitions
 import supervisely as sly
+from src.ui import definitions
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -54,28 +54,22 @@ def overall():
 
 
 def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
-    gt_project_id = 39103
-    gt_dataset_id = 92815
-    pred_project_id = 39147
-    pred_dataset_id = 92878
-    diff_project_id = 39162
-    diff_dataset_id = 92903
 
-    gt_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
-    pred_image_infos = g.api.image.get_list(dataset_id=pred_dataset_id)[:5]
-    diff_image_infos = g.api.image.get_list(dataset_id=diff_dataset_id)[:5]
+    gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+    pred_image_infos = g.api.image.get_list(dataset_id=g.pred_dataset_id)[:5]
+    diff_image_infos = g.api.image.get_list(dataset_id=g.diff_dataset_id)[:5]
 
-    # gt_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
-    # pred_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
-    # diff_image_infos = g.api.image.get_list(dataset_id=gt_dataset_id)[:5]
+    # gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+    # pred_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+    # diff_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
 
     project_metas = [
         sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-        for x in [gt_project_id, pred_project_id, diff_project_id]
+        for x in [g.gt_project_id, g.pred_project_id, g.diff_project_id]
     ]
     # project_metas = [
     #     sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-    #     for x in [gt_project_id, gt_project_id, gt_project_id]
+    #     for x in [g.gt_project_id, g.gt_project_id, g.gt_project_id]
     # ]
     for gt_image, pred_image, diff_image in zip(gt_image_infos, pred_image_infos, diff_image_infos):
         image_infos = [gt_image, pred_image, diff_image]
@@ -95,10 +89,6 @@ def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"
                 project_meta=project_meta,
                 ignore_tags_filtering=is_ignore,
             )
-
-
-# if g.RECALC_PLOTS:
-#     overall()
 
 
 checkpoint_name = "YOLOv8-L (COCO 2017 val)"

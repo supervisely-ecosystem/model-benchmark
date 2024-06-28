@@ -11,8 +11,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-from src.ui import definitions
 import supervisely as sly
+from src.ui import definitions
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -84,7 +84,6 @@ def perclass_P():
         )
     fig.update_xaxes(title_text="Category")
     fig.update_yaxes(title_text="Precision", range=[0, 1])
-    # fig.show()
     return fig
 
 
@@ -105,7 +104,6 @@ def perclass_R():
         )
     fig.update_xaxes(title_text="Category")
     fig.update_yaxes(title_text="Recall", range=[0, 1])
-    # fig.show()
     return fig
 
 

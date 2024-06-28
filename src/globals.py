@@ -76,3 +76,19 @@ dt_id_mapper = IdMapper(cocoDt_dataset)
 
 click_data = ClickData(m, gt_id_mapper, dt_id_mapper)
 click_data.create_data()
+
+
+gt_project_id = 39099
+gt_dataset_id = 92810
+pred_project_id = 39141
+pred_dataset_id = 92872
+diff_project_id = 39249
+diff_dataset_id = 93099
+
+
+_workspace_id = 1076
+
+
+dt_image_infos = api.image.get_list(pred_dataset_id)
+dt_actual_ids = [x.id for x in dt_image_infos]  # TODO remove later
+dt_anns_infos = api.annotation.download_batch(pred_dataset_id, [x.id for x in dt_image_infos])
