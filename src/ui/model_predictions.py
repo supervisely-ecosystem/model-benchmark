@@ -100,10 +100,11 @@ The table helps you in finding samples with specific cases of interest. You can 
 """,
     show_border=False,
 )
+optimal_conf = g.m_full.get_f1_optimal_conf()[0]
 grid_gallery_preds = GridGalleryV2(
     columns_number=3,
     enable_zoom=False,
-    default_tag_filters=[{"confidence": [0.6, 1]}, {"outcome": "TP"}],
+    default_tag_filters=[{"confidence": [optimal_conf, 1]}, {"outcome": "TP"}],
 )
 
 tmp = g.api.image.get_list(dataset_id=92815)

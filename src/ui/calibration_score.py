@@ -133,7 +133,7 @@ def f1score_at_different_iou():
 
     # add annotations for maximum F1-Score for each IoU threshold
     for i, iou in enumerate(iou_names):
-        argmax_f1 = f1s[i].argmax()
+        argmax_f1 = np.nanargmax(f1s[i])
         max_f1 = f1s[i][argmax_f1]
         score = g.score_profile["scores"][argmax_f1]
         fig.add_annotation(

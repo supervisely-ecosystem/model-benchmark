@@ -31,8 +31,9 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 
 def iou_distribution():
     fig = go.Figure()
-    nbins = 40
-    fig.add_trace(go.Histogram(x=g.m.ious, nbinsx=nbins))
+    nbins = 20
+    bin_size = 0.5 / nbins
+    fig.add_trace(go.Histogram(x=g.m.ious, xbins=dict(size=bin_size, start=0.5, end=1.0)))
     fig.update_layout(
         # title="IoU Distribution",
         xaxis_title="IoU",
@@ -52,7 +53,7 @@ def iou_distribution():
         y1=y1,
         line=dict(color="orange", width=2, dash="dash"),
     )
-    fig.add_annotation(x=mean_iou, y=y1, text=f"Mean IoU: {mean_iou:.2f}", showarrow=False)
+    fig.add_annotation(x=mean_iou, y=y1, text=f"Avg. IoU: {mean_iou:.2f}", showarrow=False)
     # fig.show()
     return fig
 
