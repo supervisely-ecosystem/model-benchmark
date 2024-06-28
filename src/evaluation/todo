@@ -6,5 +6,5 @@ Inference class:
     дефолтный runtime: pytorch
 - унифицировать возвращаемые значения из get_session_info
 - добавить эндоинт get_hardware
-- добавить эндоинт get_app_info (name, version, url)
 - изменения в set/update inference_settings - проверять, правильные ли параметры передаются (по ключам)
+- добавить поддержку image_size
