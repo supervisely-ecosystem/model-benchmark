@@ -10,7 +10,9 @@ from supervisely.nn.benchmark.sly2coco import sly2coco
 from supervisely.nn.benchmark.calculate_metrics import calculate_metrics
 from supervisely.nn.benchmark.metric_provider import MetricProvider
 from src.utils import IdMapper
-from src.click_data import ClickData
+
+
+CONF_THRES = 0.05
 
 
 def evaluate(
@@ -24,7 +26,15 @@ def evaluate(
         save_path: str = "APP_DATA",
         ):
     gt_project_info = api.project.get_info_by_id(gt_project_id)
-    dt_project_info = run_inference(api, model_session_id, inference_settings, gt_project_id, gt_dataset_ids, batch_size, cache_project)
+    dt_project_info = run_inference(
+        api,
+        model_session_id,
+        gt_project_id,
+        inference_settings,
+        gt_dataset_ids,
+        batch_size,
+        cache_project,
+        )
     base_dir = os.path.join(save_path, dt_project_info.name)
     download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids)
     cocoGt_json, cocoDt_json = convert_to_coco(base_dir)
@@ -34,19 +44,18 @@ def evaluate(
     # Test
     m = MetricProvider(eval_data['matches'], eval_data['coco_metrics'], eval_data['params'], cocoGt, cocoDt)
     print(m.base_metrics())
-    
+
     add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
     dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data)
     upload_eval_results(api, base_dir)
-
     print("Done!")
 
 
 def run_inference(
         api: sly.Api,
         model_session_id: int,
-        inference_settings: dict,
         gt_project_id: int,
+        inference_settings: dict = None,
         gt_dataset_ids: list = None,
         batch_size: int = 8,
         cache_project: bool = True,
@@ -54,8 +63,12 @@ def run_inference(
         dt_project_name: str = None,
         ):
     session = SessionJSON(api, model_session_id, inference_settings=inference_settings)
+    if inference_settings is None:
+        status = try_set_conf_auto(session, CONF_THRES)
+        if status is False:
+            raise ValueError("Inference settings not provided, failed to set confidence threshold automatically.")
+        
     session_info = session.get_session_info()
-
     # TODO: make it in apps
     # evaluation_info = {
     #     "model_name": session_info["model_name"],
@@ -112,6 +125,16 @@ def run_inference(
 
     return dt_project_info
 
+
+def try_set_conf_auto(session: SessionJSON, conf: float):
+    conf_names = ["conf", "confidence", "confidence_threshold"]
+    default = session.get_default_inference_settings()
+    for name in conf_names:
+        if name in default:
+            session.update_inference_settings(name=conf)
+            return True
+    return False
+    
 
 def add_tags_to_dt_project(api: sly.Api, matches: list, dt_project_id: int, cocoGt_dataset: dict, cocoDt_dataset: dict):
     print("Adding tags to dt project...")
