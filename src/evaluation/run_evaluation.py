@@ -49,6 +49,7 @@ def evaluate(
     dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data)
     upload_eval_results(api, base_dir)
     print("Done!")
+    return dt_project_info
 
 
 def run_inference(
@@ -83,9 +84,9 @@ def run_inference(
     task_info = api.task.get_info_by_id(model_session_id)
     app_info = task_info["meta"]["app"]
     app_info = {
-        app_info["name"]: app_info["name"],
-        app_info["version"]: app_info["version"],
-        app_info["id"]: app_info["id"],
+        "name": app_info["name"],
+        "version": app_info["version"],
+        "id": app_info["id"],
     }
 
 
@@ -94,7 +95,7 @@ def run_inference(
         dt_project_name = gt_project_info.name + " - " + session_info["app_name"]  #  + checkpoint_id
     if dt_wrokspace_id is None:
         dt_wrokspace_id = gt_project_info.workspace_id
-    dt_project_info = api.project.create(dt_wrokspace_id, dt_project_name)
+    dt_project_info = api.project.create(dt_wrokspace_id, dt_project_name, change_name_if_conflict=True)
     dt_project_id = dt_project_info.id
 
     iterator = session.inference_project_id_async(
@@ -131,7 +132,7 @@ def try_set_conf_auto(session: SessionJSON, conf: float):
     default = session.get_default_inference_settings()
     for name in conf_names:
         if name in default:
-            session.update_inference_settings(name=conf)
+            session.set_inference_settings({name: conf})
             return True
     return False
     

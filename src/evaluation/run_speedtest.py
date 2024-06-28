@@ -5,17 +5,20 @@ from tqdm import tqdm
 
 
 def run_speedtest(
+        api: sly.Api,
         project_id: int,
-        model_session: SessionJSON,
+        model_session_id: int,
         batch_size_list: list = (1, 8, 16),
         num_iterations: int = 100,
         num_warmup: int = 5,
+        inference_settings: dict = None,
         ):
+    model_session = SessionJSON(api, model_session_id, inference_settings=inference_settings)
     session_info = model_session.get_session_info()
 
     speedtest_info = {
         "runtime": None,
-        "device": session_info["device"],
+        "device": None,
         "hardware": None,
         "num_iterations": num_iterations,
     }
@@ -52,11 +55,11 @@ if __name__ == "__main__":
     batch_size_list = [1, 8, 16]
     num_iterations = 100
     num_warmup = 5
-    session = SessionJSON(api, model_session_id)
 
     benchmarks = run_speedtest(
+        api,
         gt_project_id,
-        session,
+        model_session_id,
         batch_size_list,
         num_iterations,
         num_warmup,
