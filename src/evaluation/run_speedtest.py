@@ -1,3 +1,4 @@
+import os
 from typing import Union
 import supervisely as sly
 from supervisely.nn.inference import SessionJSON
@@ -15,6 +16,11 @@ def run_speedtest(
         ):
     model_session = SessionJSON(api, model_session_id, inference_settings=inference_settings)
     session_info = model_session.get_session_info()
+
+    model_info = {
+        "app_name": session_info["app_name"],
+        "model_name": "yolov8s",  # TODO: get model name from session_info
+    }
 
     speedtest_info = {
         "runtime": None,
@@ -44,7 +50,16 @@ def run_speedtest(
             **speedtest_info,
         }
         benchmarks.append(benchmark)
-    return benchmarks
+    return benchmarks, model_info
+
+
+def upload_results(api: sly.Api, benchmarks: list, model_info: dict):
+    model_name = model_info["model_name"]
+    data_dir = sly.app.get_data_dir()
+    b_path = os.path.join(data_dir, "speedtest.json")
+    sly.json.dump_json_file(benchmarks, indent=2)
+    api.file.upload(sly.env.team_id(), b_path, f"/model-benchmark/speedtest/{model_name}.json")
+    api.project.update_custom_data(dt_project_id, {"speedtest": benchmarks})
 
 
 if __name__ == "__main__":
@@ -56,7 +71,7 @@ if __name__ == "__main__":
     num_iterations = 100
     num_warmup = 5
 
-    benchmarks = run_speedtest(
+    benchmarks, model_info = run_speedtest(
         api,
         gt_project_id,
         model_session_id,
@@ -64,6 +79,5 @@ if __name__ == "__main__":
         num_iterations,
         num_warmup,
         )
-    api.project.update_custom_data(dt_project_id, {"speedtest": benchmarks})
     
-    
+    upload_results(api, benchmarks, model_info)

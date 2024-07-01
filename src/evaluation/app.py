@@ -1,7 +1,7 @@
 import supervisely as sly
 from supervisely.app import widgets as W
 from src.evaluation.run_evaluation import evaluate
-from src.evaluation.run_speedtest import run_speedtest
+from src.evaluation.run_speedtest import run_speedtest, upload_results
 
 
 
@@ -76,8 +76,8 @@ def run():
                 dt_project_id = dt_selector.get_selected_id()
             else:
                 dt_project_id = dt_project_info.id
-            benchmarks = run_speedtest(api, gt_project_id, model_session_id)
-            api.project.update_custom_data(dt_project_id, {"speedtest": benchmarks})
+            benchmarks, model_info = run_speedtest(api, gt_project_id, model_session_id)
+            upload_results(api, benchmarks, model_info)
 
 
 def update_dt_selector_visibility():

@@ -275,7 +275,7 @@ def dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data, eval_info):
 def upload_eval_results(api: sly.Api, base_dir):
     team_id = sly.env.team_id()
     local_eval_paths = get_eval_paths(base_dir)
-    dst_dir = f"/model-benchmark/{base_dir}/"
+    dst_dir = f"/model-benchmark/evaluation/{base_dir}/"
     dst_paths = [dst_dir + os.path.basename(x) for x in local_eval_paths]
     api.file.upload_bulk(team_id, local_eval_paths, dst_paths)
 
