@@ -26,7 +26,7 @@ def evaluate(
         save_path: str = "APP_DATA",
         ):
     gt_project_info = api.project.get_info_by_id(gt_project_id)
-    dt_project_info = run_inference(
+    dt_project_info, eval_info = run_inference(
         api,
         model_session_id,
         gt_project_id,
@@ -36,6 +36,7 @@ def evaluate(
         cache_project,
         )
     base_dir = os.path.join(save_path, dt_project_info.name)
+    sly.json.dump_json_file(eval_info, os.path.join(base_dir, "info.json"), indent=2)
     download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids)
     cocoGt_json, cocoDt_json = convert_to_coco(base_dir)
     cocoGt, cocoDt = read_coco_datasets(cocoGt_json, cocoDt_json)
@@ -109,7 +110,7 @@ def run_inference(
     for _ in tqdm(iterator):
         pass
 
-    custom_data = {
+    eval_info = {
         "evaluation_info": {
             "gt_project_id": gt_project_id,
             "gt_dataset_ids": gt_dataset_ids,
@@ -122,9 +123,9 @@ def run_inference(
             "app_info": app_info,
         },
     }
-    api.project.update_custom_data(dt_project_id, custom_data)
+    api.project.update_custom_data(dt_project_id, eval_info)
 
-    return dt_project_info
+    return dt_project_info, eval_info
 
 
 def try_set_conf_auto(session: SessionJSON, conf: float):
@@ -259,13 +260,15 @@ def get_eval_paths(base_dir):
     cocoGt_path = os.path.join(base_dir, "cocoGt.json")
     cocoDt_path = os.path.join(base_dir, "cocoDt.json")
     eval_data_path = os.path.join(base_dir, "eval_data.pkl")
-    return cocoGt_path, cocoDt_path, eval_data_path
+    eval_info_path = os.path.join(base_dir, "info.json")
+    return cocoGt_path, cocoDt_path, eval_data_path, eval_info_path
 
 
-def dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data):
-    cocoGt_path, cocoDt_path, eval_data_path = get_eval_paths(base_dir)
+def dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data, eval_info):
+    cocoGt_path, cocoDt_path, eval_data_path, eval_info_path = get_eval_paths(base_dir)
     sly.json.dump_json_file(cocoGt_json, cocoGt_path, indent=None)
     sly.json.dump_json_file(cocoDt_json, cocoDt_path, indent=None)
+    sly.json.dump_json_file(eval_info, eval_info_path, indent=2)
     dump_pickle(eval_data, eval_data_path)
 
 
