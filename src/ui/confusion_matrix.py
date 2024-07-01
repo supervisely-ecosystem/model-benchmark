@@ -17,18 +17,17 @@ from supervisely.app.widgets import (
     Card,
     Container,
     DatasetThumbnail,
+    Dialog,
     FastTable,
+    GridGalleryV2,
     IFrame,
     Markdown,
+    PlotlyChart,
     SelectDataset,
     Text,
 )
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
-
-# def prepare():
-#     global confusion_matrix
-#     confusion_matrix = g.m.confusion_matrix()
 
 
 def _confusion_matrix():
@@ -107,7 +106,7 @@ def confusion_matrix_mini():
     return fig
 
 
-markdown = Markdown(
+markdown_confusion_matrix = Markdown(
     """
 ## Confusion Matrix
 
@@ -117,29 +116,49 @@ The diagonal elements represent the number of correct predictions for each class
 """,
     show_border=False,
 )
+fig = _confusion_matrix()
+plotly_confusion_matrix = PlotlyChart(fig)
 
-iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1020, height=1020)
-iframe_confusion_matrix_mini = IFrame("static/08_2_confusion_matrix.html", width=620, height=520)
+dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
+dialog_container = Container([dialog_gallery])
+dialog = Dialog(content=dialog_container)
+
+# iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1000, height=1000)
+
+
+# @plotly_confusion_matrix.click
+# def click_handler(datapoints):
+#     plotly_confusion_matrix.loading = True
+#     for datapoint in datapoints:
+#         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
+#         label = datapoint.label
+#         break
+
+#     image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
+#     image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
+#     anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
+
+#     for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
+#         image_name = image_info.name
+#         image_url = image_info.full_storage_url
+
+#         dialog_gallery.append(
+#             title=image_name,
+#             image_url=image_url,
+#             annotation_info=ann_info,
+#             column_index=idx % dialog_gallery.columns_number,
+#             project_meta=g.dt_project_meta,
+#         )
+#     dialog.title = label
+#     plotly_confusion_matrix.loading = False
+#     dialog.show()
+
 
 container = Container(
     widgets=[
-        markdown,
-        iframe_confusion_matrix,
+        markdown_confusion_matrix,
+        plotly_confusion_matrix,
+        # iframe_confusion_matrix,
         # iframe_confusion_matrix_mini,
     ]
-)
-
-# Input card with all widgets.
-card = Card(
-    "Confusion Matrix",
-    "Description",
-    content=Container(
-        widgets=[
-            markdown,
-            iframe_confusion_matrix,
-            iframe_confusion_matrix_mini,
-        ]
-    ),
-    # content_top_right=change_dataset_button,
-    collapsable=True,
 )

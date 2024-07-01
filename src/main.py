@@ -36,8 +36,8 @@ fig = pr_curve.pr_curve_perclass()
 fig.write_html(g.STATIC_DIR + "/07_02_pr_curve_perclass.html")
 fig = confusion_matrix._confusion_matrix()
 fig.write_html(g.STATIC_DIR + "/08_1_confusion_matrix.html")
-fig = confusion_matrix.confusion_matrix_mini()
-fig.write_html(g.STATIC_DIR + "/08_2_confusion_matrix.html")
+# fig = confusion_matrix.confusion_matrix_mini()
+# fig.write_html(g.STATIC_DIR + "/08_2_confusion_matrix.html")
 fig1, fig2 = frequently_confused.frequently_confused()
 fig1.write_html(g.STATIC_DIR + "/09_01_frequently_confused.html")
 fig2.write_html(g.STATIC_DIR + "/09_02_frequently_confused.html")
@@ -83,7 +83,10 @@ left_content = Card(
                 "   Classification Accuracy",
                 scroll_to_widget=classification_accuracy.container.widget_id,
             ),
-            Text("      Confusion Matrix", scroll_to_widget=confusion_matrix.container.widget_id),
+            Text(
+                "      Confusion Matrix",
+                scroll_to_widget=confusion_matrix.markdown_confusion_matrix.widget_id,
+            ),
             Text(
                 "       Frequently Confused Class Pairs",
                 scroll_to_widget=frequently_confused.container.widget_id,

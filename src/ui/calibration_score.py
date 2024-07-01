@@ -11,8 +11,8 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-from src.ui import definitions
 import supervisely as sly
+from src.ui import definitions
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -291,7 +291,9 @@ To quantify the calibration, we calculate **Expected Calibration Error (ECE).** 
         )
     ]
 )
-notibox_ECE = NotificationBox(f"Expected Calibration Error (ECE) = {g.m_full.calibration_metrics.expected_calibration_error():.4f}")
+notibox_ECE = NotificationBox(
+    f"Expected Calibration Error (ECE) = {g.m_full.calibration_metrics.expected_calibration_error():.4f}"
+)
 iframe_reliability_diagram = IFrame("static/11_01_reliability_diagram.html", width=720, height=520)
 markdown_confidence_score_1 = Markdown(
     f"""
@@ -328,8 +330,12 @@ First, we sort all predictions by confidence scores from highest to lowest. As w
         )
     ]
 )
-markdown_calibration_score_3 = Markdown("**How to find an optimal threshold:** you can find the maximum of the f1-score line on the plot, and the confidence score (X-axis) under this maximum corresponds to F1-optimal confidence threshold. This threshold ensures the balance between precision and recall. You can select a threshold according to your desired trade-offs.")
-notibox_F1 = NotificationBox(f"F1-optimal confidence threshold = {g.m_full.get_f1_optimal_conf()[0]:.4f}")
+markdown_calibration_score_3 = Markdown(
+    "**How to find an optimal threshold:** you can find the maximum of the f1-score line on the plot, and the confidence score (X-axis) under this maximum corresponds to F1-optimal confidence threshold. This threshold ensures the balance between precision and recall. You can select a threshold according to your desired trade-offs."
+)
+notibox_F1 = NotificationBox(
+    f"F1-optimal confidence threshold = {g.m_full.get_f1_optimal_conf()[0]:.4f}"
+)
 markdown_f1_at_ious = Markdown(
     f"""### Confidence Profile at Different IoU thresholds
 

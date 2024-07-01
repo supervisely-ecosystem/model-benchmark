@@ -79,21 +79,17 @@ This chart is used to evaluate the overall model performance by breaking down al
 """,
     show_border=False,
 )
-# iframe_outcome_counts = IFrame("static/05_outcome_counts.html", width=620, height=320)
 fig = outcome_counts()
 plotly_outcome_counts = PlotlyChart(fig)
+dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
 
-grid_gallery_v2 = GridGalleryV2(columns_number=4, enable_zoom=False)
-pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.pred_project_id))
-
-dialog_container = Container([grid_gallery_v2])
+dialog_container = Container([dialog_gallery])
 dialog = Dialog(content=dialog_container)
 
 
 @plotly_outcome_counts.click
 def click_handler(datapoints):
     plotly_outcome_counts.loading = True
-    texts = ""
     for datapoint in datapoints:
         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
         label = datapoint.label
@@ -107,18 +103,21 @@ def click_handler(datapoints):
         image_name = image_info.name
         image_url = image_info.full_storage_url
 
-        grid_gallery_v2.append(
+        dialog_gallery.append(
             title=image_name,
             image_url=image_url,
             annotation_info=ann_info,
-            column_index=idx % grid_gallery_v2.columns_number,
-            project_meta=pred_project_meta,
+            column_index=idx % dialog_gallery.columns_number,
+            project_meta=g.dt_project_meta,
         )
     dialog.title = label
     plotly_outcome_counts.loading = False
     dialog.show()
 
-    print(f"click_handler: {texts}")
 
-
-container = Container(widgets=[markdown, plotly_outcome_counts])
+container = Container(
+    widgets=[
+        markdown,
+        plotly_outcome_counts,
+    ]
+)

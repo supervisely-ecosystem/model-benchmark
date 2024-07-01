@@ -56,7 +56,7 @@ def overall():
 def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
 
     gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
-    pred_image_infos = g.api.image.get_list(dataset_id=g.pred_dataset_id)[:5]
+    pred_image_infos = g.api.image.get_list(dataset_id=g.dt_dataset_id)[:5]
     diff_image_infos = g.api.image.get_list(dataset_id=g.diff_dataset_id)[:5]
 
     # gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
@@ -65,7 +65,7 @@ def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"
 
     project_metas = [
         sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-        for x in [g.gt_project_id, g.pred_project_id, g.diff_project_id]
+        for x in [g.gt_project_id, g.dt_project_id, g.diff_project_id]
     ]
     # project_metas = [
     #     sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))

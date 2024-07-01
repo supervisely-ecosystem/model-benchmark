@@ -31,7 +31,7 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 def grid_gallery_model_preds():
 
     gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.gt_project_id))
-    pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.pred_project_id))
+    pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.dt_project_id))
     diff_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.diff_project_id))
 
     global grid_gallery_preds
@@ -39,7 +39,7 @@ def grid_gallery_model_preds():
 
     gt_image_info = g.api.image.get_list(dataset_id=g.gt_dataset_id)[0]
 
-    for image in g.api.image.get_list(dataset_id=g.pred_dataset_id):
+    for image in g.api.image.get_list(dataset_id=g.dt_dataset_id):
         if image.name == gt_image_info.name:
             pred_image_info = image
             break
@@ -115,14 +115,14 @@ table_model_preds = FastTable(df, columns_options=columns_options)
 def handle(_grid_gallery, selected_image_name="000000575815.jpg"):
 
     gt_image_info = g.api.image.get_info_by_name(g.gt_dataset_id, selected_image_name)
-    pred_image_info = g.api.image.get_info_by_name(g.pred_dataset_id, selected_image_name)
+    pred_image_info = g.api.image.get_info_by_name(g.dt_dataset_id, selected_image_name)
     diff_image_info = g.api.image.get_info_by_name(g.diff_dataset_id, selected_image_name)
 
     images_infos = [gt_image_info, pred_image_info, diff_image_info]
     anns_infos = [g.api.annotation.download(x.id) for x in images_infos]
     project_metas = [
         sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-        for x in [g.gt_project_id, g.pred_project_id, g.diff_project_id]
+        for x in [g.gt_project_id, g.dt_project_id, g.diff_project_id]
     ]
 
     for idx, (image_info, ann_info, project_meta) in enumerate(

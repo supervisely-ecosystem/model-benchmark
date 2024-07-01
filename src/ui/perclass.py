@@ -11,18 +11,21 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
-from src.ui import definitions
 import supervisely as sly
+from src.ui import definitions
 from supervisely.app.widgets import (
     Button,
     Card,
     Collapse,
     Container,
     DatasetThumbnail,
+    Dialog,
+    GridGalleryV2,
     IFrame,
     Markdown,
     NotificationBox,
     OneOf,
+    PlotlyChart,
     RadioGroup,
     SelectDataset,
     Switch,
@@ -168,6 +171,72 @@ iframe_perclass_outcome_counts_normalized = IFrame(
 iframe_perclass_outcome_counts_absolute = IFrame(
     "static/12_03_perclass.html", width=820, height=520
 )
+
+# fig1, fig2 = perclass_outcome_counts()
+# plotly_outcome_counts_norm = PlotlyChart(fig1)
+# plotly_outcome_counts_rel = PlotlyChart(fig2)
+
+dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
+
+dialog_container = Container([dialog_gallery])
+dialog = Dialog(content=dialog_container)
+
+
+# @plotly_outcome_counts_norm.click
+# def click_handler(datapoints):
+#     plotly_outcome_counts_norm.loading = True
+#     for datapoint in datapoints:
+#         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
+#         label = datapoint.label
+#         break
+
+#     image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
+#     image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
+#     anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
+
+#     for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
+#         image_name = image_info.name
+#         image_url = image_info.full_storage_url
+
+#         dialog_gallery.append(
+#             title=image_name,
+#             image_url=image_url,
+#             annotation_info=ann_info,
+#             column_index=idx % dialog_gallery.columns_number,
+#             project_meta=g.dt_project_meta,
+#         )
+#     dialog.title = label
+#     plotly_outcome_counts_norm.loading = False
+#     dialog.show()
+
+
+# @plotly_outcome_counts_rel.click
+# def click_handler(datapoints):
+#     plotly_outcome_counts_rel.loading = True
+#     for datapoint in datapoints:
+#         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
+#         label = datapoint.label
+#         break
+
+#     image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
+#     image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
+#     anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
+
+#     for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
+#         image_name = image_info.name
+#         image_url = image_info.full_storage_url
+
+#         dialog_gallery.append(
+#             title=image_name,
+#             image_url=image_url,
+#             annotation_info=ann_info,
+#             column_index=idx % dialog_gallery.columns_number,
+#             project_meta=g.dt_project_meta,
+#         )
+#     dialog.title = label
+#     plotly_outcome_counts_rel.loading = False
+#     dialog.show()
+
 
 radio_group = RadioGroup(
     [
