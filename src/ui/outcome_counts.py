@@ -72,54 +72,54 @@ def outcome_counts():
     return fig
 
 
-markdown = Markdown(
-    f"""## Outcome Counts
+# markdown = Markdown(
+#     f"""## Outcome Counts
 
-This chart is used to evaluate the overall model performance by breaking down all predictions into <abbr title="{definitions.true_positives}">True Positives</abbr> (TP), <abbr title="{definitions.false_positives}">False Positives</abbr> (FP), and <abbr title="{definitions.false_negatives}">False Negatives</abbr> (FN). This helps to visually assess the type of errors the model often encounters.
-""",
-    show_border=False,
-)
-fig = outcome_counts()
-plotly_outcome_counts = PlotlyChart(fig)
-dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
+# This chart is used to evaluate the overall model performance by breaking down all predictions into <abbr title="{definitions.true_positives}">True Positives</abbr> (TP), <abbr title="{definitions.false_positives}">False Positives</abbr> (FP), and <abbr title="{definitions.false_negatives}">False Negatives</abbr> (FN). This helps to visually assess the type of errors the model often encounters.
+# """,
+#     show_border=False,
+# )
+# fig = outcome_counts()
+# plotly_outcome_counts = PlotlyChart(fig)
+# dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
 
-dialog_container = Container([dialog_gallery])
-dialog = Dialog(content=dialog_container)
-
-
-@plotly_outcome_counts.click
-def click_handler(datapoints):
-    plotly_outcome_counts.loading = True
-    for datapoint in datapoints:
-        # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
-        label = datapoint.label
-        break
-
-    dialog_gallery.clean_up()
-
-    image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
-    image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
-    anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
-
-    for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
-        image_name = image_info.name
-        image_url = image_info.full_storage_url
-
-        dialog_gallery.append(
-            title=image_name,
-            image_url=image_url,
-            annotation_info=ann_info,
-            column_index=idx % dialog_gallery.columns_number,
-            project_meta=g.dt_project_meta,
-        )
-    dialog.title = label
-    plotly_outcome_counts.loading = False
-    dialog.show()
+# dialog_container = Container([dialog_gallery])
+# dialog = Dialog(content=dialog_container)
 
 
-container = Container(
-    widgets=[
-        markdown,
-        plotly_outcome_counts,
-    ]
-)
+# @plotly_outcome_counts.click
+# def click_handler(datapoints):
+#     plotly_outcome_counts.loading = True
+#     for datapoint in datapoints:
+#         # texts += f"\nx: {datapoint.x}, y: {datapoint.y}"  # или другие поля
+#         label = datapoint.label
+#         break
+
+#     dialog_gallery.clean_up()
+
+#     image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
+#     image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
+#     anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
+
+#     for idx, (image_info, ann_info) in enumerate(zip(image_infos, anns_infos)):
+#         image_name = image_info.name
+#         image_url = image_info.full_storage_url
+
+#         dialog_gallery.append(
+#             title=image_name,
+#             image_url=image_url,
+#             annotation_info=ann_info,
+#             column_index=idx % dialog_gallery.columns_number,
+#             project_meta=g.dt_project_meta,
+#         )
+#     dialog.title = label
+#     plotly_outcome_counts.loading = False
+#     dialog.show()
+
+
+# container = Container(
+#     widgets=[
+#         markdown,
+#         plotly_outcome_counts,
+#     ]
+# )

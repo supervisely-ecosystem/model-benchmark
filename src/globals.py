@@ -22,9 +22,12 @@ if sly.is_development():
 
 api = sly.Api.from_env()
 
-SLY_APP_DATA_DIR = sly.app.get_data_dir()
-STATIC_DIR = os.path.join(SLY_APP_DATA_DIR, "static")
+STORAGE_DIR = sly.app.get_data_dir()
+STATIC_DIR = os.path.join(STORAGE_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
+TF_RESULT_DIR = "/model-benchmark"
+TO_TEAMFILES_DIR = f"{STORAGE_DIR}/to_teamfiles"
+sly.fs.mkdir(TO_TEAMFILES_DIR, remove_content_if_exists=True)
 
 cocoGt_path = "APP_DATA/data/cocoGt.json"  # cocoGt_remap.json"
 cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
@@ -87,6 +90,7 @@ diff_dataset_id = 93099
 
 
 _workspace_id = 1076
+_team_id = 440
 
 
 dt_image_infos = api.image.get_list(dt_dataset_id)
