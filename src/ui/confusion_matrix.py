@@ -116,14 +116,14 @@ The diagonal elements represent the number of correct predictions for each class
 """,
     show_border=False,
 )
-fig = _confusion_matrix()
-plotly_confusion_matrix = PlotlyChart(fig)
+# fig = _confusion_matrix()
+# plotly_confusion_matrix = PlotlyChart(fig)
 
-dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
-dialog_container = Container([dialog_gallery])
-dialog = Dialog(content=dialog_container)
+# dialog_gallery = GridGalleryV2(columns_number=4, enable_zoom=False)
+# dialog_container = Container([dialog_gallery])
+# dialog = Dialog(content=dialog_container)
 
-# iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1000, height=1000)
+iframe_confusion_matrix = IFrame("static/08_1_confusion_matrix.html", width=1050, height=1050)
 
 
 # @plotly_confusion_matrix.click
@@ -157,8 +157,8 @@ dialog = Dialog(content=dialog_container)
 container = Container(
     widgets=[
         markdown_confusion_matrix,
-        plotly_confusion_matrix,
-        # iframe_confusion_matrix,
+        # plotly_confusion_matrix,
+        iframe_confusion_matrix,
         # iframe_confusion_matrix_mini,
     ]
 )

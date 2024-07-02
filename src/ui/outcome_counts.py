@@ -95,6 +95,8 @@ def click_handler(datapoints):
         label = datapoint.label
         break
 
+    dialog_gallery.clean_up()
+
     image_ids = list(set([x["dt_img_id"] for x in g.click_data.oucome_counts[label]]))
     image_infos = [x for x in g.dt_image_infos if x.id in image_ids][:20]
     anns_infos = [x for x in g.dt_anns_infos if x.image_id in image_ids][:20]
