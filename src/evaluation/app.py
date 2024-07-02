@@ -1,8 +1,7 @@
 import supervisely as sly
 from supervisely.app import widgets as W
 from src.evaluation.run_evaluation import evaluate
-from src.evaluation.run_speedtest import run_speedtest, upload_results
-
+from src.evaluation.run_speedtest import run_speedtest
 
 
 api = sly.Api()
@@ -22,11 +21,6 @@ gt_selector = W.SelectDataset(
     allowed_project_types=[sly.ProjectType.IMAGES],
     )
 
-dt_selector = W.SelectProject(
-    workspace_id=workspace_id,
-    allowed_types=[sly.ProjectType.IMAGES],
-    )
-
 model_selector = W.SelectAppSession(
     team_id,
     ["deployed_nn"],
@@ -34,59 +28,34 @@ model_selector = W.SelectAppSession(
 
 run_eval_check = W.Checkbox("Run evaluation", True)
 run_speedtest_check = W.Checkbox("Run speed test", True)
-
-path_selector = W.TeamFilesSelector(team_id, selection_file_type='folder')
-
-eval_tab = W.Container([
-        W.Field(gt_selector, "Ground Truth Project"),
-        W.Field(dt_selector, "Predicted Project"),
-        W.Field(model_selector, "Model session"),
-        run_eval_check,
-        run_speedtest_check,
-])
-
-load_tab = W.Container([
-        W.Field(path_selector, "Eval results", "Path to the base dir of evaluation results"),
-])
-
-tabs = W.Tabs(
-    ["Run evaluation", "Load Dashboard"],
-    [eval_tab, load_tab],
-    )
-
-
 run_button = W.Button("Run")
+
 
 @run_button.click
 def run():
-    if tabs.get_active_tab() == "Run evaluation":
-        gt_project_id = gt_selector.get_selected_project_id()
-        gt_dataset_ids = gt_selector.get_selected_ids()
-        model_session_id = model_selector.get_selected_id()
-        dt_project_info = None
-        if run_eval_check.is_checked():
-            dt_project_info = evaluate(
-                api,
-                gt_project_id,
-                model_session_id,
-                gt_dataset_ids=gt_dataset_ids,
-                )
-        if run_speedtest_check.is_checked():
-            if dt_project_info is None:
-                dt_project_id = dt_selector.get_selected_id()
-            else:
-                dt_project_id = dt_project_info.id
-            benchmarks, model_info = run_speedtest(api, gt_project_id, model_session_id)
-            upload_results(api, benchmarks, model_info)
+    gt_project_id = gt_selector.get_selected_project_id()
+    gt_dataset_ids = gt_selector.get_selected_ids()
+    model_session_id = model_selector.get_selected_id()
+    if run_eval_check.is_checked():
+        evaluate(
+            api,
+            gt_project_id,
+            model_session_id,
+            gt_dataset_ids=gt_dataset_ids,
+            )
+    if run_speedtest_check.is_checked():
+        run_speedtest(api, gt_project_id, model_session_id)
 
 
-def update_dt_selector_visibility():
-    if not run_eval_check.is_checked() and run_speedtest_check.is_checked():
-        dt_selector.show()
-    else:
-        dt_selector.hide()
+# Layout
+content = W.Container([
+        W.Field(gt_selector, "Ground Truth Project"),
+        W.Field(model_selector, "Model session"),
+        run_eval_check,
+        run_speedtest_check,
+        run_button,
+])
 
-
-layout = W.Container([tabs, run_button])
+layout = W.Card("Run Evaluation", content=content)
 
 app = sly.Application(layout=layout)

@@ -1,5 +1,5 @@
 import os
-from typing import Union
+import numpy as np
 import supervisely as sly
 from supervisely.nn.inference import SessionJSON
 from tqdm import tqdm
@@ -19,7 +19,7 @@ def run_speedtest(
 
     model_info = {
         "app_name": session_info["app_name"],
-        "model_name": "yolov8s",  # TODO: get model name from session_info
+        "model_name": "yolov8l",  # TODO: get model name from session_info
     }
 
     speedtest_info = {
@@ -43,23 +43,29 @@ def run_speedtest(
         for speedtest in tqdm(iterator):
             speedtest_results.append(speedtest)
         assert len(speedtest_results) == num_iterations, "Speedtest failed to run all iterations."
-        avg_speedtest = {k: sum([s[k] for s in speedtest_results]) / len(speedtest_results) for k in speedtest_results[0].keys()}
+        x = [[s[k] for s in speedtest_results] for k in speedtest_results[0].keys()]
+        x = np.array(x, dtype=float)
+        avg = x.mean(1)
+        std = x.std(1)
+        avg_speedtest = {k: float(avg[i]) if not np.isnan(avg[i]).any() else None for i, k in enumerate(speedtest_results[0].keys())}
+        std_speedtest = {k: float(std[i]) if not np.isnan(std[i]).any() else None for i, k in enumerate(speedtest_results[0].keys())}
         benchmark = {
             "benchmark": avg_speedtest,
+            "benchmark_std": std_speedtest,
             "batch_size": bs,
             **speedtest_info,
         }
         benchmarks.append(benchmark)
+    upload_results(api, benchmarks, model_info)
     return benchmarks, model_info
 
 
 def upload_results(api: sly.Api, benchmarks: list, model_info: dict):
     model_name = model_info["model_name"]
-    data_dir = sly.app.get_data_dir()
+    data_dir = "APP_DATA"
     b_path = os.path.join(data_dir, "speedtest.json")
-    sly.json.dump_json_file(benchmarks, indent=2)
+    sly.json.dump_json_file(benchmarks, b_path, indent=2)
     api.file.upload(sly.env.team_id(), b_path, f"/model-benchmark/speedtest/{model_name}.json")
-    api.project.update_custom_data(dt_project_id, {"speedtest": benchmarks})
 
 
 if __name__ == "__main__":

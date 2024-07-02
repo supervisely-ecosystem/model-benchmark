@@ -36,7 +36,6 @@ def evaluate(
         cache_project,
         )
     base_dir = os.path.join(save_path, dt_project_info.name)
-    sly.json.dump_json_file(eval_info, os.path.join(base_dir, "info.json"), indent=2)
     download_projects(api, base_dir, gt_project_info, dt_project_info, gt_dataset_ids)
     cocoGt_json, cocoDt_json = convert_to_coco(base_dir)
     cocoGt, cocoDt = read_coco_datasets(cocoGt_json, cocoDt_json)
@@ -46,8 +45,8 @@ def evaluate(
     m = MetricProvider(eval_data['matches'], eval_data['coco_metrics'], eval_data['params'], cocoGt, cocoDt)
     print(m.base_metrics())
 
-    add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
-    dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data)
+    # add_tags_to_dt_project(api, eval_data["matches"], dt_project_info.id, cocoGt_json, cocoDt_json)
+    dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data, eval_info)
     upload_eval_results(api, base_dir)
     print("Done!")
     return dt_project_info
@@ -275,7 +274,8 @@ def dump_eval_results(base_dir, cocoGt_json, cocoDt_json, eval_data, eval_info):
 def upload_eval_results(api: sly.Api, base_dir):
     team_id = sly.env.team_id()
     local_eval_paths = get_eval_paths(base_dir)
-    dst_dir = f"/model-benchmark/evaluation/{base_dir}/"
+    project_dir = base_dir.split("/")[1]
+    dst_dir = f"/model-benchmark/evaluation/{project_dir}/"
     dst_paths = [dst_dir + os.path.basename(x) for x in local_eval_paths]
     api.file.upload_bulk(team_id, local_eval_paths, dst_paths)
 
