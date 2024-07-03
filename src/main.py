@@ -25,17 +25,28 @@ from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 
 def main_func():
 
-    fig = confusion_matrix._confusion_matrix()
-    json_fig = fig.to_json()
+    for module in [overview, outcome_counts, confusion_matrix]:
 
-    local_path = f"{g.TO_TEAMFILES_DIR}/confusion_matrix.json"
+        fig = module.get_figure()
+        json_fig = fig.to_json()
 
-    tf_path = f"{g.TF_RESULT_DIR}/confusion_matrix.json"
+        name = module.__name__.split(".")[-1]
 
+        local_path = f"{g.TO_TEAMFILES_DIR}/{name}.json"
+
+        with open(local_path, "w", encoding="utf-8") as f:
+            f.write(json_fig)
+
+        sly.logger.info(f"{name!r} - Done.")
+
+    table_preds = g.m.prediction_table()
+    local_path = f"{g.TO_TEAMFILES_DIR}/prediction_table.json"
     with open(local_path, "w", encoding="utf-8") as f:
-        json.dump(json_fig, f)
+        f.write(table_preds.to_json())
 
-    g.api.file.upload(g._team_id, local_path, tf_path)
+    g.api.file.upload_directory(
+        g._team_id, g.TO_TEAMFILES_DIR, g.TF_RESULT_DIR, replace_if_conflict=True
+    )
 
     sly.logger.info("Done.")
 

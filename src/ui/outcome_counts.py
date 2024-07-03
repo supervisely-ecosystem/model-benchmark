@@ -31,7 +31,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-def outcome_counts():
+def get_figure():
     # Outcome counts
     fig = go.Figure()
     fig.add_trace(

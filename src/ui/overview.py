@@ -27,7 +27,7 @@ from supervisely.app.widgets import (
 )
 
 
-def overall():
+def get_figure() -> go.Figure:
     # Overall Metrics
     base_metrics = g.m.base_metrics()
     r = list(base_metrics.values())

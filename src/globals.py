@@ -25,7 +25,7 @@ api = sly.Api.from_env()
 STORAGE_DIR = sly.app.get_data_dir()
 STATIC_DIR = os.path.join(STORAGE_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
-TF_RESULT_DIR = "/model-benchmark"
+TF_RESULT_DIR = "/model-benchmark/layout"
 TO_TEAMFILES_DIR = f"{STORAGE_DIR}/to_teamfiles"
 sly.fs.mkdir(TO_TEAMFILES_DIR, remove_content_if_exists=True)
 

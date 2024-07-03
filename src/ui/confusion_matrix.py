@@ -30,7 +30,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-def _confusion_matrix():
+def get_figure() -> go.Figure:
     confusion_matrix = g.m.confusion_matrix()
     # Confusion Matrix
     # TODO: Green-red
