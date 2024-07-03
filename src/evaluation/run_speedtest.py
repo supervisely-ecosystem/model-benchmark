@@ -11,8 +11,9 @@ def run_speedtest(
         model_session_id: int,
         batch_size_list: list = (1, 8, 16),
         num_iterations: int = 100,
-        num_warmup: int = 5,
+        num_warmup: int = 3,
         inference_settings: dict = None,
+        cache_project_on_model=False,
         ):
     model_session = SessionJSON(api, model_session_id, inference_settings=inference_settings)
     session_info = model_session.get_session_info()
@@ -38,7 +39,7 @@ def run_speedtest(
             batch_size=bs,
             num_iterations=num_iterations,
             num_warmup=num_warmup,
-            cache_project_on_model=True
+            cache_project_on_model=cache_project_on_model,
             )
         for speedtest in tqdm(iterator):
             speedtest_results.append(speedtest)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     model_session_id = 456
     batch_size_list = [1, 8, 16]
     num_iterations = 100
-    num_warmup = 5
+    num_warmup = 3
 
     benchmarks, model_info = run_speedtest(
         api,

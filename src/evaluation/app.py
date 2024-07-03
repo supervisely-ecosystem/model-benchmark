@@ -29,6 +29,7 @@ model_selector = W.SelectAppSession(
 run_eval_check = W.Checkbox("Run evaluation", True)
 run_speedtest_check = W.Checkbox("Run speed test", True)
 run_button = W.Button("Run")
+logs = W.TaskLogs()
 
 
 @run_button.click
@@ -54,6 +55,7 @@ content = W.Container([
         run_eval_check,
         run_speedtest_check,
         run_button,
+        logs,
 ])
 
 layout = W.Card("Run Evaluation", content=content)

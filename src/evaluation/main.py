@@ -25,7 +25,7 @@ inference_params = {
 speedtest_params = {
     "batch_size": [1, 8, 16],
     "num_iterations": 100,
-    "num_warmup": 5,
+    "num_warmup": 3,
 }
 
 # validate
