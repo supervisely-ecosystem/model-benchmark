@@ -1,6 +1,7 @@
 import os
 import random
 from collections import defaultdict
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,7 @@ from supervisely.app.widgets import (
 class Overview(u.PlotlyHandler):
 
     @classmethod
-    def get_figure(cls) -> go.Figure:
+    def get_figure(cls) -> Optional[go.Figure]:
         # Overall Metrics
         base_metrics = g.m.base_metrics()
         r = list(base_metrics.values())

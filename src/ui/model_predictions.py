@@ -27,47 +27,46 @@ from supervisely.app.widgets import (
 from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
+# def grid_gallery_model_preds():
 
-def grid_gallery_model_preds():
+#     gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.gt_project_id))
+#     pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.dt_project_id))
+#     diff_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.diff_project_id))
 
-    gt_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.gt_project_id))
-    pred_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.dt_project_id))
-    diff_project_meta = sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=g.diff_project_id))
+#     global grid_gallery_preds
+#     # initialize widgets we will use in UI
 
-    global grid_gallery_preds
-    # initialize widgets we will use in UI
+#     gt_image_info = g.api.image.get_list(dataset_id=g.gt_dataset_id)[0]
 
-    gt_image_info = g.api.image.get_list(dataset_id=g.gt_dataset_id)[0]
+#     for image in g.api.image.get_list(dataset_id=g.dt_dataset_id):
+#         if image.name == gt_image_info.name:
+#             pred_image_info = image
+#             break
 
-    for image in g.api.image.get_list(dataset_id=g.dt_dataset_id):
-        if image.name == gt_image_info.name:
-            pred_image_info = image
-            break
+#     for image in g.api.image.get_list(dataset_id=g.diff_dataset_id):
+#         if image.name == gt_image_info.name:
+#             diff_image_info = image
+#             break
 
-    for image in g.api.image.get_list(dataset_id=g.diff_dataset_id):
-        if image.name == gt_image_info.name:
-            diff_image_info = image
-            break
+#     images_infos = [gt_image_info, pred_image_info, diff_image_info]
+#     anns_infos = [g.api.annotation.download(x.id) for x in images_infos]
+#     project_metas = [gt_project_meta, pred_project_meta, diff_project_meta]
 
-    images_infos = [gt_image_info, pred_image_info, diff_image_info]
-    anns_infos = [g.api.annotation.download(x.id) for x in images_infos]
-    project_metas = [gt_project_meta, pred_project_meta, diff_project_meta]
+#     for idx, (image_info, ann_info, project_meta) in enumerate(
+#         zip(images_infos, anns_infos, project_metas)
+#     ):
+#         image_name = image_info.name
+#         image_url = image_info.full_storage_url
 
-    for idx, (image_info, ann_info, project_meta) in enumerate(
-        zip(images_infos, anns_infos, project_metas)
-    ):
-        image_name = image_info.name
-        image_url = image_info.full_storage_url
-
-        is_ignore = True if idx == 0 else False
-        grid_gallery_preds.append(
-            title=image_name,
-            image_url=image_url,
-            annotation_info=ann_info,
-            column_index=idx,
-            project_meta=project_meta,
-            ignore_tags_filtering=is_ignore,
-        )
+#         is_ignore = True if idx == 0 else False
+#         grid_gallery_preds.append(
+#             title=image_name,
+#             image_url=image_url,
+#             annotation_info=ann_info,
+#             column_index=idx,
+#             project_meta=project_meta,
+#             ignore_tags_filtering=is_ignore,
+#         )
 
 
 # markdown = Markdown(

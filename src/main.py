@@ -2,30 +2,53 @@ import json
 from typing import Optional
 
 import plotly.graph_objects as go
+from tqdm import tqdm
 
 import src.globals as g
-
-# import src.ui.detailed_metrics as detailed_metrics
-# import src.ui.frequently_confused as frequently_confused
-# import src.ui.inference_speed as inference_speed
-# import src.ui.iou_distribution as iou_distribution
-import src.ui.model_predictions as model_preds
 import src.utils as u
-
-# import src.ui.pr_curve as pr_curve
-# import src.ui.pr_metrics as pr_metrics
-# import src.ui.what_is_section as what_is
 import supervisely as sly
-
-# import src.ui.calibration_score as calibration_score
-# import src.ui.classification_accuracy as classification_accuracy
+from src.ui.calibration_score import (
+    ConfidenceDistribution,
+    ConfidenceScore,
+    F1ScoreAtDifferentIOU,
+    ReliabilityDiagram,
+)
 from src.ui.confusion_matrix import ConfusionMatrix
+from src.ui.frequently_confused import FrequentlyConfused
+
+# import src.ui.inference_speed as inference_speed
+from src.ui.iou_distribution import IOU_Distribution
 from src.ui.outcome_counts import OutcomeCounts
 from src.ui.overview import Overview
 from src.ui.perclass import PerClassAvgPrecision, PerClassOutcomeCounts
+from src.ui.pr_curve import PRCurve, PRCurvePerclass
+from src.ui.pr_metrics import PerclassPrecision, PerclassPrecisionRecall, PerclassRecall
 from supervisely._utils import camel_to_snake
-from supervisely.app import StateJson
 from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
+
+# import src.ui.detailed_metrics as detailed_metrics
+# import src.ui.model_predictions as model_preds
+# import src.ui.what_is_section as what_is
+
+
+_PLOTLY_CHARTS = (
+    Overview,
+    OutcomeCounts,
+    ConfusionMatrix,
+    PerClassAvgPrecision,
+    PerClassOutcomeCounts,
+    PerclassPrecision,
+    PerclassPrecisionRecall,
+    PerclassRecall,
+    PRCurve,
+    PRCurvePerclass,
+    FrequentlyConfused,
+    ReliabilityDiagram,
+    ConfidenceDistribution,
+    F1ScoreAtDifferentIOU,
+    ConfidenceScore,
+    IOU_Distribution,
+)
 
 
 def main_func():
@@ -49,13 +72,7 @@ def main_func():
 
         sly.logger.info("Saved: %r", basename)
 
-    for plotly_chart in [
-        Overview,
-        OutcomeCounts,
-        ConfusionMatrix,
-        PerClassAvgPrecision,
-        PerClassOutcomeCounts,
-    ]:
+    for plotly_chart in _PLOTLY_CHARTS:
         fig = plotly_chart.get_figure()
         if fig is not None:
             write_fig(plotly_chart, fig)
@@ -71,9 +88,19 @@ def main_func():
         f.write(table_preds.to_json())
     sly.logger.info("Saved: %r", basename)
 
-    g.api.file.upload_directory(
-        g._team_id, g.TO_TEAMFILES_DIR, g.TF_RESULT_DIR, replace_if_conflict=True
-    )
+    with tqdm(
+        desc="Uploading .json to teamfiles",
+        total=sly.fs.get_directory_size(g.TO_TEAMFILES_DIR),
+        unit="B",
+        unit_scale=True,
+    ) as pbar:
+        g.api.file.upload_directory(
+            g.TEAM_ID,
+            g.TO_TEAMFILES_DIR,
+            g.TF_RESULT_DIR,
+            replace_if_conflict=True,
+            progress_size_cb=pbar,
+        )
 
     sly.logger.info("Done.")
 

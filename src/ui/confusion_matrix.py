@@ -1,6 +1,7 @@
 import os
 import random
 from collections import defaultdict
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -34,7 +35,7 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 class ConfusionMatrix(u.PlotlyHandler):
 
     @classmethod
-    def get_figure(cls) -> go.Figure:
+    def get_figure(cls) -> Optional[go.Figure]:
         confusion_matrix = g.m.confusion_matrix()
         # Confusion Matrix
         # TODO: Green-red

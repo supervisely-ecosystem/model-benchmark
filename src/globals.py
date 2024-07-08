@@ -67,6 +67,9 @@ f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
 df_score_profile = pd.DataFrame(score_profile)
 df_score_profile.columns = ["scores", "Precision", "Recall", "F1"]
 
+per_class_metrics: pd.DataFrame = m.per_class_metrics()
+per_class_metrics_sorted: pd.DataFrame = per_class_metrics.sort_values(by="f1")
+
 # downsample
 if len(df_score_profile) > 5000:
     dfsp_down = df_score_profile.iloc[:: len(df_score_profile) // 1000]
@@ -90,7 +93,7 @@ diff_dataset_id = 93099
 
 
 _workspace_id = 1076
-_team_id = 440
+TEAM_ID = 440
 
 
 dt_image_infos = api.image.get_list(dt_dataset_id)

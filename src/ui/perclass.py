@@ -1,7 +1,7 @@
 import os
 import random
 from collections import defaultdict
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -41,7 +41,7 @@ from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvide
 class PerClassAvgPrecision(u.PlotlyHandler):
 
     @classmethod
-    def get_figure(cls) -> go.Figure:
+    def get_figure(cls) -> Optional[go.Figure]:
 
         # AP per-class
         ap_per_class = g.m.coco_precision[:, :, :, 0, 2].mean(axis=(0, 1))
@@ -64,7 +64,7 @@ class PerClassAvgPrecision(u.PlotlyHandler):
 class PerClassOutcomeCounts(u.PlotlyHandler):
 
     @classmethod
-    def get_switchable_figures(cls) -> Tuple[go.Figure]:
+    def get_switchable_figures(cls) -> Optional[Tuple[go.Figure]]:
         # Per-class Counts
         iou_thres = 0
 

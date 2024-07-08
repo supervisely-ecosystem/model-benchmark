@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import plotly.graph_objects as go
@@ -12,11 +12,11 @@ class IdMapper:
 
 class PlotlyHandler:
     @classmethod
-    def get_figure(cls) -> go.Figure:
+    def get_figure(cls) -> Optional[go.Figure]:
         pass
 
     @classmethod
-    def get_switchable_figures(cls) -> Tuple[go.Figure]:
+    def get_switchable_figures(cls) -> Optional[Tuple[go.Figure]]:
         pass
 
 
