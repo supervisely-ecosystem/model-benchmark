@@ -99,6 +99,7 @@ def main_func():
             g.TO_TEAMFILES_DIR,
             g.TF_RESULT_DIR,
             replace_if_conflict=True,
+            change_name_if_conflict=False,
             progress_size_cb=pbar,
         )
 
