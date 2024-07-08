@@ -21,8 +21,8 @@ from src.ui.iou_distribution import IOU_Distribution
 from src.ui.outcome_counts import OutcomeCounts
 from src.ui.overview import Overview
 from src.ui.perclass import PerClassAvgPrecision, PerClassOutcomeCounts
-from src.ui.pr_curve import PRCurve, PRCurvePerclass
-from src.ui.pr_metrics import PerclassPrecision, PerclassPrecisionRecall, PerclassRecall
+from src.ui.pr_curve import PRCurve, PRCurveByClass
+from src.ui.pr_metrics import Precision, Recall, RecallVsPrecision
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 
@@ -34,20 +34,20 @@ from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 _PLOTLY_CHARTS = (
     Overview,
     OutcomeCounts,
-    ConfusionMatrix,
-    PerClassAvgPrecision,
-    PerClassOutcomeCounts,
-    PerclassPrecision,
-    PerclassPrecisionRecall,
-    PerclassRecall,
+    Recall,
+    Precision,
+    RecallVsPrecision,
     PRCurve,
-    PRCurvePerclass,
+    PRCurveByClass,
+    ConfusionMatrix,
     FrequentlyConfused,
+    IOU_Distribution,
     ReliabilityDiagram,
+    ConfidenceScore,
     ConfidenceDistribution,
     F1ScoreAtDifferentIOU,
-    ConfidenceScore,
-    IOU_Distribution,
+    PerClassAvgPrecision,
+    PerClassOutcomeCounts,
 )
 
 

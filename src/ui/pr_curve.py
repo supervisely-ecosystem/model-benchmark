@@ -71,7 +71,7 @@ class PRCurve(u.PlotlyHandler):
         return fig
 
 
-class PRCurvePerclass(u.PlotlyHandler):
+class PRCurveByClass(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:

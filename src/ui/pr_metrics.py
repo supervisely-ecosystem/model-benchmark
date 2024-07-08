@@ -31,7 +31,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class PerclassPrecisionRecall(u.PlotlyHandler):
+class RecallVsPrecision(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -64,7 +64,7 @@ class PerclassPrecisionRecall(u.PlotlyHandler):
         return fig
 
 
-class PerclassPrecision(u.PlotlyHandler):
+class Precision(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -87,7 +87,7 @@ class PerclassPrecision(u.PlotlyHandler):
         return fig
 
 
-class PerclassRecall(u.PlotlyHandler):
+class Recall(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
