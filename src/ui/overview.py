@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+import src.utils as u
 import supervisely as sly
 from src.ui import definitions
 from supervisely.app.widgets import (
@@ -27,7 +28,7 @@ from supervisely.app.widgets import (
 )
 
 
-class Overview:
+class Overview(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> go.Figure:

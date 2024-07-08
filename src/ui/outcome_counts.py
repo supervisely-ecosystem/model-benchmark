@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+import src.utils as u
 import supervisely as sly
 from src.ui import definitions
 from supervisely.app.widgets import (
@@ -31,7 +32,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class OutcomeCounts:
+class OutcomeCounts(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> go.Figure:

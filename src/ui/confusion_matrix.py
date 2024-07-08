@@ -11,6 +11,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import src.globals as g
+import src.utils as u
 import supervisely as sly
 from supervisely.app.widgets import (
     Button,
@@ -30,7 +31,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class ConfusionMatrix:
+class ConfusionMatrix(u.PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> go.Figure:
@@ -40,12 +41,8 @@ class ConfusionMatrix:
         cat_names = g.m.cat_names
         none_name = "(None)"
 
-        def silent_log(x):
-            with np.errstate(divide="ignore"):
-                return np.log(x)
-
         df = pd.DataFrame(
-            silent_log(confusion_matrix),
+            u.silent_np_log(confusion_matrix),
             index=cat_names + [none_name],
             columns=cat_names + [none_name],
         )
