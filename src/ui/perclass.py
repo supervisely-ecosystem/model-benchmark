@@ -15,6 +15,7 @@ import src.globals as g
 import src.utils as u
 import supervisely as sly
 from src.ui import definitions
+from src.utils import CVTask, PlotlyHandler
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -38,7 +39,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class PerClassAvgPrecision(u.PlotlyHandler):
+class PerClassAvgPrecision(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -61,7 +62,7 @@ class PerClassAvgPrecision(u.PlotlyHandler):
         return fig
 
 
-class PerClassOutcomeCounts(u.PlotlyHandler):
+class PerClassOutcomeCounts(PlotlyHandler):
 
     @classmethod
     def get_switchable_figures(cls) -> Optional[Tuple[go.Figure]]:

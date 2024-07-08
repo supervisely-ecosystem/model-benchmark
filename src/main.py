@@ -13,22 +13,24 @@ from src.ui.calibration_score import (
     F1ScoreAtDifferentIOU,
     ReliabilityDiagram,
 )
+from src.ui.classwise_error_analysis import ClasswiseErrorAnalysis
 from src.ui.confusion_matrix import ConfusionMatrix
 from src.ui.frequently_confused import FrequentlyConfused
-
-# import src.ui.inference_speed as inference_speed
-from src.ui.iou_distribution import IOU_Distribution
+from src.ui.iou_distribution import IOUDistribution
 from src.ui.outcome_counts import OutcomeCounts
+from src.ui.overall_errors_analysis import OverallErrorAnalysis
 from src.ui.overview import Overview
 from src.ui.perclass import PerClassAvgPrecision, PerClassOutcomeCounts
 from src.ui.pr_curve import PRCurve, PRCurveByClass
 from src.ui.pr_metrics import Precision, Recall, RecallVsPrecision
+from src.utils import CVTask, PlotlyHandler
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 
 # import src.ui.detailed_metrics as detailed_metrics
 # import src.ui.model_predictions as model_preds
 # import src.ui.what_is_section as what_is
+# import src.ui.inference_speed as inference_speed
 
 
 _PLOTLY_CHARTS = (
@@ -41,26 +43,29 @@ _PLOTLY_CHARTS = (
     PRCurveByClass,
     ConfusionMatrix,
     FrequentlyConfused,
-    IOU_Distribution,
+    IOUDistribution,
     ReliabilityDiagram,
     ConfidenceScore,
     ConfidenceDistribution,
     F1ScoreAtDifferentIOU,
     PerClassAvgPrecision,
     PerClassOutcomeCounts,
+    # segmentation-only
+    OverallErrorAnalysis,
+    ClasswiseErrorAnalysis,
 )
 
 
 def main_func():
 
     def write_fig(
-        plotly_chart: u.PlotlyHandler, fig: go.Figure, fig_idx: Optional[int] = None
+        plotly_chart: PlotlyHandler, fig: go.Figure, fig_idx: Optional[int] = None
     ) -> None:
         json_fig = fig.to_json()
 
         chart_name = camel_to_snake(plotly_chart.__name__)
         basename = f"{chart_name}.json"
-        local_path = f"{g.TO_TEAMFILES_DIR}/{chart_name}.json"
+        local_path = f"{g.TO_TEAMFILES_DIR}/{basename}"
 
         if fig_idx is not None:
             fig_idx = "{:02d}".format(fig_idx)

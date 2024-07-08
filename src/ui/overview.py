@@ -15,6 +15,7 @@ import src.globals as g
 import src.utils as u
 import supervisely as sly
 from src.ui import definitions
+from src.utils import CVTask, PlotlyHandler
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -29,7 +30,7 @@ from supervisely.app.widgets import (
 )
 
 
-class Overview(u.PlotlyHandler):
+class Overview(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:

@@ -15,6 +15,7 @@ import src.globals as g
 import src.utils as u
 import supervisely as sly
 from src.ui import definitions
+from src.utils import CVTask, PlotlyHandler
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -32,7 +33,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class ReliabilityDiagram(u.PlotlyHandler):
+class ReliabilityDiagram(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -75,7 +76,7 @@ class ReliabilityDiagram(u.PlotlyHandler):
         return fig
 
 
-class ConfidenceScore(u.PlotlyHandler):
+class ConfidenceScore(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -115,7 +116,7 @@ class ConfidenceScore(u.PlotlyHandler):
         return fig
 
 
-class F1ScoreAtDifferentIOU(u.PlotlyHandler):
+class F1ScoreAtDifferentIOU(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -162,7 +163,7 @@ class F1ScoreAtDifferentIOU(u.PlotlyHandler):
         return fig
 
 
-class ConfidenceDistribution(u.PlotlyHandler):
+class ConfidenceDistribution(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:

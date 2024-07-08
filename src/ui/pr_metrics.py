@@ -15,6 +15,7 @@ import src.globals as g
 import src.utils as u
 import supervisely as sly
 from src.ui import definitions
+from src.utils import CVTask, PlotlyHandler
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -31,7 +32,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class RecallVsPrecision(u.PlotlyHandler):
+class RecallVsPrecision(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -64,7 +65,7 @@ class RecallVsPrecision(u.PlotlyHandler):
         return fig
 
 
-class Precision(u.PlotlyHandler):
+class Precision(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
@@ -87,7 +88,7 @@ class Precision(u.PlotlyHandler):
         return fig
 
 
-class Recall(u.PlotlyHandler):
+class Recall(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:

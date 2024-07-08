@@ -14,6 +14,7 @@ from pycocotools.cocoeval import COCOeval, Params
 import src.globals as g
 import src.utils as u
 import supervisely as sly
+from src.utils import CVTask, PlotlyHandler
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -32,7 +33,7 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-class ConfusionMatrix(u.PlotlyHandler):
+class ConfusionMatrix(PlotlyHandler):
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:

@@ -3,6 +3,8 @@ from typing import List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
+from supervisely.collection.str_enum import StrEnum
+
 
 class IdMapper:
     def __init__(self, coco_dataset: dict):
@@ -10,7 +12,16 @@ class IdMapper:
         self.map_obj = {x["id"]: x["sly_id"] for x in coco_dataset["annotations"]}
 
 
+class CVTask(str, StrEnum):
+
+    OBJECT_DETECTION: str = "object_detection"
+    SEGMENTATION: str = "segmentation"
+
+
 class PlotlyHandler:
+
+    cv_tasks: Tuple[CVTask] = tuple(CVTask.values())
+
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
         pass
