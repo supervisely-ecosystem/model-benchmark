@@ -30,36 +30,45 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-def get_figure() -> go.Figure:
-    confusion_matrix = g.m.confusion_matrix()
-    # Confusion Matrix
-    # TODO: Green-red
-    cat_names = g.m.cat_names
-    none_name = "(None)"
+class ConfusionMatrix:
 
-    confusion_matrix_df = pd.DataFrame(
-        np.log(confusion_matrix), index=cat_names + [none_name], columns=cat_names + [none_name]
-    )
-    fig = px.imshow(
-        confusion_matrix_df,
-        labels=dict(x="Ground Truth", y="Predicted", color="Count"),
-        # title="Confusion Matrix (log-scale)",
-        width=1000,
-        height=1000,
-    )
+    @classmethod
+    def get_figure(cls) -> go.Figure:
+        confusion_matrix = g.m.confusion_matrix()
+        # Confusion Matrix
+        # TODO: Green-red
+        cat_names = g.m.cat_names
+        none_name = "(None)"
 
-    # Hover text
-    fig.update_traces(
-        customdata=confusion_matrix,
-        hovertemplate="Count: %{customdata}<br>Predicted: %{y}<br>Ground Truth: %{x}",
-    )
+        def silent_log(x):
+            with np.errstate(divide="ignore"):
+                return np.log(x)
 
-    # Text on cells
-    if len(cat_names) <= 20:
-        fig.update_traces(text=confusion_matrix, texttemplate="%{text}")
+        df = pd.DataFrame(
+            silent_log(confusion_matrix),
+            index=cat_names + [none_name],
+            columns=cat_names + [none_name],
+        )
+        fig = px.imshow(
+            df,
+            labels=dict(x="Ground Truth", y="Predicted", color="Count"),
+            # title="Confusion Matrix (log-scale)",
+            width=1000,
+            height=1000,
+        )
 
-    # fig.show()
-    return fig
+        # Hover text
+        fig.update_traces(
+            customdata=confusion_matrix,
+            hovertemplate="Count: %{customdata}<br>Predicted: %{y}<br>Ground Truth: %{x}",
+        )
+
+        # Text on cells
+        if len(cat_names) <= 20:
+            fig.update_traces(text=confusion_matrix, texttemplate="%{text}")
+
+        # fig.show()
+        return fig
 
 
 # def confusion_matrix_mini():

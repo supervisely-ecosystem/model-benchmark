@@ -27,68 +27,72 @@ from supervisely.app.widgets import (
 )
 
 
-def get_figure() -> go.Figure:
-    # Overall Metrics
-    base_metrics = g.m.base_metrics()
-    r = list(base_metrics.values())
-    theta = [g.metric_provider.METRIC_NAMES[k] for k in base_metrics.keys()]
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatterpolar(
-            r=r + [r[0]],
-            theta=theta + [theta[0]],
-            fill="toself",
-            name="Overall Metrics",
-            hovertemplate="%{theta}: %{r:.2f}<extra></extra>",
-        )
-    )
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(range=[0.0, 1.0]), angularaxis=dict(rotation=90, direction="clockwise")
-        ),
-        # title="Overall Metrics",
-        width=600,
-        height=500,
-    )
-    return fig
+class Overview:
 
-
-def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
-
-    gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
-    pred_image_infos = g.api.image.get_list(dataset_id=g.dt_dataset_id)[:5]
-    diff_image_infos = g.api.image.get_list(dataset_id=g.diff_dataset_id)[:5]
-
-    # gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
-    # pred_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
-    # diff_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
-
-    project_metas = [
-        sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-        for x in [g.gt_project_id, g.dt_project_id, g.diff_project_id]
-    ]
-    # project_metas = [
-    #     sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
-    #     for x in [g.gt_project_id, g.gt_project_id, g.gt_project_id]
-    # ]
-    for gt_image, pred_image, diff_image in zip(gt_image_infos, pred_image_infos, diff_image_infos):
-        image_infos = [gt_image, pred_image, diff_image]
-        ann_infos = [g.api.annotation.download(x.id) for x in image_infos]
-
-        for idx, (image_info, ann_info, project_meta) in enumerate(
-            zip(image_infos, ann_infos, project_metas)
-        ):
-            image_name = image_info.name
-            image_url = image_info.full_storage_url
-            is_ignore = True if idx == 0 else False
-            grid_gallery.append(
-                title=image_name,
-                image_url=image_url,
-                annotation_info=ann_info,
-                column_index=idx,
-                project_meta=project_meta,
-                ignore_tags_filtering=is_ignore,
+    @classmethod
+    def get_figure(cls) -> go.Figure:
+        # Overall Metrics
+        base_metrics = g.m.base_metrics()
+        r = list(base_metrics.values())
+        theta = [g.metric_provider.METRIC_NAMES[k] for k in base_metrics.keys()]
+        fig = go.Figure()
+        fig.add_trace(
+            go.Scatterpolar(
+                r=r + [r[0]],
+                theta=theta + [theta[0]],
+                fill="toself",
+                name="Overall Metrics",
+                hovertemplate="%{theta}: %{r:.2f}<extra></extra>",
             )
+        )
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(range=[0.0, 1.0]),
+                angularaxis=dict(rotation=90, direction="clockwise"),
+            ),
+            # title="Overall Metrics",
+            width=600,
+            height=500,
+        )
+        return fig
+
+
+# def explorer(grid_gallery: GridGalleryV2, selected_image_name="000000575815.jpg"):
+
+#     gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+#     pred_image_infos = g.api.image.get_list(dataset_id=g.dt_dataset_id)[:5]
+#     diff_image_infos = g.api.image.get_list(dataset_id=g.diff_dataset_id)[:5]
+
+#     # gt_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+#     # pred_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+#     # diff_image_infos = g.api.image.get_list(dataset_id=g.gt_dataset_id)[:5]
+
+#     project_metas = [
+#         sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
+#         for x in [g.gt_project_id, g.dt_project_id, g.diff_project_id]
+#     ]
+#     # project_metas = [
+#     #     sly.ProjectMeta.from_json(data=g.api.project.get_meta(id=x))
+#     #     for x in [g.gt_project_id, g.gt_project_id, g.gt_project_id]
+#     # ]
+#     for gt_image, pred_image, diff_image in zip(gt_image_infos, pred_image_infos, diff_image_infos):
+#         image_infos = [gt_image, pred_image, diff_image]
+#         ann_infos = [g.api.annotation.download(x.id) for x in image_infos]
+
+#         for idx, (image_info, ann_info, project_meta) in enumerate(
+#             zip(image_infos, ann_infos, project_metas)
+#         ):
+#             image_name = image_info.name
+#             image_url = image_info.full_storage_url
+#             is_ignore = True if idx == 0 else False
+#             grid_gallery.append(
+#                 title=image_name,
+#                 image_url=image_url,
+#                 annotation_info=ann_info,
+#                 column_index=idx,
+#                 project_meta=project_meta,
+#                 ignore_tags_filtering=is_ignore,
+#             )
 
 
 # checkpoint_name = "YOLOv8-L (COCO 2017 val)"

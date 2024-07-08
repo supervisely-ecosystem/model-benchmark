@@ -31,45 +31,48 @@ from supervisely.nn.benchmark import metric_provider
 from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 
-def get_figure():
-    # Outcome counts
-    fig = go.Figure()
-    fig.add_trace(
-        go.Bar(
-            x=[g.m.TP_count],
-            y=["Outcome"],
-            name="TP",
-            orientation="h",
-            marker=dict(color="#1fb466"),
-        )
-    )
-    fig.add_trace(
-        go.Bar(
-            x=[g.m.FN_count],
-            y=["Outcome"],
-            name="FN",
-            orientation="h",
-            marker=dict(color="#dd3f3f"),
-        )
-    )
-    fig.add_trace(
-        go.Bar(
-            x=[g.m.FP_count],
-            y=["Outcome"],
-            name="FP",
-            orientation="h",
-            marker=dict(color="#d5a5a5"),
-        )
-    )
-    fig.update_layout(
-        barmode="stack",
-        width=600,
-        height=300,
-    )
-    fig.update_xaxes(title_text="Count")
-    fig.update_yaxes(tickangle=-90)
+class OutcomeCounts:
 
-    return fig
+    @classmethod
+    def get_figure(cls) -> go.Figure:
+        # Outcome counts
+        fig = go.Figure()
+        fig.add_trace(
+            go.Bar(
+                x=[g.m.TP_count],
+                y=["Outcome"],
+                name="TP",
+                orientation="h",
+                marker=dict(color="#1fb466"),
+            )
+        )
+        fig.add_trace(
+            go.Bar(
+                x=[g.m.FN_count],
+                y=["Outcome"],
+                name="FN",
+                orientation="h",
+                marker=dict(color="#dd3f3f"),
+            )
+        )
+        fig.add_trace(
+            go.Bar(
+                x=[g.m.FP_count],
+                y=["Outcome"],
+                name="FP",
+                orientation="h",
+                marker=dict(color="#d5a5a5"),
+            )
+        )
+        fig.update_layout(
+            barmode="stack",
+            width=600,
+            height=300,
+        )
+        fig.update_xaxes(title_text="Count")
+        fig.update_yaxes(tickangle=-90)
+
+        return fig
 
 
 # markdown = Markdown(
