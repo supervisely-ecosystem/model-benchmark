@@ -12,7 +12,7 @@ class IdMapper:
         self.map_obj = {x["id"]: x["sly_id"] for x in coco_dataset["annotations"]}
 
 
-class CVTask(str, StrEnum):
+class CVTask(StrEnum):
 
     OBJECT_DETECTION: str = "object_detection"
     SEGMENTATION: str = "segmentation"
@@ -21,6 +21,7 @@ class CVTask(str, StrEnum):
 class PlotlyHandler:
 
     cv_tasks: Tuple[CVTask] = tuple(CVTask.values())
+    clickable: bool = False
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
