@@ -5,7 +5,8 @@ import plotly.graph_objects as go
 from tqdm import tqdm
 
 import src.globals as g
-import src.utils as u
+
+# import src.utils as u
 import supervisely as sly
 from src.ui.calibration_score import (
     ConfidenceDistribution,
@@ -26,6 +27,7 @@ from src.ui.pr_metrics import Precision, Recall, RecallVsPrecision
 from src.utils import CVTask, PlotlyHandler
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
+from supervisely.nn.benchmark.metrics_loader import MetricsLoader
 
 # import src.ui.detailed_metrics as detailed_metrics
 # import src.ui.model_predictions as model_preds
@@ -33,82 +35,14 @@ from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 # import src.ui.inference_speed as inference_speed
 
 
-_PLOTLY_CHARTS = (
-    Overview,
-    OutcomeCounts,
-    Recall,
-    Precision,
-    RecallVsPrecision,
-    PRCurve,
-    PRCurveByClass,
-    ConfusionMatrix,
-    FrequentlyConfused,
-    IOUDistribution,
-    ReliabilityDiagram,
-    ConfidenceScore,
-    ConfidenceDistribution,
-    F1ScoreAtDifferentIOU,
-    PerClassAvgPrecision,
-    PerClassOutcomeCounts,
-    # segmentation-only
-    OverallErrorAnalysis,
-    ClasswiseErrorAnalysis,
-)
-
-
 def main_func():
 
-    def write_fig(
-        plotly_chart: PlotlyHandler, fig: go.Figure, fig_idx: Optional[int] = None
-    ) -> None:
-        json_fig = fig.to_json()
+    cocoGt_path = "APP_DATA/data/cocoGt.json"  # cocoGt_remap.json"
+    cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
+    eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-        chart_name = camel_to_snake(plotly_chart.__name__)
-        basename = f"{chart_name}.json"
-        local_path = f"{g.TO_TEAMFILES_DIR}/{basename}"
-
-        if fig_idx is not None:
-            fig_idx = "{:02d}".format(fig_idx)
-            basename = f"{chart_name}_{fig_idx}.json"
-            local_path = f"{g.TO_TEAMFILES_DIR}/{basename}"
-
-        with open(local_path, "w", encoding="utf-8") as f:
-            f.write(json_fig)
-
-        sly.logger.info("Saved: %r", basename)
-
-    for plotly_chart in _PLOTLY_CHARTS:
-        fig = plotly_chart.get_figure()
-        if fig is not None:
-            write_fig(plotly_chart, fig)
-        figs = plotly_chart.get_switchable_figures()
-        if figs is not None:
-            for idx, fig in enumerate(figs, start=1):
-                write_fig(plotly_chart, fig, fig_idx=idx)
-
-    table_preds = g.m.prediction_table()
-    basename = "prediction_table.json"
-    local_path = f"{g.TO_TEAMFILES_DIR}/{basename}"
-    with open(local_path, "w", encoding="utf-8") as f:
-        f.write(table_preds.to_json())
-    sly.logger.info("Saved: %r", basename)
-
-    with tqdm(
-        desc="Uploading .json to teamfiles",
-        total=sly.fs.get_directory_size(g.TO_TEAMFILES_DIR),
-        unit="B",
-        unit_scale=True,
-    ) as pbar:
-        g.api.file.upload_directory(
-            g.TEAM_ID,
-            g.TO_TEAMFILES_DIR,
-            g.TF_RESULT_DIR,
-            replace_if_conflict=True,
-            change_name_if_conflict=False,
-            progress_size_cb=pbar,
-        )
-
-    sly.logger.info("Done.")
+    with MetricsLoader(cocoGt_path, cocoDt_path, eval_data_path) as loader:
+        loader.upload_to(g.TEAM_ID, "/model-benchmark/layout")
 
 
 button = Button("Click to calc")

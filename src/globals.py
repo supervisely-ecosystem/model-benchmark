@@ -29,59 +29,62 @@ TF_RESULT_DIR = "/model-benchmark/layout"
 TO_TEAMFILES_DIR = f"{STORAGE_DIR}/to_teamfiles"
 sly.fs.mkdir(TO_TEAMFILES_DIR, remove_content_if_exists=True)
 
-cocoGt_path = "APP_DATA/data/cocoGt.json"  # cocoGt_remap.json"
-cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
-eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
+WORKSPACE_ID = 1076
+TEAM_ID = 440
 
-with open(cocoGt_path, "r") as f:
-    cocoGt_dataset = json.load(f)
-with open(cocoDt_path, "r") as f:
-    cocoDt_dataset = json.load(f)
+# cocoGt_path = "APP_DATA/data/cocoGt.json"  # cocoGt_remap.json"
+# cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
+# eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-# Remove COCO read logs
-with HiddenCocoPrints():
-    cocoGt = COCO()
-    cocoGt.dataset = cocoGt_dataset
-    cocoGt.createIndex()
-    cocoDt = cocoGt.loadRes(cocoDt_dataset["annotations"])
+# with open(cocoGt_path, "r") as f:
+#     cocoGt_dataset = json.load(f)
+# with open(cocoDt_path, "r") as f:
+#     cocoDt_dataset = json.load(f)
 
-with open(eval_data_path, "rb") as f:
-    eval_data = pickle.load(f)
+# # Remove COCO read logs
+# with HiddenCocoPrints():
+#     cocoGt = COCO()
+#     cocoGt.dataset = cocoGt_dataset
+#     cocoGt.createIndex()
+#     cocoDt = cocoGt.loadRes(cocoDt_dataset["annotations"])
 
-m_full = metric_provider.MetricProvider(
-    eval_data["matches"],
-    eval_data["coco_metrics"],
-    eval_data["params"],
-    cocoGt,
-    cocoDt,
-)
-score_profile = m_full.confidence_score_profile()
-f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
-print(f"F1-Optimal confidence: {f1_optimal_conf:.4f} with f1: {best_f1:.4f}")
+# with open(eval_data_path, "rb") as f:
+#     eval_data = pickle.load(f)
 
-matches_thresholded = metric_provider.filter_by_conf(eval_data["matches"], f1_optimal_conf)
-m = metric_provider.MetricProvider(
-    matches_thresholded, eval_data["coco_metrics"], eval_data["params"], cocoGt, cocoDt
-)
-f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
-df_score_profile = pd.DataFrame(score_profile)
-df_score_profile.columns = ["scores", "Precision", "Recall", "F1"]
+# m_full = metric_provider.MetricProvider(
+#     eval_data["matches"],
+#     eval_data["coco_metrics"],
+#     eval_data["params"],
+#     cocoGt,
+#     cocoDt,
+# )
+# score_profile = m_full.confidence_score_profile()
+# f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
+# print(f"F1-Optimal confidence: {f1_optimal_conf:.4f} with f1: {best_f1:.4f}")
 
-per_class_metrics: pd.DataFrame = m.per_class_metrics()
-per_class_metrics_sorted: pd.DataFrame = per_class_metrics.sort_values(by="f1")
+# matches_thresholded = metric_provider.filter_by_conf(eval_data["matches"], f1_optimal_conf)
+# m = metric_provider.MetricProvider(
+#     matches_thresholded, eval_data["coco_metrics"], eval_data["params"], cocoGt, cocoDt
+# )
+# f1_optimal_conf, best_f1 = m_full.get_f1_optimal_conf()
+# df_score_profile = pd.DataFrame(score_profile)
+# df_score_profile.columns = ["scores", "Precision", "Recall", "F1"]
 
-# downsample
-if len(df_score_profile) > 5000:
-    dfsp_down = df_score_profile.iloc[:: len(df_score_profile) // 1000]
-else:
-    dfsp_down = df_score_profile
+# per_class_metrics: pd.DataFrame = m.per_class_metrics()
+# per_class_metrics_sorted: pd.DataFrame = per_class_metrics.sort_values(by="f1")
 
-# Click data
-gt_id_mapper = IdMapper(cocoGt_dataset)
-dt_id_mapper = IdMapper(cocoDt_dataset)
+# # downsample
+# if len(df_score_profile) > 5000:
+#     dfsp_down = df_score_profile.iloc[:: len(df_score_profile) // 1000]
+# else:
+#     dfsp_down = df_score_profile
 
-click_data = ClickData(m, gt_id_mapper, dt_id_mapper)
-click_data.create_data()
+# # Click data
+# gt_id_mapper = IdMapper(cocoGt_dataset)
+# dt_id_mapper = IdMapper(cocoDt_dataset)
+
+# click_data = ClickData(m, gt_id_mapper, dt_id_mapper)
+# click_data.create_data()
 
 
 # gt_project_id = 39099
@@ -92,14 +95,10 @@ click_data.create_data()
 # diff_dataset_id = 93099
 
 
-WORKSPACE_ID = 1076
-TEAM_ID = 440
-
-
 # dt_image_infos = api.image.get_list(dt_dataset_id)
 # dt_actual_ids = [x.id for x in dt_image_infos]  # TODO remove later
 # dt_anns_infos = api.annotation.download_batch(dt_dataset_id, [x.id for x in dt_image_infos])
 # dt_project_meta = sly.ProjectMeta.from_json(data=api.project.get_meta(id=dt_project_id))
 
 # Segmentation
-result_df = pd.read_csv(f"{STORAGE_DIR}/result_df.csv", index_col="class")
+# result_df = pd.read_csv(f"{STORAGE_DIR}/result_df.csv", index_col="class")

@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
+from supervisely._utils import camel_to_snake
 from supervisely.collection.str_enum import StrEnum
 
 
@@ -18,10 +19,22 @@ class CVTask(StrEnum):
     SEGMENTATION: str = "segmentation"
 
 
+class classproperty:
+    def __init__(self, func):
+        self.fget = func
+
+    def __get__(self, instance, owner):
+        return self.fget(owner)
+
+
 class PlotlyHandler:
 
     cv_tasks: Tuple[CVTask] = tuple(CVTask.values())
     clickable: bool = False
+
+    @classproperty
+    def name(cls) -> str:
+        return camel_to_snake(cls.__name__)
 
     @classmethod
     def get_figure(cls) -> Optional[go.Figure]:
