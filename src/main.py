@@ -16,8 +16,8 @@ def main_func():
     cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
     eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-    with sly.nn.MetricsLoader(cocoGt_path, cocoDt_path, eval_data_path) as loader:
-        loader.upload_to(g.TEAM_ID, "/model-benchmark/layout")
+    bm = sly.nn.Benchmark(cocoGt_path, cocoDt_path, eval_data_path)
+    bm.upload_layout(g.TEAM_ID, "/model-benchmark/layout")
 
 
 button = Button("Click to calc")
