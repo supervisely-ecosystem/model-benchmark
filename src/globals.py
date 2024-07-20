@@ -87,12 +87,12 @@ TEAM_ID = 440
 # click_data.create_data()
 
 
-# gt_project_id = 39099
-# gt_dataset_id = 92810
-# dt_project_id = 39141
-# dt_dataset_id = 92872
-# diff_project_id = 39249
-# diff_dataset_id = 93099
+gt_project_id = 39099
+gt_dataset_id = 92810
+dt_project_id = 39141
+dt_dataset_id = 92872
+diff_project_id = 39249
+diff_dataset_id = 93099
 
 
 # dt_image_infos = api.image.get_list(dt_dataset_id)

@@ -6,6 +6,8 @@ from tqdm import tqdm
 
 import src.globals as g
 import supervisely as sly
+
+# from src.ui.outcome_counts import plotly_outcome_counts
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 
@@ -16,7 +18,7 @@ def main_func():
     cocoDt_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/cocoDt.json"
     eval_data_path = "APP_DATA/data/COCO 2017 val (DINO-L, conf-0.05)_001 (#2)/eval_data.pkl"
 
-    bm = sly.nn.Benchmark(cocoGt_path, cocoDt_path, eval_data_path)
+    bm = sly.nn.MetricLoader(cocoGt_path, cocoDt_path, eval_data_path)
     bm.upload_layout(g.TEAM_ID, "/model-benchmark/layout")
 
 
