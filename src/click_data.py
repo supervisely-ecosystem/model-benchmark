@@ -1,7 +1,9 @@
 from collections import defaultdict
 
 from src.utils import IdMapper
-from supervisely.nn.benchmark.metric_provider import MetricProvider
+from supervisely.nn.benchmark.evaluation.object_detection.metric_provider import (
+    MetricProvider,
+)
 
 
 class ClickData:

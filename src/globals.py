@@ -12,8 +12,11 @@ import supervisely as sly
 from src.click_data import ClickData
 from src.utils import IdMapper
 from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
-from supervisely.nn.benchmark import metric_provider
-from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
+from supervisely.nn.benchmark.evaluation.object_detection import metric_provider
+from supervisely.nn.benchmark.evaluation.object_detection.metric_provider import (
+    METRIC_NAMES,
+    MetricProvider,
+)
 
 if sly.is_development():
     load_dotenv("local.env")
