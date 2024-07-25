@@ -33,6 +33,8 @@ def main_func(api: sly.Api):
 if __name__ == "__main__":
     main_func(g.api)
 
+app = sly.Application()
+
 # sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 # sel_project = SelectProject(default_id=g.project_id, workspace_id=g.workspace_id)
 # button = Button("Evaluate")
