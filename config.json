@@ -1,23 +1,15 @@
 {
   "type": "app",
+  "version": "2.0.0",
   "name": "Evaluator for Model Benchmark",
   "description": "Evaluate the performance of the NN model",
   "categories": ["neural network", "images", "object detection"],
   "icon": "PLACEHOLDER FOR ICON (inserted by designers)",
   "icon_cover": true,
-  "headless": true,
+  "headless": false,
   "poster": "PLACEHOLDER FOR POSTER (inserted by designers)",
-  "main_script": "src/main.py",
-  "modal_template": "src/modal.html",
-  "modal_template_state": {
-    "sessionId": "None",
-    "ssOptions": {
-      "sessionTags": ["deployed_nn"],
-      "showLabel": true
-    }
-  },
   "task_location": "workspace_tasks",
-  "context_menu": {
-    "target": ["images_project"]
-  }
+  "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
+  "port": 8000,
+  "docker_image": "supervisely/base-py-sdk:6.73.132"
 }

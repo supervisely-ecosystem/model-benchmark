@@ -13,12 +13,14 @@ from supervisely.app.widgets import *
 from supervisely.nn.benchmark.object_detection_benchmark import ObjectDetectionBenchmark
 
 
-def main_func(api: sly.Api):
-    project = api.project.get_info_by_id(g.project_id)
+def main_func():
+    api = g.api
+    project = api.project.get_info_by_id(sel_project.get_selected_id())
+    session_id = sel_app_session.get_selected_id()
 
     bm = ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
-    sly.logger.info("Session ID={}".format(g.session_id))
-    bm.run_evaluation(model_session=g.session_id)
+    sly.logger.info("Session ID={}".format(session_id))
+    bm.run_evaluation(model_session=session_id)
     # bm.evaluate(g.dt_project_id)
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/"
     bm.upload_eval_results(eval_res_dir)
@@ -31,30 +33,25 @@ def main_func(api: sly.Api):
         api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
 
 
-if __name__ == "__main__":
-    main_func(g.api)
-    # sly.main_wrapper("main", main_func)
+sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = SelectProject(default_id=g.project_id, workspace_id=g.workspace_id)
+button = Button("Evaluate")
+layout = Container(
+    widgets=[
+        Text("Select GT Project"),
+        sel_project,
+        sel_app_session,
+        button,
+    ]
+)
 
 
-# sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-# sel_project = SelectProject(default_id=g.project_id, workspace_id=g.workspace_id)
-# button = Button("Evaluate")
-# layout = Container(
-#     widgets=[
-#         Text("Select GT Project"),
-#         sel_project,
-#         sel_app_session,
-#         button,
-#     ]
-# )
+@button.click
+def handle():
+    main_func()
 
 
-# @button.click
-# def handle():
-#     main_func()
-
-
-# app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
+app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
 
 # выбор таски
 # Run Evaluation
