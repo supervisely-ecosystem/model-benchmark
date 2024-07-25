@@ -18,6 +18,7 @@ def main_func():
     project = api.project.get_info_by_id(g.project_id)
 
     bm = sly.nn.ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
+    sly.logger("Session ID={}".format(g.session_id))
     bm.run_evaluation(model_session=g.session_id)
     # bm.evaluate(g.dt_project_id)
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/"
@@ -32,8 +33,8 @@ def main_func():
 
 
 if __name__ == "__main__":
-    # main_func(g.api)
-    sly.main_wrapper("main", main_func)
+    main_func(g.api)
+    # sly.main_wrapper("main", main_func)
 
 
 # sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
