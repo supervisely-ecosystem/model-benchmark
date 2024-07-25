@@ -18,7 +18,7 @@ def main_func(api):
     project = api.project.get_info_by_id(g.project_id)
 
     bm = sly.nn.ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
-    sly.logger(g.session_id)
+    sly.logger.info("Session ID={}".format(g.session_id))
     bm.run_evaluation(model_session=g.session_id)
     # bm.evaluate(g.dt_project_id)
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/"
