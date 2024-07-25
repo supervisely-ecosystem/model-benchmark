@@ -32,6 +32,7 @@ def main_func():
         file_id = files[0].id
         api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
 
+    g.workflow.add_input(session_id)
     g.workflow.add_output(project.id)
 
 

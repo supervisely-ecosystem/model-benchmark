@@ -40,8 +40,8 @@ class Workflow:
         return True
 
     @check_compatibility
-    def add_input(self):
-        raise NotImplementedError
+    def add_input(self, session_id):
+        self.api.app.workflow.add_input_task(session_id)
 
     @check_compatibility
     def add_output(self, project_id: int):
