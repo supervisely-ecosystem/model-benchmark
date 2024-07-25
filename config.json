@@ -1,6 +1,5 @@
 {
   "type": "app",
-  "version": "2.0.0",
   "name": "Evaluator for Model Benchmark",
   "description": "Evaluate the performance of the NN model",
   "docker_image": "supervisely/base-py-sdk:6.73.139",
