@@ -9,6 +9,7 @@ from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
+from src.workflow import Workflow
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -27,7 +28,9 @@ deployed_nn_tags = ["deployed_nn"]
 workspace_id = sly.env.workspace_id()
 project_id = sly.env.project_id(raise_not_found=False)
 team_id = sly.env.team_id()
-task_id = sly.env.task_id()
+task_id = sly.env.task_id(raise_not_found=True)
+
+workflow = Workflow(api)
 
 # gt_project_id = 39099
 # gt_dataset_id = 92810

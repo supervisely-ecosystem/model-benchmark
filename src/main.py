@@ -32,6 +32,8 @@ def main_func():
         file_id = files[0].id
         api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
 
+    g.workflow.add_output(project.id)
+
 
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
