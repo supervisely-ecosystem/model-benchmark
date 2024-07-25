@@ -5,8 +5,6 @@ from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
 from src.click_data import ClickData

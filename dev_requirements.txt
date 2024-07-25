@@ -1,4 +1,0 @@
-supervisely
-pycocotools
-plotly
-scikit-learn
