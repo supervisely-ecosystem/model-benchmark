@@ -10,12 +10,13 @@ import supervisely as sly
 # from src.ui.outcome_counts import plotly_outcome_counts
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import *
+from supervisely.nn.benchmark.object_detection_benchmark import ObjectDetectionBenchmark
 
 
 def main_func(api: sly.Api):
     project = api.project.get_info_by_id(g.project_id)
 
-    bm = sly.nn.ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
+    bm = ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
     sly.logger.info("Session ID={}".format(g.session_id))
     bm.run_evaluation(model_session=g.session_id)
     # bm.evaluate(g.dt_project_id)
