@@ -18,6 +18,6 @@
   },
   "task_location": "workspace_tasks",
   "context_menu": {
-    "target": ["images_project", "files_folder"]
+    "target": ["images_project"]
   }
 }
