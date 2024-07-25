@@ -29,14 +29,14 @@ STORAGE_DIR = sly.app.get_data_dir()
 STATIC_DIR = os.path.join(STORAGE_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
 TF_RESULT_DIR = "/model-benchmark/layout"
-TO_TEAMFILES_DIR = f"{STORAGE_DIR}/to_teamfiles"
-sly.fs.mkdir(TO_TEAMFILES_DIR, remove_content_if_exists=True)
 
 deployed_nn_tags = ["deployed_nn"]
 
 workspace_id = sly.env.workspace_id()
 project_id = sly.env.project_id(raise_not_found=False)
 team_id = sly.env.team_id()
+task_id = sly.env.task_id(raise_not_found=False)
+
 # gt_project_id = 39099
 # gt_dataset_id = 92810
 # dt_project_id = 39141

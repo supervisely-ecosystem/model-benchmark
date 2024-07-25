@@ -11,16 +11,10 @@
   "poster": "PLACEHOLDER FOR POSTER (inserted by designers)",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
-  "modal_template_state": {
-    "normalize_exif": false,
-    "remove_alpha_channel": false,
-    "remove_source": true,
-    "project_name": ""
-  },
   "task_location": "workspace_tasks",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,
   "context_menu": {
-    "target": ["images_project", "ecosystem"]
+    "target": ["images_project"]
   }
 }
