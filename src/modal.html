@@ -1,9 +1,9 @@
 <div>
   <sly-field title="Select deployed Serve app">
     <sly-select-app-session
-      :group-id="data.groupId"
-      :app-session-id.sync="state.appSessionId"
-      :options="data.options"
+      :group-id="data.teamId"
+      :app-session-id.sync="state.sessionId"
+      :options="state.ssOptions"
     ></sly-select-app-session>
   </sly-field>
 </div>
