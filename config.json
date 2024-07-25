@@ -11,6 +11,13 @@
   "poster": "PLACEHOLDER FOR POSTER (inserted by designers)",
   "main_script": "src/main.py",
   "modal_template": "src/modal.html",
+  "modal_template_state": {
+    "sessionId": "None",
+    "ssOptions": {
+      "sessionTags": ["deployed_nn"],
+      "showLabel": true
+    }
+  },
   "task_location": "workspace_tasks",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,

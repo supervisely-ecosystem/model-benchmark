@@ -1,10 +1,4 @@
 <div>
-  <sly-field title="Select project with ground truth annotations (GT project)">
-    <sly-select-project
-      :workspace-id="data.workspaceId"
-      :project-id.sync="state.projectId"
-    ></sly-select-project>
-  </sly-field>
   <sly-field title="Select deployed Serve app">
     <sly-select-app-session
       :group-id="data.groupId"
@@ -13,3 +7,10 @@
     ></sly-select-app-session>
   </sly-field>
 </div>
+
+<!-- <sly-field title="Select project with ground truth annotations (GT project)">
+    <sly-select-project
+      :workspace-id="data.workspaceId"
+      :project-id.sync="state.projectId"
+    ></sly-select-project>
+  </sly-field> -->
