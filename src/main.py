@@ -12,8 +12,8 @@ from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import *
 
 
-def main_func():
-    api = g.api
+def main_func(api):
+    # api = g.api
 
     project = api.project.get_info_by_id(g.project_id)
 
