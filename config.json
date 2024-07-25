@@ -3,6 +3,7 @@
   "name": "Evaluator for Model Benchmark",
   "description": "Evaluate the performance of the NN model",
   "categories": ["neural network", "images", "object detection"],
+  "docker_image": "supervisely/base-py-sdk:6.73.140",
   "icon": "PLACEHOLDER FOR ICON (inserted by designers)",
   "icon_cover": true,
   "headless": true,
