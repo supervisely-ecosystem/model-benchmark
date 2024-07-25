@@ -10,7 +10,6 @@ import supervisely as sly
 # from src.ui.outcome_counts import plotly_outcome_counts
 from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import *
-from supervisely.app.widgets import Button, Card, Container, Sidebar, Text
 
 
 def main_func(api: sly.Api):

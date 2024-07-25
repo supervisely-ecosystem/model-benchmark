@@ -5,16 +5,10 @@ from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
-from src.click_data import ClickData
-from src.utils import IdMapper
-from supervisely.convert.image.coco.coco_helper import HiddenCocoPrints
-from supervisely.nn.benchmark.evaluation.object_detection import metric_provider
-from supervisely.nn.benchmark.evaluation.object_detection.metric_provider import (
-    METRIC_NAMES,
-    MetricProvider,
-)
 
 if sly.is_development():
     load_dotenv("local.env")
