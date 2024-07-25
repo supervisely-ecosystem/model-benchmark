@@ -12,9 +12,7 @@ from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import *
 
 
-def main_func(api):
-    # api = g.api
-
+def main_func(api: sly.Api):
     project = api.project.get_info_by_id(g.project_id)
 
     bm = sly.nn.ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
@@ -26,7 +24,7 @@ def main_func(api):
 
     bm.visualize()
     bm.upload_visualizations(eval_res_dir + "visualizations/")
-    if g.task_id is not None:
+    if sly.is_production():
         files = api.file.list2(g.team_id, eval_res_dir, recursive=False)
         file_id = files[0].id
         api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
