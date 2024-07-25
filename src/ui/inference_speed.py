@@ -27,8 +27,6 @@ from supervisely.app.widgets import (
     Table,
     Text,
 )
-from supervisely.nn.benchmark import metric_provider
-from supervisely.nn.benchmark.metric_provider import METRIC_NAMES, MetricProvider
 
 markdown_inference_speed_1 = Markdown(
     """

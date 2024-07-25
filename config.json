@@ -1,25 +1,23 @@
 {
   "type": "app",
-  "version": "2.0.0",
-  "name": "PLACEHOLDER: Name of the application in Ecosystem",
-  "description": "PLACEHOLDER: Short description of the app in Ecosystem",
-  "docker_image": "supervisely/base-py-sdk:6.72.214 !!! CHANGE IMAGE NAME AND VERSION!!!",
-  "categories": [
-    "images",
-    "PLACEHOLDER: input all categories here"
-  ],
+  "name": "Evaluator for Model Benchmark",
+  "description": "Evaluate the performance of the NN model",
+  "categories": ["neural network", "images", "object detection"],
   "icon": "PLACEHOLDER FOR ICON (inserted by designers)",
   "icon_cover": true,
-  "headless": false,
+  "headless": true,
   "poster": "PLACEHOLDER FOR POSTER (inserted by designers)",
-  "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
-  "port": 8000,
+  "main_script": "src/main.py",
+  "modal_template": "src/modal.html",
+  "modal_template_state": {
+    "sessionId": "None",
+    "ssOptions": {
+      "sessionTags": ["deployed_nn"],
+      "showLabel": true
+    }
+  },
+  "task_location": "workspace_tasks",
   "context_menu": {
-    "target": [
-      "images_project",
-      "ecosystem",
-      "PLACEHOLDER: input all targets here"
-    ],
-    "context_category": "PLACEHOLDER: input context category here (right click in Ecosystem)"
+    "target": ["images_project"]
   }
 }
