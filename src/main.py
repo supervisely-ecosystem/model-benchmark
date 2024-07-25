@@ -12,7 +12,8 @@ from supervisely._utils import camel_to_snake
 from supervisely.app.widgets import *
 
 
-def main_func(api: sly.Api):
+def main_func():
+    api = g.api
 
     project = api.project.get_info_by_id(g.project_id)
 
@@ -31,7 +32,8 @@ def main_func(api: sly.Api):
 
 
 if __name__ == "__main__":
-    main_func(g.api)
+    # main_func(g.api)
+    sly.main_wrapper("main", main_func)
 
 
 # sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
