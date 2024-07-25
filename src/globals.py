@@ -25,7 +25,7 @@ TF_RESULT_DIR = "/model-benchmark/layout"
 deployed_nn_tags = ["deployed_nn"]
 
 workspace_id = sly.env.workspace_id()
-# project_id = sly.env.project_id()
+project_id = sly.env.project_id(raise_not_found=False)
 team_id = sly.env.team_id()
 task_id = sly.env.task_id()
 
