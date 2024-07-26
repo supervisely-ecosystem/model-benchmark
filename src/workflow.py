@@ -44,9 +44,12 @@ class Workflow:
         self.api.app.workflow.add_input_task(session_id)
 
     @check_compatibility
-    def add_output(self, project_id: int = None, teamfiles_dir: str = None):
-        if project_id is not None:
-            self.api.app.workflow.add_output_project(project_id)
-        if teamfiles_dir is not None:
-            file = self.api.file.get_info_by_path(sly.env.team_id(), teamfiles_dir)
-            self.api.app.workflow.add_output_file(file)
+    def add_output(self, api, project_id: int = None, teamfiles_dir: str = None):
+        try:
+            if project_id is not None:
+                self.api.app.workflow.add_output_project(project_id)
+            if teamfiles_dir is not None:
+                files = self.api.file.list2(sly.env.team_id(), teamfiles_dir, recursive=False)
+                self.api.app.workflow.add_output_file(files[0], task_id=sly.env.task_id())
+        except Exception as e:
+            sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
