@@ -44,5 +44,9 @@ class Workflow:
         self.api.app.workflow.add_input_task(session_id)
 
     @check_compatibility
-    def add_output(self, project_id: int):
-        self.api.app.workflow.add_output_project(project_id)
+    def add_output(self, project_id: int = None, teamfiles_dir: str = None):
+        if project_id is not None:
+            self.api.app.workflow.add_output_project(project_id)
+        if teamfiles_dir is not None:
+            file = self.api.file.get_info_by_path(sly.env.team_id(), teamfiles_dir)
+            self.api.app.workflow.add_output_file(file)
