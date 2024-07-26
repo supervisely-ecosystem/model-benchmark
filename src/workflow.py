@@ -49,7 +49,7 @@ class Workflow:
             if project_id is not None:
                 self.api.app.workflow.add_output_project(project_id)
             if teamfiles_dir is not None:
-                files = self.api.file.list2(sly.env.team_id(), teamfiles_dir, recursive=False)
-                self.api.app.workflow.add_output_file(files[0], task_id=sly.env.task_id())
+                # files = self.api.file.list2(sly.env.team_id(), teamfiles_dir, recursive=False)
+                self.api.app.workflow.add_output_folder(teamfiles_dir, task_id=sly.env.task_id())
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
