@@ -44,7 +44,7 @@ class Workflow:
         self.api.app.workflow.add_input_task(session_id)
 
     @check_compatibility
-    def add_output(self, api, project_id: int = None, teamfiles_dir: str = None):
+    def add_output(self, project_id: int = None, teamfiles_dir: str = None):
         try:
             if project_id is not None:
                 self.api.app.workflow.add_output_project(project_id)
