@@ -34,6 +34,8 @@ def main_func():
 
     g.workflow.add_input(session_id)
     g.workflow.add_output(project.id)
+    g.workflow.add_output(bm.diff_project_info.id)
+    g.workflow.add_output(bm.dt_project_info.id)
 
 
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
