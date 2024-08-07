@@ -1,3 +1,5 @@
+from typing import *
+
 import supervisely as sly
 
 
@@ -40,16 +42,56 @@ class Workflow:
         return True
 
     @check_compatibility
-    def add_input(self, session_id):
-        self.api.app.workflow.add_input_task(session_id)
+    def add_input(self, item: Union[sly.ProjectInfo, int]):
+        if isinstance(item, int):
+            self.api.app.workflow.add_input_task(item)
+        if isinstance(item, sly.ProjectInfo):
+            self.api.app.workflow.add_input_project(item.id)
 
     @check_compatibility
-    def add_output(self, project_id: int = None, teamfiles_dir: str = None):
+    def add_output(self, item: Union[sly.ProjectInfo, str]):
         try:
-            if project_id is not None:
-                self.api.app.workflow.add_output_project(project_id)
-            if teamfiles_dir is not None:
-                # files = self.api.file.list2(sly.env.team_id(), teamfiles_dir, recursive=False)
-                self.api.app.workflow.add_output_folder(teamfiles_dir, task_id=sly.env.task_id())
+            if isinstance(item, sly.ProjectInfo):
+                self.api.app.workflow.add_output_project(item.id)
+            if isinstance(item, str):
+                self.api.app.workflow.add_output_folder(item, task_id=sly.env.task_id())
+                module_id = (
+                    self.api.task.get_info_by_id(self.api.task_id)
+                    .get("meta", {})
+                    .get("app", {})
+                    .get("id")
+                )
+
+                template_vis_file = self.api.file.get_info_by_path(
+                    sly.env.team_id(), item + "visualizations/template.vue"
+                )
+
+                meta = {
+                    "customNodeSettings": {
+                        "title": f"<h4>Evaluator for Model Benchmark</h4>",
+                        "mainLink": {
+                            "url": (
+                                f"/apps/{module_id}/sessions/{self.api.task_id}"
+                                if module_id
+                                else f"apps/sessions/{self.api.task_id}"
+                            ),
+                            "title": "Show Results",
+                        },
+                    },
+                    "customRelationSettings": {
+                        "icon": {
+                            "icon": "zmdi-assignment",
+                            "color": "#674EA7",
+                            "backgroundColor": "#CCCCFF",
+                        },
+                        "title": "<h4>Model Benchmark</h4>",
+                        "mainLink": {
+                            "url": f"/model-benchmark?id={template_vis_file.id}",
+                            "title": "Open Report",
+                        },
+                    },
+                }
+                self.api.app.workflow.add_output_file(template_vis_file, meta=meta)
+
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")

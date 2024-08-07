@@ -33,10 +33,10 @@ def main_func():
         api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
 
     g.workflow.add_input(session_id)
-    g.workflow.add_output(project.id)
-    g.workflow.add_output(bm.diff_project_info.id)
-    g.workflow.add_output(bm.dt_project_info.id)
-    g.workflow.add_output(teamfiles_dir=eval_res_dir)
+    g.workflow.add_input(project)
+    g.workflow.add_output(bm.diff_project_info)
+    g.workflow.add_output(bm.dt_project_info)
+    g.workflow.add_output(eval_res_dir)
 
 
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
