@@ -40,7 +40,7 @@ def main_func():
 
 
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
+sel_project = SelectProject(default_id=g.project_id, workspace_id=g.workspace_id)
 button = Button("Evaluate")
 layout = Container(
     widgets=[

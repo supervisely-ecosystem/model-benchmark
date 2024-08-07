@@ -13,6 +13,6 @@
   "port": 8000,
   "docker_image": "supervisely/base-py-sdk:6.73.132",
   "context_menu": {
-    "target": ["files_folder"]
+    "target": ["images_project"]
   }
 }
