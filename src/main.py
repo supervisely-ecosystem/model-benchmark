@@ -8,7 +8,7 @@ import src.globals as g
 import supervisely as sly
 
 # from src.ui.outcome_counts import plotly_outcome_counts
-from supervisely._utils import camel_to_snake
+from supervisely._utils import abs_url, camel_to_snake, is_development
 from supervisely.app.widgets import *
 from supervisely.nn.benchmark.object_detection_benchmark import ObjectDetectionBenchmark
 
@@ -27,10 +27,16 @@ def main_func():
 
     bm.visualize()
     bm.upload_visualizations(eval_res_dir + "visualizations/")
-    if sly.is_production():
-        files = api.file.list2(g.team_id, eval_res_dir, recursive=False)
-        file_id = files[0].id
-        api.task.set_output_directory(g.task_id, file_id, eval_res_dir)
+
+    template_vis_file = api.file.get_info_by_path(
+        sly.env.team_id(), eval_res_dir + "visualizations/template.vue"
+    )
+    lnk = f"/model-benchmark?id={template_vis_file.id}"
+    lnk = abs_url(lnk) if is_development() else lnk
+    text_model_benchmark_report.set(
+        f"<a href='{lnk}' target='_blank'>Open report for the best model</a>",
+        "success",
+    )
 
     g.workflow.add_input(session_id)
     g.workflow.add_input(project)
@@ -42,12 +48,16 @@ def main_func():
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
 button = Button("Evaluate")
+text_model_benchmark_report = Text()
+text_model_benchmark_report.hide()
+
 layout = Container(
     widgets=[
         Text("Select GT Project"),
         sel_project,
         sel_app_session,
         button,
+        text_model_benchmark_report,
     ]
 )
 
