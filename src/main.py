@@ -27,16 +27,19 @@ def main_func():
 
     bm.visualize()
     bm.upload_visualizations(eval_res_dir + "visualizations/")
+    creating_report_f.hide()
 
     template_vis_file = api.file.get_info_by_path(
         sly.env.team_id(), eval_res_dir + "visualizations/template.vue"
     )
-    lnk = f"/model-benchmark?id={template_vis_file.id}"
-    lnk = abs_url(lnk) if is_development() else lnk
-    text_model_benchmark_report.set(
-        f"<a href='{lnk}' target='_blank'>Open report for the best model</a>",
-        "success",
-    )
+    # lnk = f"/model-benchmark?id={template_vis_file.id}"
+    # lnk = abs_url(lnk) if is_development() else lnk
+    # report_model_benchmark.set(
+    #     f"<a href='{lnk}' target='_blank'>Open report for the best model</a>",
+    #     "success",
+    # )
+    report_model_benchmark.set(template_vis_file)
+    report_model_benchmark.show()
 
     g.workflow.add_input(session_id)
     g.workflow.add_input(project)
@@ -48,8 +51,10 @@ def main_func():
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
 button = Button("Evaluate")
-text_model_benchmark_report = Text()
-text_model_benchmark_report.hide()
+report_model_benchmark = ReportThumbnail()
+report_model_benchmark.hide()
+creating_report_f = Field(Empty(), "", "Creating report on model...")
+creating_report_f.hide()
 
 layout = Container(
     widgets=[
@@ -57,13 +62,15 @@ layout = Container(
         sel_project,
         sel_app_session,
         button,
-        text_model_benchmark_report,
+        creating_report_f,
+        report_model_benchmark,
     ]
 )
 
 
 @button.click
 def handle():
+    creating_report_f.show()
     main_func()
 
 
