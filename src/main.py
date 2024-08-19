@@ -1,15 +1,7 @@
-import json
-from typing import *
-
-import plotly.graph_objects as go
-from tqdm import tqdm
-
+from typing import Optional
 import src.globals as g
 import supervisely as sly
-
-# from src.ui.outcome_counts import plotly_outcome_counts
-from supervisely._utils import abs_url, camel_to_snake, is_development
-from supervisely.app.widgets import *
+import supervisely.app.widgets as w
 from supervisely.nn.benchmark.object_detection_benchmark import ObjectDetectionBenchmark
 
 
@@ -21,23 +13,25 @@ def main_func():
     bm = ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
     sly.logger.info("Session ID={}".format(session_id))
     bm.run_evaluation(model_session=session_id)
-    # bm.evaluate(g.dt_project_id)
-    eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/"
+
+    session_info = api.task.get_info_by_id(session_id)
+    task_dir = f"{session_id}_task_{session_info['meta']['app']['name']}"
+    eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/{task_dir}/"
+    eval_res_dir = api.storage.get_free_dir_name(g.team_id, eval_res_dir)
+
     bm.upload_eval_results(eval_res_dir)
 
     bm.visualize()
-    bm.upload_visualizations(eval_res_dir + "visualizations/")
+    remote_dir = bm.upload_visualizations(eval_res_dir + "/visualizations/")
+
+    report = bm.save_reporn_link(remote_dir)
+    api.task.set_output_report(g.task_id, report.id, report.name)
+
     creating_report_f.hide()
 
     template_vis_file = api.file.get_info_by_path(
-        sly.env.team_id(), eval_res_dir + "visualizations/template.vue"
+        sly.env.team_id(), eval_res_dir + "/visualizations/template.vue"
     )
-    # lnk = f"/model-benchmark?id={template_vis_file.id}"
-    # lnk = abs_url(lnk) if is_development() else lnk
-    # report_model_benchmark.set(
-    #     f"<a href='{lnk}' target='_blank'>Open report for the best model</a>",
-    #     "success",
-    # )
     report_model_benchmark.set(template_vis_file)
     report_model_benchmark.show()
 
@@ -48,17 +42,17 @@ def main_func():
     g.workflow.add_output(eval_res_dir)
 
 
-sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
-button = Button("Evaluate")
-report_model_benchmark = ReportThumbnail()
+sel_app_session = w.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = w.SelectProject(default_id=None, workspace_id=g.workspace_id)
+button = w.Button("Evaluate")
+report_model_benchmark = w.ReportThumbnail()
 report_model_benchmark.hide()
-creating_report_f = Field(Empty(), "", "Creating report on model...")
+creating_report_f = w.Field(w.Empty(), "", "Creating report on model...")
 creating_report_f.hide()
 
-layout = Container(
+layout = w.Container(
     widgets=[
-        Text("Select GT Project"),
+        w.Text("Select GT Project"),
         sel_project,
         sel_app_session,
         button,
@@ -68,6 +62,24 @@ layout = Container(
 )
 
 
+@sel_project.value_changed
+def handle(project_id: Optional[int]):
+    active = project_id is not None and sel_app_session.get_selected_id() is not None
+    if active:
+        button.enable()
+    else:
+        button.disable()
+
+
+@sel_app_session.value_changed
+def handle(session_id: Optional[int]):
+    active = session_id is not None and sel_project.get_selected_id() is not None
+    if active:
+        button.enable()
+    else:
+        button.disable()
+
+
 @button.click
 def handle():
     creating_report_f.show()
@@ -75,6 +87,9 @@ def handle():
 
 
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
+
+# if g.project_id:
+#     sel_project.set_project_id(g.project_id)
 
 # выбор таски
 # Run Evaluation
