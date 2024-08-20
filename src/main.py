@@ -1,4 +1,5 @@
 from typing import Optional
+
 import src.globals as g
 import supervisely as sly
 import supervisely.app.widgets as w
@@ -10,8 +11,10 @@ def main_func():
     project = api.project.get_info_by_id(sel_project.get_selected_id())
     session_id = sel_app_session.get_selected_id()
 
-    bm = ObjectDetectionBenchmark(api, project.id, output_dir=g.STORAGE_DIR + "/benchmark")
-    sly.logger.info("Session ID={}".format(session_id))
+    bm = ObjectDetectionBenchmark(
+        api, project.id, output_dir=g.STORAGE_DIR + "/benchmark", progress=pbar
+    )
+    sly.logger.info(f"{session_id = }")
     bm.run_evaluation(model_session=session_id)
 
     session_info = api.task.get_info_by_id(session_id)
@@ -34,17 +37,20 @@ def main_func():
     )
     report_model_benchmark.set(template_vis_file)
     report_model_benchmark.show()
+    pbar.hide()
 
     g.workflow.add_input(session_id)
     g.workflow.add_input(project)
     g.workflow.add_output(bm.diff_project_info)
     g.workflow.add_output(bm.dt_project_info)
     g.workflow.add_output(eval_res_dir)
+    g.workflow.add_output_report(template_vis_file)
 
 
 sel_app_session = w.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = w.SelectProject(default_id=None, workspace_id=g.workspace_id)
 button = w.Button("Evaluate")
+pbar = w.SlyTqdm()
 report_model_benchmark = w.ReportThumbnail()
 report_model_benchmark.hide()
 creating_report_f = w.Field(w.Empty(), "", "Creating report on model...")
@@ -58,6 +64,7 @@ layout = w.Container(
         button,
         creating_report_f,
         report_model_benchmark,
+        pbar,
     ]
 )
 
