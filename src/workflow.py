@@ -1,6 +1,7 @@
-from typing import *
+from typing import Union
 
 import supervisely as sly
+from supervisely.api.file_api import FileInfo
 
 
 def check_compatibility(func):
@@ -93,5 +94,35 @@ class Workflow:
                 }
                 self.api.app.workflow.add_output_file(template_vis_file, meta=meta)
 
+        except Exception as e:
+            sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
+
+    @check_compatibility
+    def add_output_report(self, template_vis_file: FileInfo):
+        try:
+
+            meta = {
+                "customRelationSettings": {
+                    "icon": {
+                        "icon": "zmdi-assignment",
+                        "color": "#674EA7",
+                        "backgroundColor": "#CCCCFF",
+                    },
+                    "title": "<h4>Model Benchmark</h4>",
+                    "mainLink": {
+                        "url": f"/model-benchmark?id={template_vis_file.id}",
+                        "title": "Open Report",
+                    },
+                },
+            }
+            self.api.app.workflow.add_output_file(template_vis_file, meta=meta)
+        except Exception as e:
+            sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
+
+    @check_compatibility
+    def add_output_project(self, item: sly.ProjectInfo):
+        try:
+            if isinstance(item, sly.ProjectInfo):
+                self.api.app.workflow.add_output_project(item.id)
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
