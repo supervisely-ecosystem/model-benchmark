@@ -4,3 +4,4 @@ git+https://github.com/supervisely/supervisely.git@model_benchmark_almaz
 plotly==5.22.0
 ujson
 pycocotools
+scikit-learn==0.24.1
