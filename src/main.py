@@ -10,6 +10,8 @@ def main_func():
     api = g.api
     project = api.project.get_info_by_id(sel_project.get_selected_id())
     session_id = sel_app_session.get_selected_id()
+    pbar.show()
+    report_model_benchmark.hide()
 
     bm = ObjectDetectionBenchmark(
         api, project.id, output_dir=g.STORAGE_DIR + "/benchmark", progress=pbar
