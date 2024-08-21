@@ -2,3 +2,5 @@ ujson
 # git+https://github.com/supervisely/supervisely.git@model-benchmark-ars-before-merge-with-main-branch
 git+https://github.com/supervisely/supervisely.git@model_benchmark_almaz
 plotly==5.22.0
+ujson
+pycocotools
