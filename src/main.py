@@ -48,6 +48,7 @@ def main_func():
     g.workflow.add_output(eval_res_dir)
     g.workflow.add_output_report(template_vis_file)
 
+    button.loading = False
     app.stop()
 
 
