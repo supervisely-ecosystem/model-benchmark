@@ -1,9 +1,10 @@
 from typing import Optional
 
-import src.globals as g
 import supervisely as sly
 import supervisely.app.widgets as w
 from supervisely.nn.benchmark import ObjectDetectionBenchmark
+
+import src.globals as g
 
 
 def main_func():
@@ -43,13 +44,15 @@ def main_func():
 
     g.workflow.add_input(session_id)
     g.workflow.add_input(project)
-    # g.workflow.add_output(bm.diff_project_info)
-    # g.workflow.add_output(bm.dt_project_info)
     g.workflow.add_output(eval_res_dir)
     g.workflow.add_output_report(template_vis_file)
 
-    sly.logger.info(f"Predictions project name {bm.dt_project_info.name}, workspace_id {bm.dt_project_info.workspace_id}")
-    sly.logger.info(f"Differences project name {bm.diff_project_info.name}, workspace_id {bm.diff_project_info.workspace_id}")
+    sly.logger.info(
+        f"Predictions project name {bm.dt_project_info.name}, workspace_id {bm.dt_project_info.workspace_id}"
+    )
+    sly.logger.info(
+        f"Differences project name {bm.diff_project_info.name}, workspace_id {bm.diff_project_info.workspace_id}"
+    )
 
     button.loading = False
     app.stop()
@@ -102,10 +105,3 @@ def handle():
 
 
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
-
-# if g.project_id:
-#     sel_project.set_project_id(g.project_id)
-
-# выбор таски
-# Run Evaluation
-#

@@ -1,14 +1,8 @@
-import json
 import os
-import pickle
-from pathlib import Path
-
-import pandas as pd
-from dotenv import load_dotenv
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval, Params
 
 import supervisely as sly
+from dotenv import load_dotenv
+
 from src.workflow import Workflow
 
 if sly.is_development():
@@ -31,10 +25,3 @@ team_id = sly.env.team_id()
 task_id = sly.env.task_id(raise_not_found=False)
 
 workflow = Workflow(api)
-
-# gt_project_id = 39099
-# gt_dataset_id = 92810
-# dt_project_id = 39141
-# dt_dataset_id = 92872
-# diff_project_id = 39249
-# diff_dataset_id = 93099

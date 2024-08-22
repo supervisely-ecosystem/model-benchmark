@@ -118,11 +118,3 @@ class Workflow:
             self.api.app.workflow.add_output_file(template_vis_file, meta=meta)
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
-
-    @check_compatibility
-    def add_output_project(self, item: sly.ProjectInfo):
-        try:
-            if isinstance(item, sly.ProjectInfo):
-                self.api.app.workflow.add_output_project(item.id)
-        except Exception as e:
-            sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
