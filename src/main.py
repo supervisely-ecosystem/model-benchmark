@@ -3,7 +3,7 @@ from typing import Optional
 import src.globals as g
 import supervisely as sly
 import supervisely.app.widgets as w
-from supervisely.nn.benchmark.object_detection_benchmark import ObjectDetectionBenchmark
+from supervisely.nn.benchmark import ObjectDetectionBenchmark
 
 
 def main_func():
@@ -29,7 +29,7 @@ def main_func():
     bm.visualize()
     remote_dir = bm.upload_visualizations(eval_res_dir + "/visualizations/")
 
-    report = bm.save_reporn_link(remote_dir)
+    report = bm.upload_report_link(remote_dir)
     api.task.set_output_report(g.task_id, report.id, report.name)
 
     creating_report_f.hide()
@@ -47,6 +47,8 @@ def main_func():
     g.workflow.add_output(bm.dt_project_info)
     g.workflow.add_output(eval_res_dir)
     g.workflow.add_output_report(template_vis_file)
+
+    app.stop()
 
 
 sel_app_session = w.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
