@@ -1,6 +1,6 @@
 <div align="center" markdown>
 
-<img src="https://github.com/supervisely-ecosystem/model-benchmark/releases/download/untagged-0db6cd2cfef3aba16774/poster.jpg"/>
+<img src="https://github.com/supervisely-ecosystem/model-benchmark/releases/download/v0.0.4/poster.jpg"/>
 
 # Evaluator for Model Benchmark
 
