@@ -1,6 +1,4 @@
-ujson
 git+https://github.com/supervisely/supervisely.git@model-benchmark
 plotly==5.22.0
-ujson
 pycocotools
 scikit-learn==0.24.1
