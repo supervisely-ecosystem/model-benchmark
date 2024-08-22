@@ -20,7 +20,7 @@ def main_func():
     bm.run_evaluation(model_session=session_id)
 
     session_info = api.task.get_info_by_id(session_id)
-    task_dir = f"{session_id}_task_{session_info['meta']['app']['name']}"
+    task_dir = f"{session_id}_{session_info['meta']['app']['name']}"
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/{task_dir}/"
     eval_res_dir = api.storage.get_free_dir_name(g.team_id, eval_res_dir)
 
@@ -43,10 +43,13 @@ def main_func():
 
     g.workflow.add_input(session_id)
     g.workflow.add_input(project)
-    g.workflow.add_output(bm.diff_project_info)
-    g.workflow.add_output(bm.dt_project_info)
+    # g.workflow.add_output(bm.diff_project_info)
+    # g.workflow.add_output(bm.dt_project_info)
     g.workflow.add_output(eval_res_dir)
     g.workflow.add_output_report(template_vis_file)
+
+    sly.logger.info(f"Predictions project name {bm.dt_project_info.name}, workspace_id {bm.dt_project_info.workspace_id}")
+    sly.logger.info(f"Differences project name {bm.diff_project_info.name}, workspace_id {bm.diff_project_info.workspace_id}")
 
     button.loading = False
     app.stop()
