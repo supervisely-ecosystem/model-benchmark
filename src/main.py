@@ -5,12 +5,19 @@ import supervisely.app.widgets as w
 from supervisely.nn.benchmark import ObjectDetectionBenchmark
 
 import src.globals as g
+import src.workflow as w
 
 
 def main_func():
     api = g.api
     project = api.project.get_info_by_id(sel_project.get_selected_id())
     session_id = sel_app_session.get_selected_id()
+
+    # ==================== Workflow input ====================
+    w.workflow_input(api, project, session_id)
+    # =======================================================
+
+
     pbar.show()
     report_model_benchmark.hide()
 
@@ -42,10 +49,9 @@ def main_func():
     report_model_benchmark.show()
     pbar.hide()
 
-    g.workflow.add_input(session_id)
-    g.workflow.add_input(project)
-    g.workflow.add_output(eval_res_dir)
-    g.workflow.add_output_report(template_vis_file)
+    # ==================== Workflow output ====================
+    w.workflow_output(api, eval_res_dir, template_vis_file)
+    # =======================================================
 
     sly.logger.info(
         f"Predictions project name {bm.dt_project_info.name}, workspace_id {bm.dt_project_info.workspace_id}"
