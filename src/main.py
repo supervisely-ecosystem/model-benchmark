@@ -1,7 +1,7 @@
 from typing import Optional
 
 import supervisely as sly
-import supervisely.app.widgets as w
+import supervisely.app.widgets as widgets
 from supervisely.nn.benchmark import ObjectDetectionBenchmark
 
 import src.globals as g
@@ -64,18 +64,18 @@ def main_func():
     app.stop()
 
 
-sel_app_session = w.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = w.SelectProject(default_id=None, workspace_id=g.workspace_id)
-button = w.Button("Evaluate")
-pbar = w.SlyTqdm()
-report_model_benchmark = w.ReportThumbnail()
+sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
+button = widgets.Button("Evaluate")
+pbar = widgets.SlyTqdm()
+report_model_benchmark = widgets.ReportThumbnail()
 report_model_benchmark.hide()
-creating_report_f = w.Field(w.Empty(), "", "Creating report on model...")
+creating_report_f = widgets.Field(widgets.Empty(), "", "Creating report on model...")
 creating_report_f.hide()
 
-layout = w.Container(
+layout = widgets.Container(
     widgets=[
-        w.Text("Select GT Project"),
+        widgets.Text("Select GT Project"),
         sel_project,
         sel_app_session,
         button,
