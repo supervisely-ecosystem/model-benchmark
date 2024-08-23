@@ -1,4 +1,4 @@
-FROM supervisely/base-py-sdk:6.73.137
+FROM supervisely/base-py-sdk:6.73.166
 
 RUN python3 -m pip install supervisely[model-benchmark]==6.73.166
 
