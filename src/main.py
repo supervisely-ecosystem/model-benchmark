@@ -19,13 +19,16 @@ def main_func():
     pbar.show()
     report_model_benchmark.hide()
 
-    selected_classes = select_classes.get_selected_classes()
+    selected_classes = select_classes.get_selected()
+
+    matches = [x[1] for x in select_classes.get_stat()["match"]]
+    selected_classes = [x[0] for x in selected_classes if x[0] in matches]
     bm = ObjectDetectionBenchmark(
         api,
         project.id,
         output_dir=g.STORAGE_DIR + "/benchmark",
         progress=pbar,
-        classes=selected_classes,
+        classes_whitelist=selected_classes,
     )
     sly.logger.info(f"{g.session_id = }")
     bm.run_evaluation(model_session=g.session_id)
@@ -69,8 +72,17 @@ def main_func():
     app.stop()
 
 
-select_classes = widgets.ClassesListSelector(multiple=True)
+select_classes = widgets.MatchObjClasses(
+    selectable=True,
+    left_name="Model classes",
+    right_name="GT project classes",
+)
 select_classes.hide()
+not_matched_classes = widgets.MatchObjClasses(
+    left_name="Model classes",
+    right_name="GT project classes",
+)
+not_matched_classes.hide()
 no_classes_label = widgets.Text(
     "Not found any classes in the project that are present in the model",
     status="error",
@@ -97,6 +109,7 @@ layout = widgets.Container(
         sel_app_session,
         button,
         select_classes,
+        not_matched_classes,
         no_classes_label,
         creating_report_f,
         report_model_benchmark,
@@ -110,11 +123,16 @@ def handle_selectors(active: bool):
     select_classes.hide()
     button.loading = True
     if active:
-        classes = f.get_classes()
-        if len(classes) > 0:
-            select_classes.set(classes)
+        metched, not_matched = f.get_classes()
+        project_classes, model_classes = metched
+        select_classes.set(left_collection=model_classes, right_collection=project_classes)
+
+        project_classes, model_classes = not_matched
+        not_matched_classes.set(left_collection=model_classes, right_collection=project_classes)
+        stats = select_classes.get_stat()
+        if len(stats["match"]) > 0:
             select_classes.show()
-            select_classes.select_all()
+            not_matched_classes.show()
             button.loading = False
             button.enable()
             return
@@ -141,7 +159,8 @@ def handle_sel_app_session(session_id: Optional[int]):
 @button.click
 def start_evaluation():
     creating_report_f.show()
-    select_classes.disable()
+    select_classes.hide()
+    not_matched_classes.hide()
     main_func()
 
 

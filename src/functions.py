@@ -3,7 +3,7 @@ import supervisely as sly
 from supervisely.nn.inference import Session
 
 geometry_to_task_type = {
-    "object detection": [sly.Rectangle],
+    "object detection": [sly.Rectangle, sly.Bitmap, sly.Polygon, sly.AlphaMask],
     "instance segmentation": [sly.Bitmap, sly.Polygon, sly.AlphaMask],
     # "semantic segmentation": [sly.Bitmap, sly.Polygon, sly.AlphaMask],
 }
@@ -26,10 +26,22 @@ def get_classes():
     model_classes, task_type = get_model_info()
     if task_type not in geometry_to_task_type:
         raise ValueError(f"Task type {task_type} is not supported yet")
-    filtered_classes = []
+    matched_proj_cls = []
+    matched_model_cls = []
+    not_matched_proj_cls = []
+    not_matched_model_cls = []
     for obj_class in project_classes:
         if model_classes.has_key(obj_class.name):
             if obj_class.geometry_type in geometry_to_task_type[task_type]:
-                filtered_classes.append(obj_class)
+                matched_proj_cls.append(obj_class)
+                matched_model_cls.append(model_classes.get(obj_class.name))
+            else:
+                not_matched_proj_cls.append(obj_class)
+        else:
+            not_matched_proj_cls.append(obj_class)
 
-    return filtered_classes
+    for obj_class in model_classes:
+        if not project_classes.has_key(obj_class.name):
+            not_matched_model_cls.append(obj_class)
+
+    return (matched_proj_cls, matched_model_cls), (not_matched_proj_cls, not_matched_model_cls)
