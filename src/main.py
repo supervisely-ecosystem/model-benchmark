@@ -1,11 +1,10 @@
 from typing import Optional
 
+import src.globals as g
+import src.workflow as w
 import supervisely as sly
 import supervisely.app.widgets as widgets
 from supervisely.nn.benchmark import ObjectDetectionBenchmark
-
-import src.globals as g
-import src.workflow as w
 
 
 def main_func():
@@ -16,7 +15,6 @@ def main_func():
     # ==================== Workflow input ====================
     w.workflow_input(api, project, session_id)
     # =======================================================
-
 
     pbar.show()
     report_model_benchmark.hide()
@@ -111,3 +109,9 @@ def handle():
 
 
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
+
+if g.project_id:
+    sel_project.set_project_id(g.project_id)
+
+if g.session_id:
+    sel_app_session.set_session_id(g.session_id)
