@@ -1,0 +1,17 @@
+<div id="embeddings-calculator">
+  <sly-field title="Select Served session" description="select ">
+    <sly-select-app-session
+      :group-id="context.teamId"
+      :app-session-id.sync="state.sessionId"
+      :options="state.sessionOptions"
+    >
+    </sly-select-app-session>
+  </sly-field>
+  <sly-field
+    v-if="state.sessionId"
+    title="Auto start"
+    description="Specify if the evaluation should start automatically after the app starts"
+  >
+    <el-checkbox v-model="state.autoStart">Enable</el-checkbox>
+  </sly-field>
+</div>
