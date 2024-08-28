@@ -1,4 +1,5 @@
 import os
+from distutils.util import strtobool
 
 from dotenv import load_dotenv
 
@@ -25,3 +26,4 @@ task_id = sly.env.task_id(raise_not_found=False)
 session_id = os.environ.get("modal.state.sessionId", None)
 if session_id is not None:
     session_id = int(session_id)
+autostart = bool(strtobool(os.environ.get("modal.state.autoStart", "false")))

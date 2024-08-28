@@ -103,7 +103,7 @@ def handle(session_id: Optional[int]):
 
 
 @button.click
-def handle():
+def start_evaluation():
     creating_report_f.show()
     main_func()
 
@@ -115,3 +115,6 @@ if g.project_id:
 
 if g.session_id:
     sel_app_session.set_session_id(g.session_id)
+
+if g.autostart:
+    start_evaluation()
