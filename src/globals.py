@@ -27,3 +27,5 @@ session_id = os.environ.get("modal.state.sessionId", None)
 if session_id is not None:
     session_id = int(session_id)
 autostart = bool(strtobool(os.environ.get("modal.state.autoStart", "false")))
+
+selected_classes = None

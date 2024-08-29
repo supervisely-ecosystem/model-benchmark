@@ -3,7 +3,7 @@ import supervisely as sly
 from supervisely.nn.inference import Session
 
 geometry_to_task_type = {
-    "object detection": [sly.Rectangle, sly.Bitmap, sly.Polygon, sly.AlphaMask],
+    "object detection": [sly.Rectangle],
     "instance segmentation": [sly.Bitmap, sly.Polygon, sly.AlphaMask],
     # "semantic segmentation": [sly.Bitmap, sly.Polygon, sly.AlphaMask],
 }
@@ -45,3 +45,7 @@ def get_classes():
             not_matched_model_cls.append(obj_class)
 
     return (matched_proj_cls, matched_model_cls), (not_matched_proj_cls, not_matched_model_cls)
+
+def get_matched_class_names():
+    (cls_collection, _), _ = get_classes()
+    return [obj_cls.name for obj_cls in cls_collection]
