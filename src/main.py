@@ -140,6 +140,8 @@ main_layout = widgets.Container(
 
 def handle_selectors(active: bool):
     no_classes_label.hide()
+    selected_matched_text.hide()
+    not_matched_text.hide()
     # select_classes.hide()
     # not_matched_classes.hide()
     if active:
@@ -148,14 +150,17 @@ def handle_selectors(active: bool):
         _, not_matched_model = not_matched
 
         g.selected_classes = [obj_cls.name for obj_cls in matched_model]
-        not_matched_classes = len(not_matched_model)
+        not_matched_classes_cnt = len(not_matched_model)
         total_classes = len(matched_model) + len(not_matched_model)
 
-        total_classes_text.text = f"{total_classes} total classes available in the model."
+        total_classes_text.text = f"{total_classes} classes found in the model."
         selected_matched_text.text = f"{len(matched_model)} classes can be used for evaluation."
-        not_matched_text.text = f"{not_matched_classes} classes are not available for evaluation (not found in the GT project)."
+        not_matched_text.text = f"{not_matched_classes_cnt} classes are not available for evaluation (not found in the GT project or have different geometry type)."
 
         if len(matched_model) > 0:
+            selected_matched_text.show()
+            if not_matched_classes_cnt > 0:
+                not_matched_text.show()
             button.enable()
             return
         else:
