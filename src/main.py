@@ -54,6 +54,7 @@ def main_func():
 
     task_info = api.task.get_info_by_id(g.session_id)
     task_dir = f"{g.session_id}_{task_info['meta']['app']['name']}"
+
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/{task_dir}/"
     eval_res_dir = api.storage.get_free_dir_name(g.team_id, eval_res_dir)
 
