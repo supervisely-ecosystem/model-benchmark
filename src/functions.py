@@ -1,7 +1,8 @@
-import src.globals as g
 import supervisely as sly
 from supervisely.nn import TaskType
 from supervisely.nn.inference import Session
+
+import src.globals as g
 
 geometry_to_task_type = {
     TaskType.OBJECT_DETECTION: [sly.Rectangle],
@@ -45,8 +46,3 @@ def get_classes():
             not_matched_model_cls.append(obj_class)
 
     return (matched_proj_cls, matched_model_cls), (not_matched_proj_cls, not_matched_model_cls)
-
-
-def get_matched_class_names():
-    (cls_collection, _), _ = get_classes()
-    return [obj_cls.name for obj_cls in cls_collection]
