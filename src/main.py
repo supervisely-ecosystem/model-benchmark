@@ -24,10 +24,13 @@ def main_func():
     w.workflow_input(api, project, g.session_id)
     # =======================================================
 
-    pbar.show()
     report_model_benchmark.hide()
 
     set_selected_classes_and_show_info()
+    if g.selected_classes is None or len(g.selected_classes) == 0:
+        return
+
+    pbar.show()
     if task_type == "object detection":
         bm = ObjectDetectionBenchmark(
             api,
