@@ -4,13 +4,19 @@ import src.globals as g
 import src.workflow as w
 import supervisely as sly
 import supervisely.app.widgets as widgets
-from supervisely.nn.benchmark import ObjectDetectionBenchmark
+from supervisely.nn.benchmark import (
+    InstanceSegmentationBenchmark,
+    ObjectDetectionBenchmark,
+)
+from supervisely.nn.inference.session import SessionJSON
 
 
 def main_func():
     api = g.api
     project = api.project.get_info_by_id(sel_project.get_selected_id())
     session_id = sel_app_session.get_selected_id()
+    session = SessionJSON(api, session_id)
+    task_type = session.get_deploy_info()["task_type"]
 
     # ==================== Workflow input ====================
     w.workflow_input(api, project, session_id)
@@ -19,14 +25,19 @@ def main_func():
     pbar.show()
     report_model_benchmark.hide()
 
-    bm = ObjectDetectionBenchmark(
-        api, project.id, output_dir=g.STORAGE_DIR + "/benchmark", progress=pbar
-    )
+    if task_type == "object detection":
+        bm = ObjectDetectionBenchmark(
+            api, project.id, output_dir=g.STORAGE_DIR + "/benchmark", progress=pbar
+        )
+    elif task_type == "instance segmentation":
+        bm = InstanceSegmentationBenchmark(
+            api, project.id, output_dir=g.STORAGE_DIR + "/benchmark", progress=pbar
+        )
     sly.logger.info(f"{session_id = }")
     bm.run_evaluation(model_session=session_id)
 
-    session_info = api.task.get_info_by_id(session_id)
-    task_dir = f"{session_id}_{session_info['meta']['app']['name']}"
+    task_info = api.task.get_info_by_id(session_id)
+    task_dir = f"{session_id}_{task_info['meta']['app']['name']}"
     eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/{task_dir}/"
     eval_res_dir = api.storage.get_free_dir_name(g.team_id, eval_res_dir)
 
