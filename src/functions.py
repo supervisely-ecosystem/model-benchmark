@@ -15,8 +15,7 @@ def get_project_classes():
 
 
 def get_model_info():
-    if g.session is None:
-        g.session = Session(g.api, g.session_id)
+    g.session = Session(g.api, g.session_id)
     model_meta = g.session.get_model_meta()
     session_info = g.session.get_session_info()
     return model_meta.obj_classes, session_info["task type"]
