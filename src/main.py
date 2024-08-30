@@ -181,3 +181,6 @@ if g.session_id:
 
 if g.autostart:
     start_evaluation()
+
+if g.project_id and g.session_id:
+    handle_selectors(True)
