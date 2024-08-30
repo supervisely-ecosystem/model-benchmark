@@ -159,6 +159,7 @@ def handle_selectors(active: bool):
     no_classes_label.hide()
     selected_matched_text.hide()
     not_matched_text.hide()
+    button.loading = True
     # select_classes.hide()
     # not_matched_classes.hide()
     if active:
@@ -179,6 +180,7 @@ def handle_selectors(active: bool):
             if not_matched_classes_cnt > 0:
                 not_matched_text.show()
             button.enable()
+            button.loading = False
             return
         else:
             no_classes_label.show()
@@ -196,6 +198,7 @@ def handle_selectors(active: bool):
         #     return
         # else:
         #     no_classes_label.show()
+    button.loading = False
     button.disable()
 
 
