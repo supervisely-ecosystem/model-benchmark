@@ -48,10 +48,7 @@ def main_func():
         )
     sly.logger.info(f"{g.session_id = }")
     bm.run_evaluation(model_session=g.session_id)
-    bm.run_speedtest(
-        g.session_id,
-        g.project_id,
-    )
+    bm.run_speedtest(g.session_id, g.project_id)
     bm.visualize()
 
     task_info = api.task.get_info_by_id(g.session_id)
