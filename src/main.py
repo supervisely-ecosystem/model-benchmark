@@ -47,9 +47,6 @@ def main_func():
             classes_whitelist=g.selected_classes,
         )
     sly.logger.info(f"{g.session_id = }")
-    bm.run_evaluation(model_session=g.session_id)
-    bm.run_speedtest(g.session_id, g.project_id)
-    bm.visualize()
 
     task_info = api.task.get_info_by_id(g.session_id)
     task_dir = f"{g.session_id}_{task_info['meta']['app']['name']}"
@@ -57,8 +54,16 @@ def main_func():
     res_dir = f"/model-benchmark/{project.id}_{project.name}/{task_dir}/"
     res_dir = api.storage.get_free_dir_name(g.team_id, res_dir)
 
+    bm.run_evaluation(model_session=g.session_id)
     bm.upload_eval_results(res_dir + "/evaluation/")
-    bm.upload_speedtest_results(res_dir + "/speedtest/")
+
+    try:
+        bm.run_speedtest(g.session_id, g.project_id)
+        bm.upload_speedtest_results(res_dir + "/speedtest/")
+    except Exception as e:
+        sly.logger.warn(f"Speedtest failed. Skipping. {e}")
+
+    bm.visualize()
     remote_dir = bm.upload_visualizations(res_dir + "/visualizations/")
 
     report = bm.upload_report_link(remote_dir)
