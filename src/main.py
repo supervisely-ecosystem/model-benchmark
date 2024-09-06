@@ -1,5 +1,8 @@
 from typing import Optional
 
+import src.functions as f
+import src.globals as g
+import src.workflow as w
 import supervisely as sly
 import supervisely.app.widgets as widgets
 from supervisely.nn.benchmark import (
@@ -7,10 +10,6 @@ from supervisely.nn.benchmark import (
     ObjectDetectionBenchmark,
 )
 from supervisely.nn.inference.session import SessionJSON
-
-import src.functions as f
-import src.globals as g
-import src.workflow as w
 
 
 def main_func():
@@ -48,31 +47,37 @@ def main_func():
             classes_whitelist=g.selected_classes,
         )
     sly.logger.info(f"{g.session_id = }")
-    bm.run_evaluation(model_session=g.session_id)
 
     task_info = api.task.get_info_by_id(g.session_id)
     task_dir = f"{g.session_id}_{task_info['meta']['app']['name']}"
 
-    eval_res_dir = f"/model-benchmark/evaluation/{project.id}_{project.name}/{task_dir}/"
-    eval_res_dir = api.storage.get_free_dir_name(g.team_id, eval_res_dir)
+    res_dir = f"/model-benchmark/{project.id}_{project.name}/{task_dir}/"
+    res_dir = api.storage.get_free_dir_name(g.team_id, res_dir)
 
-    bm.upload_eval_results(eval_res_dir)
+    bm.run_evaluation(model_session=g.session_id)
+    bm.upload_eval_results(res_dir + "/evaluation/")
+
+    try:
+        bm.run_speedtest(g.session_id, g.project_id)
+        bm.upload_speedtest_results(res_dir + "/speedtest/")
+    except Exception as e:
+        sly.logger.warn(f"Speedtest failed. Skipping. {e}")
 
     bm.visualize()
-    remote_dir = bm.upload_visualizations(eval_res_dir + "/visualizations/")
+    remote_dir = bm.upload_visualizations(res_dir + "/visualizations/")
 
     report = bm.upload_report_link(remote_dir)
     api.task.set_output_report(g.task_id, report.id, report.name)
 
     template_vis_file = api.file.get_info_by_path(
-        sly.env.team_id(), eval_res_dir + "/visualizations/template.vue"
+        sly.env.team_id(), res_dir + "/visualizations/template.vue"
     )
     report_model_benchmark.set(template_vis_file)
     report_model_benchmark.show()
     pbar.hide()
 
     # ==================== Workflow output ====================
-    w.workflow_output(api, eval_res_dir, template_vis_file)
+    w.workflow_output(api, res_dir, template_vis_file)
     # =======================================================
 
     sly.logger.info(
