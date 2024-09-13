@@ -62,8 +62,8 @@ def main_func():
 
     try:
         bm.run_speedtest(g.session_id, g.project_id)
-        bm.upload_speedtest_results(res_dir + "/speedtest/")
         sec_pbar.hide()
+        bm.upload_speedtest_results(res_dir + "/speedtest/")
     except Exception as e:
         sly.logger.warn(f"Speedtest failed. Skipping. {e}")
 
