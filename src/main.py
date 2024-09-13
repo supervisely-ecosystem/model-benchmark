@@ -63,6 +63,7 @@ def main_func():
     try:
         bm.run_speedtest(g.session_id, g.project_id)
         bm.upload_speedtest_results(res_dir + "/speedtest/")
+        sec_pbar.hide()
     except Exception as e:
         sly.logger.warn(f"Speedtest failed. Skipping. {e}")
 
@@ -78,7 +79,6 @@ def main_func():
     report_model_benchmark.set(template_vis_file)
     report_model_benchmark.show()
     pbar.hide()
-    sec_pbar.hide()
 
     # ==================== Workflow output ====================
     w.workflow_output(api, res_dir, template_vis_file)
