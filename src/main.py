@@ -30,12 +30,14 @@ def main_func():
         return
 
     pbar.show()
+    sec_pbar.show()
     if task_type == "object detection":
         bm = ObjectDetectionBenchmark(
             api,
             project.id,
             output_dir=g.STORAGE_DIR + "/benchmark",
             progress=pbar,
+            progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
         )
     elif task_type == "instance segmentation":
@@ -44,6 +46,7 @@ def main_func():
             project.id,
             output_dir=g.STORAGE_DIR + "/benchmark",
             progress=pbar,
+            progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
         )
     sly.logger.info(f"{g.session_id = }")
@@ -59,6 +62,7 @@ def main_func():
 
     try:
         bm.run_speedtest(g.session_id, g.project_id)
+        sec_pbar.hide()
         bm.upload_speedtest_results(res_dir + "/speedtest/")
     except Exception as e:
         sly.logger.warn(f"Speedtest failed. Skipping. {e}")
@@ -108,6 +112,7 @@ button = widgets.Button("Evaluate")
 button.disable()
 
 pbar = widgets.SlyTqdm()
+sec_pbar = widgets.Progress("")
 
 report_model_benchmark = widgets.ReportThumbnail()
 report_model_benchmark.hide()
@@ -115,7 +120,9 @@ report_model_benchmark.hide()
 controls_card = widgets.Card(
     title="Settings",
     description="Select Ground Truth project and deployed model session",
-    content=widgets.Container([sel_project, sel_app_session, button, report_model_benchmark, pbar]),
+    content=widgets.Container(
+        [sel_project, sel_app_session, button, report_model_benchmark, pbar, sec_pbar]
+    ),
 )
 
 
