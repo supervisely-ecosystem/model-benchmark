@@ -1,1 +1,0 @@
-git+https://github.com/supervisely/supervisely.git@speedup-inference#egg=supervisely[model-benchmark]
