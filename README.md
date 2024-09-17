@@ -26,7 +26,7 @@ The Evaluator for Model Benchmark is a versatile application designed to assess 
 
 Before running the Evaluator for Model Benchmark, please ensure that you have the following:
 
-- Served model in Supervisely (currently available [Serve YOLOv8 | v9 | v10](https://ecosystem.supervisely.com/apps/yolov8/serve))
+- A served model in Supervisely (currently available for object detection and instance segmentation models)
 - You have prepared a Ground Truth project with the appropriate annotations (classes should be the same as in the model)
 
 ## How To Run
