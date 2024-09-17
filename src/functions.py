@@ -1,6 +1,6 @@
 import supervisely as sly
 from supervisely.nn import TaskType
-from supervisely.nn.inference import Session
+from supervisely.nn.inference import SessionJSON
 
 import src.globals as g
 
@@ -16,8 +16,10 @@ def get_project_classes():
 
 
 def get_model_info():
-    g.session = Session(g.api, g.session_id)
+    if g.session is None:
+        g.session = SessionJSON(g.api, g.session_id)
     model_meta = g.session.get_model_meta()
+    model_meta = sly.ProjectMeta.from_json(model_meta)
     session_info = g.session.get_session_info()
     return model_meta.obj_classes, session_info["task type"]
 
