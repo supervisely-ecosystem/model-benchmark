@@ -1,7 +1,9 @@
 supervisely.env
 sly_data/
-mmseg_data/
+preprocessed_data/
 output/
 beyond-iou/
 beyond-iou-lib/
 **/__pycache__/
+supervisely/
+setup.py

@@ -13,4 +13,8 @@ RUN pip3 install image-diversity
 RUN pip3 install kaleido==0.2.1
 RUN pip3 install cupy-cuda111
 
+RUN pip3 install zstd
+RUN pip3 install pycocotools
+RUN pip3 install scikit-learn
+
 LABEL "role"="development"
