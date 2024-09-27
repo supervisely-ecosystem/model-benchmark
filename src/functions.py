@@ -1,12 +1,11 @@
+import src.globals as g
 import supervisely as sly
 from supervisely.nn import TaskType
 from supervisely.nn.inference import SessionJSON
 
-import src.globals as g
-
 geometry_to_task_type = {
-    TaskType.OBJECT_DETECTION: [sly.Rectangle],
-    TaskType.INSTANCE_SEGMENTATION: [sly.Bitmap, sly.Polygon],
+    TaskType.OBJECT_DETECTION: [sly.Rectangle, sly.AnyGeometry],
+    TaskType.INSTANCE_SEGMENTATION: [sly.Bitmap, sly.Polygon, sly.AnyGeometry],
 }
 
 
