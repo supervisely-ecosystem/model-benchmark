@@ -21,6 +21,7 @@ deployed_nn_tags = ["deployed_nn"]
 
 workspace_id = sly.env.workspace_id()
 project_id = sly.env.project_id(raise_not_found=False)
+dataset_ids = None
 team_id = sly.env.team_id()
 task_id = sly.env.task_id(raise_not_found=False)
 session_id = os.environ.get("modal.state.sessionId", None)
