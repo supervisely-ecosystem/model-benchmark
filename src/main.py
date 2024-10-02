@@ -113,17 +113,11 @@ sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, s
 sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
 
 eval_params = widgets.Editor(initial_text=BaseEvaluator.default_parameters(), language_mode="yaml")
-eval_params_apply_button = widgets.Button("Apply")
 eval_params_card = widgets.Card(
     title="Evaluation parameters",
-    content=widgets.Container([eval_params, eval_params_apply_button]),
+    content=eval_params,
     collapsable=True,
 )
-
-
-@eval_params_apply_button.click
-def apply_eval_params():
-    return
 
 
 button = widgets.Button("Evaluate")
