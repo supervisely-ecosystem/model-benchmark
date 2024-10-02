@@ -112,12 +112,15 @@ not_matched_text = widgets.Text(status="warning")
 sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
 
-eval_params = widgets.Editor(initial_text=BaseEvaluator.default_parameters(), language_mode="yaml")
+eval_params = widgets.Editor(
+    initial_text=BaseEvaluator.default_parameters(), language_mode="yaml", height_lines=16
+)
 eval_params_card = widgets.Card(
     title="Evaluation parameters",
     content=eval_params,
     collapsable=True,
 )
+eval_params_card.collapse()
 
 
 button = widgets.Button("Evaluate")
