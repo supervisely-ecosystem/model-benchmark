@@ -9,6 +9,7 @@ from supervisely.nn.benchmark import (
     InstanceSegmentationBenchmark,
     ObjectDetectionBenchmark,
 )
+from supervisely.nn.benchmark.evaluation.base_evaluator import BaseEvaluator
 from supervisely.nn.inference.session import SessionJSON
 
 
@@ -31,6 +32,7 @@ def main_func():
 
     pbar.show()
     sec_pbar.show()
+    evaluation_parameters = eval_params.get_value()
     if task_type == "object detection":
         bm = ObjectDetectionBenchmark(
             api,
@@ -39,6 +41,7 @@ def main_func():
             progress=pbar,
             progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
+            evaluation_parameters=evaluation_parameters,
         )
     elif task_type == "instance segmentation":
         bm = InstanceSegmentationBenchmark(
@@ -48,6 +51,7 @@ def main_func():
             progress=pbar,
             progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
+            evaluation_parameters=evaluation_parameters,
         )
     sly.logger.info(f"{g.session_id = }")
 
@@ -108,6 +112,20 @@ not_matched_text = widgets.Text(status="warning")
 sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
 
+eval_params = widgets.Editor(initial_text=BaseEvaluator.default_parameters(), language_mode="yaml")
+eval_params_apply_button = widgets.Button("Apply")
+eval_params_card = widgets.Card(
+    title="Evaluation parameters",
+    content=widgets.Container([eval_params, eval_params_apply_button]),
+    collapsable=True,
+)
+
+
+@eval_params_apply_button.click
+def apply_eval_params():
+    return
+
+
 button = widgets.Button("Evaluate")
 button.disable()
 
@@ -121,7 +139,15 @@ controls_card = widgets.Card(
     title="Settings",
     description="Select Ground Truth project and deployed model session",
     content=widgets.Container(
-        [sel_project, sel_app_session, button, report_model_benchmark, pbar, sec_pbar]
+        [
+            sel_project,
+            sel_app_session,
+            eval_params_card,
+            button,
+            report_model_benchmark,
+            pbar,
+            sec_pbar,
+        ]
     ),
 )
 
