@@ -73,7 +73,12 @@ def main_func():
     bm.run_evaluation(model_session=g.session_id)
 
     try:
-        bm.run_speedtest(g.session_id, g.project_id)
+        batch_sizes = (1, 8, 16)
+        session_info = g.session.get_session_info()
+        support_batch_inference = session_info.get("batch_inference_support", False)
+        if not support_batch_inference:
+            batch_sizes = (1,)
+        bm.run_speedtest(g.session_id, g.project_id, batch_sizes=batch_sizes)
         sec_pbar.hide()
         bm.upload_speedtest_results(res_dir + "/speedtest/")
     except Exception as e:
