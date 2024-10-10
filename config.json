@@ -11,7 +11,7 @@
   "task_location": "workspace_tasks",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,
-  "docker_image": "supervisely/model-benchmark:0.0.13",
+  "docker_image": "supervisely/model-benchmark:1.0.13",
   "instance_version": "6.11.19",
   "context_menu": {
     "target": ["images_project"]
