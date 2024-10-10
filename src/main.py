@@ -41,7 +41,7 @@ def main_func():
 
     pbar.show()
     sec_pbar.show()
-    evaluation_parameters = eval_params.get_value()
+    evaluation_parameters = yaml.safe_load(eval_params.get_value())
     if task_type == "object detection":
         bm = ObjectDetectionBenchmark(
             api,
@@ -123,7 +123,7 @@ sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, s
 sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
 
 eval_params = widgets.Editor(
-    initial_text=BaseEvaluator._get_default_evaluation_params(),
+    initial_text=None,
     language_mode="yaml",
     height_lines=16,
 )
@@ -195,10 +195,10 @@ def update_eval_params():
         g.session = SessionJSON(g.api, g.session_id)
     task_type = g.session.get_deploy_info()["task_type"]
     if task_type == TaskType.OBJECT_DETECTION:
-        params = ObjectDetectionEvaluator._get_default_evaluation_params()
+        params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
     elif task_type == TaskType.INSTANCE_SEGMENTATION:
-        params = InstanceSegmentationEvaluator._get_default_evaluation_params()
-    eval_params.set_text(yaml.dump(params), language_mode="yaml")
+        params = InstanceSegmentationEvaluator.load_yaml_evaluation_params()
+    eval_params.set_text(params, language_mode="yaml")
     eval_params_card.uncollapse()
 
 
