@@ -2,8 +2,10 @@ supervisely.env
 sly_data/
 preprocessed_data/
 output/
+output_2/
 beyond-iou/
 beyond-iou-lib/
 **/__pycache__/
 supervisely/
 setup.py
+test_charts/
