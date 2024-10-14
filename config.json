@@ -2,8 +2,8 @@
   "type": "app",
   "version": "2.0.0",
   "name": "Evaluator for Model Benchmark",
-  "description": "Evaluate the performance of the NN model",
-  "categories": ["neural network", "images", "object detection"],
+  "description": "Evaluate the performance of the NN model and compare it with the results of other models",
+  "categories": ["neural network", "images", "object detection", "instance segmentation"],
   "icon": "https://github.com/supervisely-ecosystem/model-benchmark/releases/download/v0.0.4/icon-mb.png",
   "icon_cover": true,
   "headless": false,
@@ -12,18 +12,5 @@
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000",
   "port": 8000,
   "docker_image": "supervisely/model-benchmark:1.0.13",
-  "instance_version": "6.11.19",
-  "context_menu": {
-    "target": ["images_project"]
-  },
-  "modal_template": "src/modal.html",
-  "modal_template_state": {
-    "sessionId": null,
-    "autoStart": false,
-    "sessionOptions": {
-      "sessionTags": ["deployed_nn"],
-      "showLabel": false,
-      "size": "small"
-    }
-  }
+  "instance_version": "6.11.19"
 }
