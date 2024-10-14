@@ -1,3 +1,6 @@
+import os
+from typing import List, Tuple
+
 import src.globals as g
 import supervisely as sly
 from supervisely.nn import TaskType
@@ -47,3 +50,40 @@ def get_classes():
             not_matched_model_cls.append(obj_class)
 
     return (matched_proj_cls, matched_model_cls), (not_matched_proj_cls, not_matched_model_cls)
+
+
+def validate_paths(paths: List[str]):
+    if not paths:
+        raise ValueError("No paths selected")
+
+    split_paths = [path.strip("/").split(os.sep) for path in paths]
+    path_length = min(len(p) for p in split_paths)
+
+    if not all(len(p) == path_length for p in split_paths):
+        raise ValueError(f"Selected paths not on the correct level: {paths}")
+
+    if not all(p.startswith("/model-benchmark") for p in paths):
+        raise ValueError(f"Selected paths are not in the benchmark directory: {paths}")
+
+    if not all(p[1] == split_paths[0][1] for p in split_paths):
+        raise ValueError(f"Project names are different: {paths}")
+
+
+def get_parent_paths(paths: List[str]) -> Tuple[str, List[str]]:
+    split_paths = [path.strip("/").split(os.sep) for path in paths]
+    project_name = split_paths[0][1]
+    eval_dirs = [p[2] for p in split_paths]
+
+    return project_name, eval_dirs
+
+
+def get_res_dir(eval_dirs: List[str]) -> str:
+
+    res_dir = "/model-comparison"
+    project_name, eval_dirs = get_parent_paths(eval_dirs)
+    res_dir += "/" + project_name + "/"
+    res_dir += " vs ".join(eval_dirs)
+
+    res_dir = g.api.file.get_free_name(g.team_id, res_dir)
+
+    return res_dir
