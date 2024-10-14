@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, Optional, Union
 
 import yaml
 
@@ -13,7 +13,6 @@ from supervisely.nn.benchmark import (
     InstanceSegmentationBenchmark,
     ObjectDetectionBenchmark,
 )
-from supervisely.nn.benchmark.comparison.model_comparison import ModelComparison
 from supervisely.nn.benchmark.evaluation.instance_segmentation_evaluator import (
     InstanceSegmentationEvaluator,
 )
@@ -23,7 +22,11 @@ from supervisely.nn.benchmark.evaluation.object_detection_evaluator import (
 from supervisely.nn.inference.session import SessionJSON
 
 
-def run_evaluation(session_id: Optional[int] = None, project_id: Optional[int] = None):
+def run_evaluation(
+    session_id: Optional[int] = None,
+    project_id: Optional[int] = None,
+    params: Optional[Union[str, Dict]] = None,
+):
     work_dir = g.STORAGE_DIR + "/benchmark_" + rand_str(6)
 
     if session_id is not None:
@@ -48,8 +51,15 @@ def run_evaluation(session_id: Optional[int] = None, project_id: Optional[int] =
 
     pbar.show()
     sec_pbar.show()
-    evaluation_parameters = yaml.safe_load(eval_params.get_value())
-    if task_type == "object detection":
+
+    evaluation_params = eval_params.get_value() or params
+    if isinstance(evaluation_params, str):
+        evaluation_params = yaml.safe_load(evaluation_params)
+
+    if task_type == TaskType.OBJECT_DETECTION:
+        if evaluation_params is None:
+            evaluation_params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
+            evaluation_params = yaml.safe_load(evaluation_params)
         bm = ObjectDetectionBenchmark(
             g.api,
             project.id,
@@ -57,9 +67,12 @@ def run_evaluation(session_id: Optional[int] = None, project_id: Optional[int] =
             progress=pbar,
             progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
-            evaluation_params=evaluation_parameters,
+            evaluation_params=evaluation_params,
         )
-    elif task_type == "instance segmentation":
+    elif task_type == TaskType.INSTANCE_SEGMENTATION:
+        if evaluation_params is None:
+            evaluation_params = InstanceSegmentationEvaluator.load_yaml_evaluation_params()
+            evaluation_params = yaml.safe_load(evaluation_params)
         bm = InstanceSegmentationBenchmark(
             g.api,
             project.id,
@@ -67,7 +80,7 @@ def run_evaluation(session_id: Optional[int] = None, project_id: Optional[int] =
             progress=pbar,
             progress_secondary=sec_pbar,
             classes_whitelist=g.selected_classes,
-            evaluation_params=evaluation_parameters,
+            evaluation_params=evaluation_params,
         )
     sly.logger.info(f"{g.session_id = }")
 
