@@ -33,7 +33,11 @@ def run_compare(eval_dirs: List[str] = None):
 
 compare_button = widgets.Button("Compare")
 pbar = widgets.SlyTqdm()
-models_comparison_report = widgets.ReportThumbnail()
+models_comparison_report = widgets.ReportThumbnail(
+    title="Models Comparison Report",
+    color="#ffc084",
+    bg_color="#fff2e6",
+)
 models_comparison_report.hide()
 team_files_selector = widgets.TeamFilesSelector(
     g.team_id, multiple_selection=True, selection_file_type="folder", max_height=350
