@@ -84,6 +84,6 @@ def get_res_dir(eval_dirs: List[str]) -> str:
     res_dir += "/" + project_name + "/"
     res_dir += " vs ".join(eval_dirs)
 
-    res_dir = g.api.file.get_free_name(g.team_id, res_dir)
+    res_dir = g.api.file.get_free_dir_name(g.team_id, res_dir)
 
     return res_dir
