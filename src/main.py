@@ -37,15 +37,15 @@ def start_comparison():
 
 
 @server.post("/run_evaluation")
-async def evaluate(request: Request):
-    req = await request.json()
+def evaluate(request: Request):
+    req = request.json()
     state = req["state"]
     run_evaluation(state["session_id"], state["project_id"])
 
 
 @server.post("/run_comparison")
-async def compare(request: Request):
-    req = await request.json()
+def compare(request: Request):
+    req = request.json()
     print(req)
     state = req["state"]
     run_compare(state["eval_dirs"])
