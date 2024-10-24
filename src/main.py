@@ -37,12 +37,14 @@ def start_comparison():
 
 
 @server.post("/run_evaluation")
-async def inference_pointcloud_ids(request: Request):
+async def evaluate(request: Request):
     req = await request.json()
-    run_evaluation(req["session_id"], req["project_id"])
+    state = req["state"]
+    run_evaluation(state["session_id"], state["project_id"])
 
 
 @server.post("/run_comparison")
-async def inference_pointcloud_ids(request: Request):
+async def compare(request: Request):
     req = await request.json()
-    run_compare(req["eval_dirs"])
+    state = req["state"]
+    run_compare(state["eval_dirs"])
