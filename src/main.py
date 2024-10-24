@@ -1,4 +1,4 @@
-from fastapi import Request, 
+from fastapi import Request
 
 import src.globals as g
 import supervisely as sly
