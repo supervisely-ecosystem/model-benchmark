@@ -142,6 +142,8 @@ def run_evaluation(
 
     eval_button.loading = False
 
+    return res_dir
+
 
 no_classes_label = widgets.Text(
     "Not found any classes in the project that are present in the model", status="error"

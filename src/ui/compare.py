@@ -24,7 +24,7 @@ def run_compare(eval_dirs: List[str] = None):
     comp = ModelComparison(g.api, g.eval_dirs, progress=pbar, workdir=workdir)
     comp.visualize()
     res_dir = f.get_res_dir(g.eval_dirs)
-    comp.upload_results(g.team_id, remote_dir=res_dir, progress=pbar)
+    res_dir = comp.upload_results(g.team_id, remote_dir=res_dir, progress=pbar)
 
     report = g.api.file.get_info_by_path(g.team_id, comp.get_report_link())
     g.api.task.set_output_report(g.task_id, report.id, report.name)
@@ -39,6 +39,8 @@ def run_compare(eval_dirs: List[str] = None):
     pbar.hide()
 
     compare_button.loading = False
+
+    return res_dir
 
 
 compare_button = widgets.Button("Compare")
