@@ -27,7 +27,6 @@ def run_compare(eval_dirs: List[str] = None):
     comp.upload_results(g.team_id, remote_dir=res_dir, progress=pbar)
 
     report = g.api.file.get_info_by_path(g.team_id, comp.get_report_link())
-    print(f"REPORT: https://dev.supervisely.com/model-benchmark?id={report.id}")
     g.api.task.set_output_report(g.task_id, report.id, report.name)
 
     models_comparison_report.set(report)
