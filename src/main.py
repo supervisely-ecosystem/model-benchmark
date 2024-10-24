@@ -41,7 +41,7 @@ async def evaluate(request: Request):
     req = await request.json()
     try:
         state = req["state"]
-        run_evaluation(state["session_id"], state["project_id"])
+        return {"data": run_evaluation(state["session_id"], state["project_id"])}
     except Exception as e:
         sly.logger.error(f"Error during model evaluation: {e}")
         return {"error": str(e)}
@@ -52,7 +52,7 @@ async def compare(request: Request):
     req = await request.json()
     try:
         state = req["state"]
-        return run_compare(state["eval_dirs"])
+        return {"data": run_compare(state["eval_dirs"])}
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
         return {"error": str(e)}
