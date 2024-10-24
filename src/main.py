@@ -46,5 +46,6 @@ async def evaluate(request: Request):
 @server.post("/run_comparison")
 async def compare(request: Request):
     req = await request.json()
+    print(req)
     state = req["state"]
     run_compare(state["eval_dirs"])
