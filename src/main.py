@@ -7,11 +7,11 @@ from src.ui.compare import compare_button, compare_contatiner, run_compare
 from src.ui.evaluation import eval_button, evaluation_container, run_evaluation
 
 tabs = widgets.Tabs(
-    labels=["Evaluate models", "Compare models"],
+    labels=["Model Evaluation", "Model Comparison"],
     contents=[evaluation_container, compare_contatiner],
 )
 tabs_card = widgets.Card(
-    title="Model evaluation",
+    title="Model Benchmark",
     content=tabs,
     description="Select the task you want to perform",
 )
