@@ -15,7 +15,6 @@ api = sly.Api.from_env()
 STORAGE_DIR = sly.app.get_data_dir()
 STATIC_DIR = os.path.join(STORAGE_DIR, "static")
 sly.fs.mkdir(STATIC_DIR)
-TF_RESULT_DIR = "/model-benchmark/layout"
 
 deployed_nn_tags = ["deployed_nn"]
 
@@ -27,6 +26,6 @@ session_id = os.environ.get("modal.state.sessionId", None)
 if session_id is not None:
     session_id = int(session_id)
 session = None
-autostart = bool(strtobool(os.environ.get("modal.state.autoStart", "false")))
 
 selected_classes = None
+eval_dirs = None
