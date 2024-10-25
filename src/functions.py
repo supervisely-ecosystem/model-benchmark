@@ -87,3 +87,18 @@ def get_res_dir(eval_dirs: List[str]) -> str:
     res_dir = g.api.file.get_free_dir_name(g.team_id, res_dir)
 
     return res_dir
+
+
+# ! temp fix (to allow the app to receive requests)
+def with_clean_up_progress(pbar):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            finally:
+                with pbar(message="Application is started ...", total=1) as pb:
+                    pb.update(1)
+
+        return wrapper
+
+    return decorator

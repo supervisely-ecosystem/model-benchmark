@@ -22,6 +22,57 @@ from supervisely.nn.benchmark.evaluation.object_detection_evaluator import (
 from supervisely.nn.inference.session import SessionJSON
 
 
+no_classes_label = widgets.Text(
+    "Not found any classes in the project that are present in the model", status="error"
+)
+no_classes_label.hide()
+total_classes_text = widgets.Text(status="info")
+selected_matched_text = widgets.Text(status="success")
+not_matched_text = widgets.Text(status="warning")
+
+sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
+
+eval_params = widgets.Editor(
+    initial_text=None,
+    language_mode="yaml",
+    height_lines=16,
+)
+eval_params_card = widgets.Card(
+    title="Evaluation parameters",
+    content=eval_params,
+    collapsable=True,
+)
+eval_params_card.collapse()
+
+
+eval_button = widgets.Button("Evaluate")
+eval_button.disable()
+
+eval_pbar = widgets.SlyTqdm()
+sec_eval_pbar = widgets.Progress("")
+
+report_model_benchmark = widgets.ReportThumbnail()
+report_model_benchmark.hide()
+
+evaluation_container = widgets.Container(
+    [
+        sel_project,
+        sel_app_session,
+        eval_params_card,
+        eval_button,
+        report_model_benchmark,
+        eval_pbar,
+        sec_eval_pbar,
+        total_classes_text,
+        selected_matched_text,
+        not_matched_text,
+        no_classes_label,
+    ]
+)
+
+
+@f.with_clean_up_progress(eval_pbar)
 def run_evaluation(
     session_id: Optional[int] = None,
     project_id: Optional[int] = None,
@@ -49,8 +100,8 @@ def run_evaluation(
     if g.selected_classes is None or len(g.selected_classes) == 0:
         return
 
-    pbar.show()
-    sec_pbar.show()
+    eval_pbar.show()
+    sec_eval_pbar.show()
 
     evaluation_params = eval_params.get_value() or params
     if isinstance(evaluation_params, str):
@@ -64,8 +115,8 @@ def run_evaluation(
             g.api,
             project.id,
             output_dir=work_dir,
-            progress=pbar,
-            progress_secondary=sec_pbar,
+            progress=eval_pbar,
+            progress_secondary=sec_eval_pbar,
             classes_whitelist=g.selected_classes,
             evaluation_params=evaluation_params,
         )
@@ -77,8 +128,8 @@ def run_evaluation(
             g.api,
             project.id,
             output_dir=work_dir,
-            progress=pbar,
-            progress_secondary=sec_pbar,
+            progress=eval_pbar,
+            progress_secondary=sec_eval_pbar,
             classes_whitelist=g.selected_classes,
             evaluation_params=evaluation_params,
         )
@@ -107,7 +158,7 @@ def run_evaluation(
         elif max_batch_size is not None:
             batch_sizes = tuple([bs for bs in batch_sizes if bs <= max_batch_size])
         bm.run_speedtest(g.session_id, g.project_id, batch_sizes=batch_sizes)
-        sec_pbar.hide()
+        sec_eval_pbar.hide()
         bm.upload_speedtest_results(res_dir + "/speedtest/")
     except Exception as e:
         sly.logger.warning(f"Speedtest failed. Skipping. {e}")
@@ -125,7 +176,7 @@ def run_evaluation(
     )
     report_model_benchmark.set(template_vis_file)
     report_model_benchmark.show()
-    pbar.hide()
+    eval_pbar.hide()
 
     # ==================== Workflow output ====================
     w.workflow_output(g.api, res_dir, template_vis_file)
@@ -143,56 +194,6 @@ def run_evaluation(
     eval_button.loading = False
 
     return res_dir
-
-
-no_classes_label = widgets.Text(
-    "Not found any classes in the project that are present in the model", status="error"
-)
-no_classes_label.hide()
-total_classes_text = widgets.Text(status="info")
-selected_matched_text = widgets.Text(status="success")
-not_matched_text = widgets.Text(status="warning")
-
-sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
-
-eval_params = widgets.Editor(
-    initial_text=None,
-    language_mode="yaml",
-    height_lines=16,
-)
-eval_params_card = widgets.Card(
-    title="Evaluation parameters",
-    content=eval_params,
-    collapsable=True,
-)
-eval_params_card.collapse()
-
-
-eval_button = widgets.Button("Evaluate")
-eval_button.disable()
-
-pbar = widgets.SlyTqdm()
-sec_pbar = widgets.Progress("")
-
-report_model_benchmark = widgets.ReportThumbnail()
-report_model_benchmark.hide()
-
-evaluation_container = widgets.Container(
-    [
-        sel_project,
-        sel_app_session,
-        eval_params_card,
-        eval_button,
-        report_model_benchmark,
-        pbar,
-        sec_pbar,
-        total_classes_text,
-        selected_matched_text,
-        not_matched_text,
-        no_classes_label,
-    ]
-)
 
 
 def set_selected_classes_and_show_info():
