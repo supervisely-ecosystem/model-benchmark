@@ -3,6 +3,7 @@ from typing import List
 import src.functions as f
 import src.globals as g
 import src.workflow as w
+import supervisely as sly
 import supervisely.app.widgets as widgets
 from supervisely._utils import rand_str
 from supervisely.nn.benchmark.comparison.model_comparison import ModelComparison
@@ -64,5 +65,7 @@ def run_compare(eval_dirs: List[str] = None):
 
     comp_pbar.hide()
     compare_button.loading = False
+
+    sly.logger.info(f"Model comparison report uploaded to: {res_dir}")
 
     return res_dir
