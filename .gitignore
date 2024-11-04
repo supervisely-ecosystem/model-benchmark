@@ -9,3 +9,4 @@ beyond-iou-lib/
 supervisely/
 setup.py
 test_charts/
+comparison_results/

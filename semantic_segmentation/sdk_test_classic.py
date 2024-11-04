@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 load_dotenv("supervisely.env")
 api = sly.Api()
 
-gt_project_id = 39599
-# pred_project_id = 39600 # model A
-pred_project_id = 42247  # model B
+gt_project_id = 39702
+# pred_project_id = 39704  # model A
+pred_project_id = 42608  # model B
 result_dir = "output_2"
 
 evaluator = SemanticSegmentationEvaluator(
