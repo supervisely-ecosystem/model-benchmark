@@ -45,7 +45,18 @@ def run_compare(eval_dirs: List[str] = None):
     f.validate_paths(g.eval_dirs)
 
     # ==================== Workflow input ====================
-    w.workflow_input(g.api, team_files_dirs=g.eval_dirs)
+    # /model-benchmark/42912_COCO 2017 instance segmentation/67993_Train YOLOv8 | v9 | v10 | v11/visualizations/template.vue
+    reports = None
+    try:
+        reports_paths = [path.rstrip("/") + "/visualizations/template.vue" for path in g.eval_dirs]
+        reports = [g.api.file.get_info_by_path(g.team_id, path) for path in reports_paths]
+    except Exception as e:
+        sly.logger.warning(f"Failed to get model benchmark reports FileInfos: {repr(e)}")
+
+    if reports is not None:
+        w.workflow_input(g.api, model_benchmark_reports=reports)
+    else:
+        w.workflow_input(g.api, team_files_dirs=g.eval_dirs)
     # =======================================================
 
     comp = ModelComparison(g.api, g.eval_dirs, progress=comp_pbar, workdir=workdir)
