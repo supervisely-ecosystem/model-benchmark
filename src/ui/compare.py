@@ -45,7 +45,6 @@ def run_compare(eval_dirs: List[str] = None):
     f.validate_paths(g.eval_dirs)
 
     # ==================== Workflow input ====================
-    # /model-benchmark/42912_COCO 2017 instance segmentation/67993_Train YOLOv8 | v9 | v10 | v11/visualizations/template.vue
     reports = None
     try:
         reports_paths = [path.rstrip("/") + "/visualizations/template.vue" for path in g.eval_dirs]
