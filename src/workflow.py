@@ -10,6 +10,7 @@ def workflow_input(
     project_info: Optional[sly.ProjectInfo] = None,
     session_id: Optional[int] = None,
     team_files_dirs: Optional[List[str]] = None,
+    model_benchmark_reports: Optional[List[sly.api.file_api.FileInfo]] = None,
 ):
     if project_info:
         # Create a project version before the task starts
@@ -49,6 +50,15 @@ def workflow_input(
             for team_files_dir in team_files_dirs:
                 api.app.workflow.add_input_folder(team_files_dir)
                 sly.logger.debug(f"Workflow Input: Team Files dir - {team_files_dir}")
+        except Exception as e:
+            sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
+
+    if model_benchmark_reports:
+        # Add input model benchmark reports to the workflow
+        try:
+            for model_benchmark_report in model_benchmark_reports:
+                api.app.workflow.add_input_file(model_benchmark_report)
+                sly.logger.debug(f"Workflow Input: Model Benchmark Report ID - {model_benchmark_report.id}")
         except Exception as e:
             sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
 
