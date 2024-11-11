@@ -32,6 +32,9 @@ not_matched_text = widgets.Text(status="warning")
 
 sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
+sel_dataset = widgets.SelectDataset(multiselect=True, compact=True)
+sel_dataset.hide()
+all_datasets_checkbox = widgets.Checkbox("All datasets", checked=True)
 
 eval_params = widgets.Editor(
     initial_text=None,
@@ -58,6 +61,8 @@ report_model_benchmark.hide()
 evaluation_container = widgets.Container(
     [
         sel_project,
+        all_datasets_checkbox,
+        sel_dataset,
         sel_app_session,
         eval_params_card,
         eval_button,
@@ -90,6 +95,14 @@ def run_evaluation(
         g.session = SessionJSON(g.api, g.session_id)
     task_type = g.session.get_deploy_info()["task_type"]
 
+    if all_datasets_checkbox.is_checked():
+        dataset_ids = None
+    else:
+        dataset_ids = sel_dataset.get_selected_ids()
+        if len(dataset_ids) == 0:
+            raise ValueError("No datasets selected")
+
+
     # ==================== Workflow input ====================
     w.workflow_input(g.api, project, g.session_id)
     # =======================================================
@@ -115,6 +128,7 @@ def run_evaluation(
             g.api,
             project.id,
             output_dir=work_dir,
+            gt_dataset_ids=dataset_ids,
             progress=eval_pbar,
             progress_secondary=sec_eval_pbar,
             classes_whitelist=g.selected_classes,
@@ -127,6 +141,7 @@ def run_evaluation(
         bm = InstanceSegmentationBenchmark(
             g.api,
             project.id,
+            gt_dataset_ids=dataset_ids,
             output_dir=work_dir,
             progress=eval_pbar,
             progress_secondary=sec_eval_pbar,
@@ -240,6 +255,8 @@ def handle_selectors(active: bool):
 def handle_sel_project(project_id: Optional[int]):
     g.project_id = project_id
     active = project_id is not None and g.session_id is not None
+    if project_id is not None:
+        sel_dataset.set_project_id(project_id)
     handle_selectors(active)
 
 
@@ -251,3 +268,10 @@ def handle_sel_app_session(session_id: Optional[int]):
 
     if g.session_id:
         update_eval_params()
+
+@all_datasets_checkbox.value_changed
+def handle_all_datasets_checkbox(checked: bool):
+    if checked:
+        sel_dataset.hide()
+    else:
+        sel_dataset.show()
