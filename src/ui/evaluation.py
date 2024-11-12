@@ -194,7 +194,7 @@ def run_evaluation(
     eval_pbar.hide()
 
     # ==================== Workflow output ====================
-    w.workflow_output(g.api, res_dir, template_vis_file)
+    w.workflow_output(g.api, model_benchmark_report=template_vis_file)
     # =======================================================
 
     sly.logger.info(

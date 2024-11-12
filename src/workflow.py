@@ -58,28 +58,24 @@ def workflow_input(
         try:
             for model_benchmark_report in model_benchmark_reports:
                 api.app.workflow.add_input_file(model_benchmark_report)
-                sly.logger.debug(f"Workflow Input: Model Benchmark Report ID - {model_benchmark_report.id}")
+                sly.logger.debug(
+                    f"Workflow Input: Model Benchmark Report ID - {model_benchmark_report.id}"
+                )
         except Exception as e:
             sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
 
 
 def workflow_output(
     api: sly.Api,
-    eval_team_files_dir: Optional[str] = None,
     model_benchmark_report: Optional[sly.api.file_api.FileInfo] = None,
+    input_benchmark_reports: Optional[List[sly.api.file_api.FileInfo]] = None,
     model_comparison_report: Optional[sly.api.file_api.FileInfo] = None,
 ):
     if model_benchmark_report:
         try:
-            # Add output evaluation results folder to the workflow
-            eval_dir_relation_settings = sly.WorkflowSettings(title="Evaluation Artifacts")
-            eval_dir_meta = sly.WorkflowMeta(relation_settings=eval_dir_relation_settings)
-            api.app.workflow.add_output_folder(eval_team_files_dir, meta=eval_dir_meta)
-            sly.logger.debug(f"Workflow Output: Team Files dir - {eval_team_files_dir}")
-
             # Add output model benchmark report to the workflow
             mb_relation_settings = sly.WorkflowSettings(
-                title="Model Evaluation",
+                title="Model Benchmark",
                 icon="assignment",
                 icon_color="#dcb0ff",
                 icon_bg_color="#faebff",
@@ -96,17 +92,17 @@ def workflow_output(
     if model_comparison_report:
         try:
             # Add output model benchmark report to the workflow
-            comparison_relation_settings = sly.WorkflowSettings(
-                title="Model Evaluation",
+            relation_settings = sly.WorkflowSettings(
+                title="Model Comparison",
                 icon="assignment",
                 icon_color="#ffc084",
                 icon_bg_color="#fff2e6",
                 url=f"/model-benchmark?id={model_comparison_report.id}",
                 url_title="Open Comparison Report",
             )
-            meta = sly.WorkflowMeta(relation_settings=comparison_relation_settings)
-            api.app.workflow.add_output_file(model_comparison_report, meta=meta)
-            sly.logger.debug(f"Model Comparison Report ID - {model_comparison_report.id}")
-
+            meta = sly.WorkflowMeta(node_settings=relation_settings)
+            for model_benchmark_report in input_benchmark_reports:
+                api.app.workflow.add_input_file(model_benchmark_report, meta=meta)
+                sly.logger.debug(f"Model Benchmark Report ID - {model_benchmark_report.id}")
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
