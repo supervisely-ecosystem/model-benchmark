@@ -72,10 +72,10 @@ def workflow_output(
     if model_benchmark_report:
         try:
             # Add output evaluation results folder to the workflow
-            eval_dir_relation_settings = sly.WorkflowSettings(title="Evaluation Artifacts")
-            eval_dir_meta = sly.WorkflowMeta(relation_settings=eval_dir_relation_settings)
-            api.app.workflow.add_output_folder(eval_team_files_dir, meta=eval_dir_meta)
-            sly.logger.debug(f"Workflow Output: Team Files dir - {eval_team_files_dir}")
+            # eval_dir_relation_settings = sly.WorkflowSettings(title="Evaluation Artifacts")
+            # eval_dir_meta = sly.WorkflowMeta(relation_settings=eval_dir_relation_settings)
+            # api.app.workflow.add_output_folder(eval_team_files_dir, meta=eval_dir_meta)
+            # sly.logger.debug(f"Workflow Output: Team Files dir - {eval_team_files_dir}")
 
             # Add output model benchmark report to the workflow
             mb_relation_settings = sly.WorkflowSettings(
