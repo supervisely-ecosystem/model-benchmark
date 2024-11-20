@@ -6,29 +6,42 @@ import src.functions as f
 import src.globals as g
 import src.workflow as w
 import supervisely as sly
-import supervisely.app.widgets as widgets
+from supervisely.app.widgets import (
+    Button,
+    Card,
+    Checkbox,
+    Container,
+    Editor,
+    Progress,
+    ReportThumbnail,
+    SelectAppSession,
+    SelectDataset,
+    SelectProject,
+    SlyTqdm,
+    Text,
+)
 from supervisely.nn.inference.session import SessionJSON
 
-no_classes_label = widgets.Text(
+no_classes_label = Text(
     "Not found any classes in the project that are present in the model", status="error"
 )
 no_classes_label.hide()
-total_classes_text = widgets.Text(status="info")
-selected_matched_text = widgets.Text(status="success")
-not_matched_text = widgets.Text(status="warning")
+total_classes_text = Text(status="info")
+selected_matched_text = Text(status="success")
+not_matched_text = Text(status="warning")
 
-sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
-sel_dataset = widgets.SelectDataset(multiselect=True, compact=True)
+sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
+sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
-all_datasets_checkbox = widgets.Checkbox("All datasets", checked=True)
+all_datasets_checkbox = Checkbox("All datasets", checked=True)
 
-eval_params = widgets.Editor(
+eval_params = Editor(
     initial_text=None,
     language_mode="yaml",
     height_lines=16,
 )
-eval_params_card = widgets.Card(
+eval_params_card = Card(
     title="Evaluation parameters",
     content=eval_params,
     collapsable=True,
@@ -36,16 +49,16 @@ eval_params_card = widgets.Card(
 eval_params_card.collapse()
 
 
-eval_button = widgets.Button("Evaluate")
+eval_button = Button("Evaluate")
 eval_button.disable()
 
-eval_pbar = widgets.SlyTqdm()
-sec_eval_pbar = widgets.Progress("")
+eval_pbar = SlyTqdm()
+sec_eval_pbar = Progress("")
 
-report_model_benchmark = widgets.ReportThumbnail()
+report_model_benchmark = ReportThumbnail()
 report_model_benchmark.hide()
 
-evaluation_container = widgets.Container(
+evaluation_container = Container(
     [
         sel_project,
         all_datasets_checkbox,
