@@ -1,1 +1,5 @@
 git+https://github.com/supervisely/supervisely.git@sem_seg_benchmark
+
+ftfy==6.3.1
+torch==1.13.0
+torchvision==0.14.0
