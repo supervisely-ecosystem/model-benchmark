@@ -6,42 +6,42 @@ import src.functions as f
 import src.globals as g
 import src.workflow as w
 import supervisely as sly
-import supervisely.app.widgets as widgets
-from supervisely._utils import rand_str
-from supervisely.nn import TaskType
-from supervisely.nn.benchmark import (
-    InstanceSegmentationBenchmark,
-    ObjectDetectionBenchmark,
-)
-from supervisely.nn.benchmark.evaluation.instance_segmentation_evaluator import (
-    InstanceSegmentationEvaluator,
-)
-from supervisely.nn.benchmark.evaluation.object_detection_evaluator import (
-    ObjectDetectionEvaluator,
+from supervisely.app.widgets import (
+    Button,
+    Card,
+    Checkbox,
+    Container,
+    Editor,
+    Progress,
+    ReportThumbnail,
+    SelectAppSession,
+    SelectDataset,
+    SelectProject,
+    SlyTqdm,
+    Text,
 )
 from supervisely.nn.inference.session import SessionJSON
 
-
-no_classes_label = widgets.Text(
+no_classes_label = Text(
     "Not found any classes in the project that are present in the model", status="error"
 )
 no_classes_label.hide()
-total_classes_text = widgets.Text(status="info")
-selected_matched_text = widgets.Text(status="success")
-not_matched_text = widgets.Text(status="warning")
+total_classes_text = Text(status="info")
+selected_matched_text = Text(status="success")
+not_matched_text = Text(status="warning")
 
-sel_app_session = widgets.SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = widgets.SelectProject(default_id=None, workspace_id=g.workspace_id)
-sel_dataset = widgets.SelectDataset(multiselect=True, compact=True)
+sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
+sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
-all_datasets_checkbox = widgets.Checkbox("All datasets", checked=True)
+all_datasets_checkbox = Checkbox("All datasets", checked=True)
 
-eval_params = widgets.Editor(
+eval_params = Editor(
     initial_text=None,
     language_mode="yaml",
     height_lines=16,
 )
-eval_params_card = widgets.Card(
+eval_params_card = Card(
     title="Evaluation parameters",
     content=eval_params,
     collapsable=True,
@@ -49,16 +49,16 @@ eval_params_card = widgets.Card(
 eval_params_card.collapse()
 
 
-eval_button = widgets.Button("Evaluate")
+eval_button = Button("Evaluate")
 eval_button.disable()
 
-eval_pbar = widgets.SlyTqdm()
-sec_eval_pbar = widgets.Progress("")
+eval_pbar = SlyTqdm()
+sec_eval_pbar = Progress("")
 
-report_model_benchmark = widgets.ReportThumbnail()
+report_model_benchmark = ReportThumbnail()
 report_model_benchmark.hide()
 
-evaluation_container = widgets.Container(
+evaluation_container = Container(
     [
         sel_project,
         all_datasets_checkbox,
@@ -83,7 +83,7 @@ def run_evaluation(
     project_id: Optional[int] = None,
     params: Optional[Union[str, Dict]] = None,
 ):
-    work_dir = g.STORAGE_DIR + "/benchmark_" + rand_str(6)
+    work_dir = g.STORAGE_DIR + "/benchmark_" + sly.rand_str(6)
 
     if session_id is not None:
         g.session_id = session_id
@@ -102,7 +102,6 @@ def run_evaluation(
         if len(dataset_ids) == 0:
             raise ValueError("No datasets selected")
 
-
     # ==================== Workflow input ====================
     w.workflow_input(g.api, project, g.session_id)
     # =======================================================
@@ -116,29 +115,15 @@ def run_evaluation(
     eval_pbar.show()
     sec_eval_pbar.show()
 
-    evaluation_params = eval_params.get_value() or params
-    if isinstance(evaluation_params, str):
-        evaluation_params = yaml.safe_load(evaluation_params)
+    params = eval_params.get_value() or params
+    if isinstance(params, str):
+        params = yaml.safe_load(params)
 
-    if task_type == TaskType.OBJECT_DETECTION:
-        if evaluation_params is None:
-            evaluation_params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
-            evaluation_params = yaml.safe_load(evaluation_params)
-        bm = ObjectDetectionBenchmark(
-            g.api,
-            project.id,
-            output_dir=work_dir,
-            gt_dataset_ids=dataset_ids,
-            progress=eval_pbar,
-            progress_secondary=sec_eval_pbar,
-            classes_whitelist=g.selected_classes,
-            evaluation_params=evaluation_params,
-        )
-    elif task_type == TaskType.INSTANCE_SEGMENTATION:
-        if evaluation_params is None:
-            evaluation_params = InstanceSegmentationEvaluator.load_yaml_evaluation_params()
-            evaluation_params = yaml.safe_load(evaluation_params)
-        bm = InstanceSegmentationBenchmark(
+    if task_type == sly.nn.TaskType.OBJECT_DETECTION:
+        if params is None:
+            params = sly.nn.benchmark.ObjectDetectionEvaluator.load_yaml_evaluation_params()
+            params = yaml.safe_load(params)
+        bm = sly.nn.benchmark.ObjectDetectionBenchmark(
             g.api,
             project.id,
             gt_dataset_ids=dataset_ids,
@@ -146,8 +131,36 @@ def run_evaluation(
             progress=eval_pbar,
             progress_secondary=sec_eval_pbar,
             classes_whitelist=g.selected_classes,
-            evaluation_params=evaluation_params,
+            evaluation_params=params,
         )
+    elif task_type == sly.nn.TaskType.INSTANCE_SEGMENTATION:
+        if params is None:
+            params = sly.nn.benchmark.InstanceSegmentationEvaluator.load_yaml_evaluation_params()
+            params = yaml.safe_load(params)
+        bm = sly.nn.benchmark.InstanceSegmentationBenchmark(
+            g.api,
+            project.id,
+            gt_dataset_ids=dataset_ids,
+            output_dir=work_dir,
+            progress=eval_pbar,
+            progress_secondary=sec_eval_pbar,
+            classes_whitelist=g.selected_classes,
+            evaluation_params=params,
+        )
+    elif task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
+        params = sly.nn.benchmark.SemanticSegmentationEvaluator.load_yaml_evaluation_params()
+        bm = sly.nn.benchmark.SemanticSegmentationBenchmark(
+            g.api,
+            project.id,
+            gt_dataset_ids=dataset_ids,
+            output_dir=work_dir,
+            progress=eval_pbar,
+            progress_secondary=sec_eval_pbar,
+            classes_whitelist=g.selected_classes,
+            evaluation_params=params,
+        )
+
+    bm.evaluator_app_info = g.api.task.get_info_by_id(g.task_id)
     sly.logger.info(f"{g.session_id = }")
 
     task_info = g.api.task.get_info_by_id(g.session_id)
@@ -201,9 +214,9 @@ def run_evaluation(
         f"Predictions project: "
         f"  name {bm.dt_project_info.name}, "
         f"  workspace_id {bm.dt_project_info.workspace_id}. "
-        f"Differences project: "
-        f"  name {bm.diff_project_info.name}, "
-        f"  workspace_id {bm.diff_project_info.workspace_id}"
+        # f"Differences project: "
+        # f"  name {bm.diff_project_info.name}, "
+        # f"  workspace_id {bm.diff_project_info.workspace_id}"
     )
 
     eval_button.loading = False
@@ -233,10 +246,12 @@ def update_eval_params():
     if g.session is None:
         g.session = SessionJSON(g.api, g.session_id)
     task_type = g.session.get_deploy_info()["task_type"]
-    if task_type == TaskType.OBJECT_DETECTION:
-        params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
-    elif task_type == TaskType.INSTANCE_SEGMENTATION:
-        params = InstanceSegmentationEvaluator.load_yaml_evaluation_params()
+    if task_type == sly.nn.TaskType.OBJECT_DETECTION:
+        params = sly.nn.benchmark.ObjectDetectionEvaluator.load_yaml_evaluation_params()
+    elif task_type == sly.nn.TaskType.INSTANCE_SEGMENTATION:
+        params = sly.nn.benchmark.InstanceSegmentationEvaluator.load_yaml_evaluation_params()
+    elif task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
+        params = "# Semantic Segmentation evaluation parameters are not available yet."
     eval_params.set_text(params, language_mode="yaml")
     eval_params_card.uncollapse()
 
@@ -268,6 +283,7 @@ def handle_sel_app_session(session_id: Optional[int]):
 
     if g.session_id:
         update_eval_params()
+
 
 @all_datasets_checkbox.value_changed
 def handle_all_datasets_checkbox(checked: bool):

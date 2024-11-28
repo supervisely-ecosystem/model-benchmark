@@ -9,6 +9,7 @@ from supervisely.nn.inference import SessionJSON
 geometry_to_task_type = {
     TaskType.OBJECT_DETECTION: [sly.Rectangle, sly.AnyGeometry],
     TaskType.INSTANCE_SEGMENTATION: [sly.Bitmap, sly.Polygon, sly.AnyGeometry],
+    TaskType.SEMANTIC_SEGMENTATION: [sly.Bitmap, sly.Polygon, sly.AnyGeometry],
 }
 
 
@@ -98,6 +99,7 @@ def with_clean_up_progress(pbar):
             finally:
                 with pbar(message="Application is started ...", total=1) as pb:
                     pb.update(1)
+                pbar.hide()
 
         return wrapper
 
