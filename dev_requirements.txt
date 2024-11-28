@@ -1,2 +1,8 @@
 # git+https://github.com/supervisely/supervisely.git@model-benchmark
-supervisely[model-benchmark]==6.73.215
+supervisely[model-benchmark]==6.73.239
+
+# torch==1.13.0
+# torchvision==0.14.0
+# torch==1.12.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+# torchvision==0.13.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+# cupy-cuda111
