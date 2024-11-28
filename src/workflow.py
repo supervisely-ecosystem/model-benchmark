@@ -79,7 +79,7 @@ def workflow_output(
 
             # Add output model benchmark report to the workflow
             mb_relation_settings = sly.WorkflowSettings(
-                title="Model Evaluation",
+                title="Model Benchmark",
                 icon="assignment",
                 icon_color="#dcb0ff",
                 icon_bg_color="#faebff",
@@ -97,7 +97,7 @@ def workflow_output(
         try:
             # Add output model benchmark report to the workflow
             comparison_relation_settings = sly.WorkflowSettings(
-                title="Model Evaluation",
+                title="Model Comparison",
                 icon="assignment",
                 icon_color="#ffc084",
                 icon_bg_color="#fff2e6",
