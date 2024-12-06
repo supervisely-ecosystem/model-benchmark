@@ -35,6 +35,7 @@ sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
 sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
 all_datasets_checkbox = Checkbox("All datasets", checked=True)
+run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 
 eval_params = Editor(
     initial_text=None,
@@ -65,6 +66,7 @@ evaluation_container = Container(
         sel_dataset,
         sel_app_session,
         eval_params_card,
+        run_speedtest_checkbox,
         eval_button,
         report_model_benchmark,
         eval_pbar,
@@ -179,17 +181,18 @@ def run_evaluation(
         batch_size = min(max_batch_size, 16)
     bm.run_evaluation(model_session=g.session_id, batch_size=batch_size)
 
-    try:
-        batch_sizes = (1, 8, 16)
-        if not support_batch_inference:
-            batch_sizes = (1,)
-        elif max_batch_size is not None:
-            batch_sizes = tuple([bs for bs in batch_sizes if bs <= max_batch_size])
-        bm.run_speedtest(g.session_id, g.project_id, batch_sizes=batch_sizes)
-        sec_eval_pbar.hide()
-        bm.upload_speedtest_results(res_dir + "/speedtest/")
-    except Exception as e:
-        sly.logger.warning(f"Speedtest failed. Skipping. {e}")
+    if run_speedtest_checkbox.is_checked():
+        try:
+            batch_sizes = (1, 8, 16)
+            if not support_batch_inference:
+                batch_sizes = (1,)
+            elif max_batch_size is not None:
+                batch_sizes = tuple([bs for bs in batch_sizes if bs <= max_batch_size])
+            bm.run_speedtest(g.session_id, g.project_id, batch_sizes=batch_sizes)
+            sec_eval_pbar.hide()
+            bm.upload_speedtest_results(res_dir + "/speedtest/")
+        except Exception as e:
+            sly.logger.warning(f"Speedtest failed. Skipping. {e}")
 
     bm.visualize()
 
