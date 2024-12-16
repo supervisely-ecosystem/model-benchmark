@@ -113,6 +113,7 @@ def run_evaluation(
     session_id: Optional[int] = None,
     project_id: Optional[int] = None,
     params: Optional[Union[str, Dict]] = None,
+    dataset_ids: Optional[Tuple[int]] = None,
 ):
     work_dir = g.STORAGE_DIR + "/benchmark_" + sly.rand_str(6)
 
@@ -124,12 +125,13 @@ def run_evaluation(
         g.session = SessionJSON(g.api, g.session_id)
     task_type = g.session.get_deploy_info()["task_type"]
 
-    if all_datasets_checkbox.is_checked():
-        dataset_ids = None
-    else:
-        dataset_ids = sel_dataset.get_selected_ids()
-        if len(dataset_ids) == 0:
-            raise ValueError("No datasets selected")
+    if dataset_ids is None:
+        if all_datasets_checkbox.is_checked():
+            dataset_ids = None
+        else:
+            dataset_ids = sel_dataset.get_selected_ids()
+            if len(dataset_ids) == 0:
+                raise ValueError("No datasets selected")
 
     # ==================== Workflow input ====================
     w.workflow_input(g.api, project, g.session_id)
@@ -239,8 +241,7 @@ def set_selected_classes_and_show_info():
 
 
 def update_eval_params():
-    if g.session is None:
-        g.session = SessionJSON(g.api, g.session_id)
+    g.session = SessionJSON(g.api, g.session_id)
     task_type = g.session.get_deploy_info()["task_type"]
     if task_type == sly.nn.TaskType.OBJECT_DETECTION:
         params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
