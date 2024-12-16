@@ -63,19 +63,19 @@ def run_compare(eval_dirs: List[str] = None):
     res_dir = f.get_res_dir(g.eval_dirs)
     res_dir = comp.upload_results(g.team_id, remote_dir=res_dir, progress=comp_pbar)
 
-    report = g.api.file.get_info_by_path(g.team_id, comp.get_report_link())
-    g.api.task.set_output_report(g.task_id, report.id, report.name)
+    g.api.task.set_output_report(g.task_id, comp.lnk.id, comp.lnk.name, "Click to open the report")
 
-    models_comparison_report.set(report)
+    models_comparison_report.set(comp.report)
     models_comparison_report.show()
 
     # ==================== Workflow output ====================
-    w.workflow_output(g.api, model_comparison_report=report)
+    w.workflow_output(g.api, model_comparison_report=comp.report)
     # =======================================================
 
     comp_pbar.hide()
     compare_button.loading = False
 
     sly.logger.info(f"Model comparison report uploaded to: {res_dir}")
+    sly.logger.info(f"Report link: {comp.get_report_link()}")
 
     return res_dir
