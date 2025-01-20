@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
 
 import yaml
@@ -39,12 +40,18 @@ selected_matched_text = Text(status="success")
 not_matched_text = Text(status="warning")
 
 sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
-sel_project = SelectProject(default_id=None, workspace_id=g.workspace_id)
+sel_project = SelectProject(
+    default_id=None,
+    workspace_id=g.workspace_id,
+    allowed_types=[sly.ProjectType.IMAGES],
+    compact=True,
+)
 sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
 all_datasets_checkbox = Checkbox("All datasets", checked=True)
 run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 
+iou_per_class_checkbox = Checkbox("Set different IoU for every class", checked=False)
 eval_params = Editor(
     initial_text=None,
     language_mode="yaml",
@@ -52,7 +59,7 @@ eval_params = Editor(
 )
 eval_params_card = Card(
     title="Evaluation parameters",
-    content=eval_params,
+    content=Container([eval_params, iou_per_class_checkbox]),
     collapsable=True,
 )
 eval_params_card.collapse()
@@ -123,7 +130,8 @@ def run_evaluation(
     project = g.api.project.get_info_by_id(g.project_id)
     if g.session is None:
         g.session = SessionJSON(g.api, g.session_id)
-    task_type = g.session.get_deploy_info()["task_type"]
+    if g.task_type is None:
+        g.task_type = g.session.get_deploy_info()["task_type"]
 
     if dataset_ids is None:
         if all_datasets_checkbox.is_checked():
@@ -139,9 +147,8 @@ def run_evaluation(
 
     report_model_benchmark.hide()
 
-    set_selected_classes_and_show_info()
     if g.selected_classes is None or len(g.selected_classes) == 0:
-        return
+        raise RuntimeError("No classes available for evaluation")
 
     eval_pbar.show()
     sec_eval_pbar.show()
@@ -151,7 +158,7 @@ def run_evaluation(
         sly.Annotation.filter_labels_by_classes
         params = yaml.safe_load(params)
 
-    bm_cls, evaluator_cls = get_benchmark_and_evaluator_classes(task_type)
+    bm_cls, evaluator_cls = get_benchmark_and_evaluator_classes(g.task_type)
     if params is None:
         params = evaluator_cls.load_yaml_evaluation_params()
         params = yaml.safe_load(params)
@@ -222,7 +229,32 @@ def run_evaluation(
     return res_dir
 
 
-def set_selected_classes_and_show_info():
+@sel_project.value_changed
+def handle_sel_project(project_id: Optional[int]):
+    g.project_id = project_id
+    handle_selectors()
+
+
+@sel_app_session.value_changed
+def handle_sel_app_session(session_id: Optional[int]):
+    g.session_id = session_id
+    handle_selectors()
+
+
+@all_datasets_checkbox.value_changed
+def handle_all_datasets_checkbox(checked: bool):
+    if checked:
+        sel_dataset.hide()
+    else:
+        sel_dataset.show()
+
+
+@iou_per_class_checkbox.value_changed
+def handle_iou_per_class_checkbox(checked: bool):
+    update_eval_params()
+
+
+def match_classes_and_show_info():
     matched, not_matched = f.get_classes()
     _, matched_model_classes = matched
     _, not_matched_model_classes = not_matched
@@ -237,59 +269,70 @@ def set_selected_classes_and_show_info():
         if len(not_matched_model_classes) > 0:
             not_matched_text.show()
     else:
+        g.selected_classes = None
         no_classes_label.show()
 
 
 def update_eval_params():
-    g.session = SessionJSON(g.api, g.session_id)
-    task_type = g.session.get_deploy_info()["task_type"]
-    if task_type == sly.nn.TaskType.OBJECT_DETECTION:
+    if g.session_id is None:
+        return
+    elif g.task_type == sly.nn.TaskType.OBJECT_DETECTION:
         params = ObjectDetectionEvaluator.load_yaml_evaluation_params()
-    elif task_type == sly.nn.TaskType.INSTANCE_SEGMENTATION:
+    elif g.task_type == sly.nn.TaskType.INSTANCE_SEGMENTATION:
         params = InstanceSegmentationEvaluator.load_yaml_evaluation_params()
-    elif task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
+    elif g.task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
         params = ""
+    params = set_iou_per_class_if_needed(params, iou_per_class_checkbox.is_checked())
     eval_params.set_text(params, language_mode="yaml")
 
-    if task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
+    if g.task_type == sly.nn.TaskType.SEMANTIC_SEGMENTATION:
         eval_params_card.hide()
     else:
         eval_params_card.show()
         eval_params_card.uncollapse()
 
 
-def handle_selectors(active: bool):
+def handle_selectors():
+    eval_button.loading = True
     no_classes_label.hide()
     selected_matched_text.hide()
     not_matched_text.hide()
-    if active:
+    if g.project_id is not None:
+        sel_dataset.set_project_id(g.project_id)
+        update_available_project_classes()
+    if g.session_id is not None:
+        update_available_model_classes_and_task_type()
+    if g.project_id is not None and g.session_id is not None:
         eval_button.enable()
+        match_classes_and_show_info()
     else:
         eval_button.disable()
+    update_eval_params()
+    eval_button.loading = False
 
 
-@sel_project.value_changed
-def handle_sel_project(project_id: Optional[int]):
-    g.project_id = project_id
-    active = project_id is not None and g.session_id is not None
-    if project_id is not None:
-        sel_dataset.set_project_id(project_id)
-    handle_selectors(active)
-
-
-@sel_app_session.value_changed
-def handle_sel_app_session(session_id: Optional[int]):
-    g.session_id = session_id
-    active = session_id is not None and g.project_id is not None
-    handle_selectors(active)
-
-    if g.session_id:
-        update_eval_params()
-
-
-@all_datasets_checkbox.value_changed
-def handle_all_datasets_checkbox(checked: bool):
+def set_iou_per_class_if_needed(params: str, checked: bool) -> str:
+    """
+    Set different IoU for every class and update the evaluation parameters.
+    Will replace the iou_threshold key-value pair with iou_threshold_per_class (by default, 0.5 for every class)
+    """
     if checked:
-        sel_dataset.hide()
-    else:
-        sel_dataset.show()
+        params = yaml.safe_load(params)
+        params = deepcopy(params)
+
+        if "iou_threshold" in params:
+            iou_threshold = params.pop("iou_threshold")
+            if g.selected_classes is not None:
+                params["iou_threshold_per_class"] = {c: iou_threshold for c in g.selected_classes}
+            else:
+                params["iou_threshold_per_class"] = {c.name: iou_threshold for c in g.model_classes}
+        params = yaml.dump(params)
+    return params
+
+
+def update_available_model_classes_and_task_type():
+    g.model_classes, g.task_type = f.get_model_info()
+
+
+def update_available_project_classes():
+    g.project_classes = f.get_project_classes()

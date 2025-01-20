@@ -27,5 +27,8 @@ if session_id is not None:
     session_id = int(session_id)
 session = None
 
+model_classes = None
+task_type = None
+project_classes = None
 selected_classes = None
 eval_dirs = None
