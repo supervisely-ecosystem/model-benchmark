@@ -142,7 +142,8 @@ def run_evaluation(
                 raise ValueError("No datasets selected")
 
     # ==================== Workflow input ====================
-    w.workflow_input(g.api, project, g.session_id)
+    if sly.is_production():
+        w.workflow_input(g.api, project, g.session_id)
     # =======================================================
 
     report_model_benchmark.hide()
@@ -155,7 +156,6 @@ def run_evaluation(
 
     params = eval_params.get_value() or params
     if isinstance(params, str):
-        sly.Annotation.filter_labels_by_classes
         params = yaml.safe_load(params)
 
     bm_cls, evaluator_cls = get_benchmark_and_evaluator_classes(g.task_type)
@@ -216,7 +216,8 @@ def run_evaluation(
     eval_pbar.hide()
 
     # ==================== Workflow output ====================
-    w.workflow_output(g.api, res_dir, bm.report)
+    if sly.is_production():
+        w.workflow_output(g.api, res_dir, bm.report)
     # =======================================================
 
     sly.logger.info(
