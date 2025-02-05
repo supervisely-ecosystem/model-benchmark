@@ -21,6 +21,18 @@
                 "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
                 "LOG_LEVEL": "DEBUG"
             }
+        },
+        {
+          "name": "Python: Current File",
+          "type": "debugpy",
+          "request": "launch",
+          "program": "${file}",
+          "console": "integratedTerminal",
+          "justMyCode": false,
+          "env": {
+            "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
+            "LOG_LEVEL": "DEBUG"
+          }
         }
     ]
 }
