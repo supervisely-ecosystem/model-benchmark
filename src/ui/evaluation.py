@@ -55,7 +55,8 @@ iou_per_class_checkbox = Checkbox("Set different IoU for every class", checked=F
 eval_params = Editor(
     initial_text=None,
     language_mode="yaml",
-    height_lines=16,
+    # height_lines=25,
+    height_px=200,
 )
 eval_params_card = Card(
     title="Evaluation parameters",

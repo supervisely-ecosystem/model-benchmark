@@ -17,9 +17,9 @@ tabs_card = widgets.Card(
 )
 
 layout = widgets.Container(
-    widgets=[tabs_card, widgets.Empty(), widgets.Empty()],
+    widgets=[tabs_card, widgets.Empty()],
     direction="horizontal",
-    fractions=[1, 1, 1],
+    fractions=[1, 1],
 )
 
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
