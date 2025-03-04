@@ -14,7 +14,7 @@ if sly.is_development():
 api = sly.Api()
 
 gt_project_id = sly.env.project_id()
-dt_project_id = 111
+dt_project_id = 419
 # gt_dataset_ids = [2526]
 
 dt_info = api.project.get_info_by_id(dt_project_id)
@@ -36,12 +36,13 @@ for obj_cls in project_meta.obj_classes:
 evaluation_params = {
     "confidence_threshold": 0.5,
     "iou_threshold": 0.65,
+    "max_detections": 500,
     # "iou_threshold_per_class": iou_threshold_per_class,
     # "average_across_iou_thresholds": False,
 }
 
 # 1. Initialize benchmark
-bench = sly.nn.benchmark.InstanceSegmentationBenchmark(
+bench = sly.nn.benchmark.ObjectDetectionBenchmark(
     api, gt_project_id, evaluation_params=evaluation_params
 )
 bench.api.retry_count = 1  # set retry count to 1 to avoid long waiting while testing
@@ -54,8 +55,6 @@ bench.api.retry_count = 1  # set retry count to 1 to avoid long waiting while te
 # bench.run_evaluation(model_session=model_session)
 
 bench.evaluate(dt_project_id)
-key_metrics = bench.key_metrics
-print(key_metrics)
 
 # 3. Generate charts and dashboards
 # This will generate visualization files and save them locally.
@@ -69,5 +68,3 @@ bench.get_layout_results_dir()
 remote_dir = f"/model-benchmark/test_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 bench.upload_eval_results(remote_dir + "/evaluation/")
 bench.upload_visualizations(remote_dir + "/visualizations/")
-
-
