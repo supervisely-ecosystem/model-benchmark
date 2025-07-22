@@ -69,7 +69,8 @@ async def compare(request: Request):
 @server.post("/get_eval_progress")
 async def get_eval_progress(request: Request):
     req = await request.json()
-    session_id = req.get("session_id", None)
+    state = req.get("state", {})
+    session_id = state.get("session_id", None)
     if session_id is None:
         return {"error": "Session ID is required"}
 
