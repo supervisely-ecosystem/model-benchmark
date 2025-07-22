@@ -130,6 +130,8 @@ def run_evaluation(
     g.project_id = project_id or g.project_id
 
     project = g.api.project.get_info_by_id(g.project_id)
+    if g.project_classes is None:
+        g.project_classes = f.get_project_classes()
 
     if g.session is None:
         g.session = SessionJSON(g.api, g.session_id)
