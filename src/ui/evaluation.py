@@ -170,7 +170,7 @@ def run_evaluation(
         _, matched_model_classes = matched
         if len(matched_model_classes) == 0:
             raise RuntimeError("No classes available for evaluation.")
-        g.selected_classes = [obj_cls.name for obj_cls in g.model_classes]
+        g.selected_classes = [obj_cls.name for obj_cls in matched_model_classes]
 
     def update_patched(cnt):
         eval_pbar.update(cnt)
