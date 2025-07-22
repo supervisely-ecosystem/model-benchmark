@@ -1,12 +1,8 @@
 from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
 
-import yaml
-
-import src.functions as f
-import src.globals as g
-import src.workflow as w
 import supervisely as sly
+import yaml
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -30,6 +26,10 @@ from supervisely.nn.benchmark import (
     SemanticSegmentationEvaluator,
 )
 from supervisely.nn.inference.session import SessionJSON
+
+import src.functions as f
+import src.globals as g
+import src.workflow as w
 
 no_classes_label = Text(
     "Not found any classes in the project that are present in the model", status="error"
@@ -122,6 +122,7 @@ def run_evaluation(
     project_id: Optional[int] = None,
     params: Optional[Union[str, Dict]] = None,
     dataset_ids: Optional[Tuple[int]] = None,
+    collection_id: Optional[int] = None,
 ):
     work_dir = g.STORAGE_DIR + "/benchmark_" + sly.rand_str(6)
 
@@ -129,10 +130,15 @@ def run_evaluation(
     g.project_id = project_id or g.project_id
 
     project = g.api.project.get_info_by_id(g.project_id)
+
     if g.session is None:
         g.session = SessionJSON(g.api, g.session_id)
+
+    model_classes, task_type = f.get_model_info()
     if g.task_type is None:
-        g.task_type = g.session.get_deploy_info()["task_type"]
+        g.task_type = task_type
+    if g.model_classes is None:
+        g.model_classes = model_classes
 
     if dataset_ids is None:
         if all_datasets_checkbox.is_checked():
@@ -142,6 +148,15 @@ def run_evaluation(
             if len(dataset_ids) == 0:
                 raise ValueError("No datasets selected")
 
+    imageinfos = None
+    if collection_id is not None:
+        imageinfos = g.api.entities_collection.get_items(collection_id)
+
+    if bool(dataset_ids) ^ bool(collection_id):
+        raise ValueError(
+            "You must select either datasets or a collection, but not both at the same time."
+        )
+
     # ==================== Workflow input ====================
     if sly.is_production():
         w.workflow_input(g.api, project, g.session_id)
@@ -150,8 +165,19 @@ def run_evaluation(
     report_model_benchmark.hide()
 
     if g.selected_classes is None or len(g.selected_classes) == 0:
-        raise RuntimeError("No classes available for evaluation")
+        # raise RuntimeError("No classes available for evaluation")
+        matched, _ = f.get_classes()
+        _, matched_model_classes = matched
+        if len(matched_model_classes) == 0:
+            raise RuntimeError("No classes available for evaluation.")
+        g.selected_classes = [obj_cls.name for obj_cls in g.model_classes]
 
+    def update_patched(cnt):
+        eval_pbar.update(cnt)
+        g.eval_progress[session_id]["current"] += cnt
+
+    eval_pbar.update = update_patched
+    g.eval_progress[session_id] = {"status": "running", "current": 0, "total": eval_pbar.total}
     eval_pbar.show()
     sec_eval_pbar.show()
 
@@ -167,6 +193,7 @@ def run_evaluation(
         g.api,
         project.id,
         gt_dataset_ids=dataset_ids,
+        gt_imageinfos=imageinfos,
         output_dir=work_dir,
         progress=eval_pbar,
         progress_secondary=sec_eval_pbar,
@@ -215,6 +242,7 @@ def run_evaluation(
     report_model_benchmark.set(bm.report)
     report_model_benchmark.show()
     eval_pbar.hide()
+    g.eval_progress[session_id]["status"] = "finished"
 
     # ==================== Workflow output ====================
     if sly.is_production():

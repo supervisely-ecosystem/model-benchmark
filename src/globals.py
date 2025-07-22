@@ -1,9 +1,8 @@
 import os
 from distutils.util import strtobool
 
-from dotenv import load_dotenv
-
 import supervisely as sly
+from dotenv import load_dotenv
 
 if sly.is_development():
     load_dotenv("local.env")
@@ -32,3 +31,5 @@ task_type = None
 project_classes = None
 selected_classes = None
 eval_dirs = None
+
+eval_progress = {}

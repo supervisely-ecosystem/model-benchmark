@@ -1,8 +1,8 @@
+import supervisely as sly
+import supervisely.app.widgets as widgets
 from fastapi import Request
 
 import src.globals as g
-import supervisely as sly
-import supervisely.app.widgets as widgets
 from src.ui.compare import compare_button, compare_contatiner, run_compare
 from src.ui.evaluation import eval_button, evaluation_container, run_evaluation
 
@@ -44,7 +44,12 @@ async def evaluate(request: Request):
         session_id = state["session_id"]
         project_id = state["project_id"]
         dataset_ids = state.get("dataset_ids", None)
-        return {"data": run_evaluation(session_id, project_id, dataset_ids=dataset_ids)}
+        collection_id = state.get("collection_id", None)
+        return {
+            "data": run_evaluation(
+                session_id, project_id, dataset_ids=dataset_ids, collection_id=collection_id
+            )
+        }
     except Exception as e:
         sly.logger.error(f"Error during model evaluation: {e}")
         return {"error": str(e)}
@@ -59,3 +64,17 @@ async def compare(request: Request):
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
         return {"error": str(e)}
+
+
+@server.post("/get_eval_progress")
+async def get_eval_progress(request: Request):
+    req = await request.json()
+    session_id = req.get("session_id", None)
+    if session_id is None:
+        return {"error": "Session ID is required"}
+
+    if session_id not in g.eval_progress:
+        return {"error": "No evaluation progress found for the given session ID"}
+
+    progress = g.eval_progress.get(session_id, {"status": "unknown", "current": 0, "total": 0})
+    return {"data": progress}
