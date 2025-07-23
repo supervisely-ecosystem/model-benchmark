@@ -3,6 +3,7 @@ from typing import Dict, Optional, Tuple, Union
 
 import supervisely as sly
 import yaml
+from supervisely.api.entities_collection_api import CollectionTypeFilter
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -152,7 +153,9 @@ def run_evaluation(
 
     image_ids = None
     if collection_id is not None:
-        imageinfos = g.api.entities_collection.get_items(collection_id)
+        imageinfos = g.api.entities_collection.get_items(
+            collection_id, CollectionTypeFilter.DEFAULT
+        )
         image_ids = [imageinfo.id for imageinfo in imageinfos]
 
     if bool(dataset_ids) ^ bool(collection_id):
