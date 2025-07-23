@@ -64,18 +64,3 @@ async def compare(request: Request):
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
         return {"error": str(e)}
-
-
-@server.post("/get_eval_progress")
-async def get_eval_progress(request: Request):
-    req = await request.json()
-    state = req.get("state", {})
-    session_id = state.get("session_id", None)
-    if session_id is None:
-        return {"error": "Session ID is required"}
-
-    if session_id not in g.eval_progress:
-        return {"error": "No evaluation progress found for the given session ID"}
-
-    progress = g.eval_progress.get(session_id, {"status": "unknown", "current": 0, "total": 0})
-    return {"data": progress}

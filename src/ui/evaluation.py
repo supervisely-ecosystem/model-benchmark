@@ -174,12 +174,6 @@ def run_evaluation(
             raise RuntimeError("No classes available for evaluation.")
         g.selected_classes = [obj_cls.name for obj_cls in matched_model_classes]
 
-    def update_patched(cnt):
-        eval_pbar.update(cnt)
-        g.eval_progress[session_id]["current"] += cnt
-
-    eval_pbar.update = update_patched
-    g.eval_progress[session_id] = {"status": "running", "current": 0, "total": eval_pbar.total}
     eval_pbar.show()
     sec_eval_pbar.show()
 
@@ -244,7 +238,6 @@ def run_evaluation(
     report_model_benchmark.set(bm.report)
     report_model_benchmark.show()
     eval_pbar.hide()
-    g.eval_progress[session_id]["status"] = "finished"
 
     # ==================== Workflow output ====================
     if sly.is_production():

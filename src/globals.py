@@ -31,5 +31,3 @@ task_type = None
 project_classes = None
 selected_classes = None
 eval_dirs = None
-
-eval_progress = {}
