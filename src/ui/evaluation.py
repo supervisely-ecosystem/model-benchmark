@@ -150,9 +150,10 @@ def run_evaluation(
             if len(dataset_ids) == 0:
                 raise ValueError("No datasets selected")
 
-    imageinfos = None
+    image_ids = None
     if collection_id is not None:
         imageinfos = g.api.entities_collection.get_items(collection_id)
+        image_ids = [imageinfo.id for imageinfo in imageinfos]
 
     if bool(dataset_ids) ^ bool(collection_id):
         raise ValueError(
@@ -189,7 +190,7 @@ def run_evaluation(
         g.api,
         project.id,
         gt_dataset_ids=dataset_ids,
-        gt_imageinfos=imageinfos,
+        gt_image_ids=image_ids,
         output_dir=work_dir,
         progress=eval_pbar,
         progress_secondary=sec_eval_pbar,
