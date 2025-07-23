@@ -190,7 +190,7 @@ def run_evaluation(
         g.api,
         project.id,
         gt_dataset_ids=dataset_ids,
-        gt_image_ids=image_ids,
+        gt_images_ids=image_ids,
         output_dir=work_dir,
         progress=eval_pbar,
         progress_secondary=sec_eval_pbar,
