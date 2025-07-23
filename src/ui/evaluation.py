@@ -158,10 +158,11 @@ def run_evaluation(
         )
         image_ids = [imageinfo.id for imageinfo in imageinfos]
 
-    if not bool(dataset_ids) ^ bool(collection_id):
-        raise ValueError(
-            "You must select either datasets or a collection, but not both at the same time."
-        )
+    if dataset_ids is not None or collection_id is not None:
+        if not bool(dataset_ids) ^ bool(collection_id):
+            raise ValueError(
+                "You must select either datasets or a collection, but not both at the same time."
+            )
 
     # ==================== Workflow input ====================
     if sly.is_production():
