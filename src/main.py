@@ -1,6 +1,9 @@
+import asyncio
+import json
+
 import supervisely as sly
 import supervisely.app.widgets as widgets
-from fastapi import Request
+from fastapi import Request, WebSocket, WebSocketDisconnect
 
 import src.globals as g
 from src.ui.compare import compare_button, compare_contatiner, run_compare
@@ -45,11 +48,15 @@ async def evaluate(request: Request):
         project_id = state["project_id"]
         dataset_ids = state.get("dataset_ids", None)
         collection_id = state.get("collection_id", None)
-        return {
-            "data": run_evaluation(
-                session_id, project_id, dataset_ids=dataset_ids, collection_id=collection_id
-            )
-        }
+        # run evaluation in a threadpool so the WS loop keeps processing
+        res_dir = await asyncio.to_thread(
+            run_evaluation,
+            session_id,
+            project_id,
+            dataset_ids=dataset_ids,
+            collection_id=collection_id,
+        )
+        return {"data": res_dir}
     except Exception as e:
         sly.logger.error(f"Error during model evaluation: {e}")
         return {"error": str(e)}
@@ -60,7 +67,23 @@ async def compare(request: Request):
     req = await request.json()
     try:
         state = req["state"]
-        return {"data": run_compare(state["eval_dirs"])}
+        # run comparison in a threadpool so the WS loop keeps processing
+        res_dir = await asyncio.to_thread(run_compare, state["eval_dirs"])
+        return {"data": res_dir}
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
         return {"error": str(e)}
+
+
+@server.websocket("/progress_monitor")
+async def progress_monitor(websocket: WebSocket, session_id: int):
+    await g.pmm.add_connection(session_id, websocket)
+    sly.logger.info(f"WebSocket connected for session {session_id}")
+    try:
+        while True:
+            msg = await websocket.receive()
+            if msg["type"] == "websocket.disconnect":
+                sly.logger.info(f"WebSocket disconnected for session {session_id}")
+                break
+    finally:
+        g.pmm.disconnect(session_id)

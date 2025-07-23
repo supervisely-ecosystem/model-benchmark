@@ -4,6 +4,8 @@ from distutils.util import strtobool
 import supervisely as sly
 from dotenv import load_dotenv
 
+from src.functions import ProgressMonitorManager
+
 if sly.is_development():
     load_dotenv("local.env")
     load_dotenv(os.path.expanduser("~/supervisely.env"))
@@ -31,3 +33,5 @@ task_type = None
 project_classes = None
 selected_classes = None
 eval_dirs = None
+
+pmm = ProgressMonitorManager()

@@ -125,6 +125,7 @@ def run_evaluation(
     dataset_ids: Optional[Tuple[int]] = None,
     collection_id: Optional[int] = None,
 ):
+    global eval_pbar
     work_dir = g.STORAGE_DIR + "/benchmark_" + sly.rand_str(6)
 
     g.session_id = session_id or g.session_id
@@ -158,10 +159,9 @@ def run_evaluation(
         )
         image_ids = [imageinfo.id for imageinfo in imageinfos]
 
-    if not bool(dataset_ids) ^ bool(collection_id):
-        raise ValueError(
-            "You must select either datasets or a collection, but not both at the same time."
-        )
+    if dataset_ids or collection_id:
+        if not bool(dataset_ids) ^ bool(collection_id):
+            raise ValueError("You must select either datasets or a collection")
 
     # ==================== Workflow input ====================
     if sly.is_production():
@@ -178,6 +178,7 @@ def run_evaluation(
             raise RuntimeError("No classes available for evaluation.")
         g.selected_classes = [obj_cls.name for obj_cls in matched_model_classes]
 
+    eval_pbar = f.patch_pbar(eval_pbar)
     eval_pbar.show()
     sec_eval_pbar.show()
 
