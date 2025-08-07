@@ -44,7 +44,12 @@ async def evaluate(request: Request):
         session_id = state["session_id"]
         project_id = state["project_id"]
         dataset_ids = state.get("dataset_ids", None)
-        return {"data": run_evaluation(session_id, project_id, dataset_ids=dataset_ids)}
+        collection_id = state.get("collection_id", None)
+        return {
+            "data": run_evaluation(
+                session_id, project_id, dataset_ids=dataset_ids, collection_id=collection_id
+            )
+        }
     except Exception as e:
         sly.logger.error(f"Error during model evaluation: {e}")
         return {"error": str(e)}
