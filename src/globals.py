@@ -1,9 +1,9 @@
 import os
-from distutils.util import strtobool
 
 import supervisely as sly
 from dotenv import load_dotenv
 
+from src.functions import check_for_existing_comparisons
 from src.ui.compare import run_compare
 
 if sly.is_development():
@@ -28,8 +28,19 @@ if session_id is not None:
     session_id = int(session_id)
 eval_dirs = os.environ.get("modal.state.evalDirs", None)
 if eval_dirs is not None:
-    eval_dirs = eval_dirs.split(",")
-    run_compare(eval_dirs)
+    result_comparison_dir = check_for_existing_comparisons(eval_dirs, project_id, team_id)
+    if result_comparison_dir is not None:
+        comparison_link_id = api.file.get_info_by_path(
+            team_id, result_comparison_dir + "/Model Comparison Report.lnk"
+        ).id
+        api.task.set_output_report(
+            task_id,
+            comparison_link_id,
+            "Model Comparison Report",
+            "Click to open the report",
+        )
+    else:
+        result_comparison_dir = run_compare(eval_dirs)
 
 session = None
 
