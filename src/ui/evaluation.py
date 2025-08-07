@@ -11,8 +11,10 @@ from supervisely.app.widgets import (
     Container,
     Editor,
     Progress,
+    RadioGroup,
     ReportThumbnail,
     SelectAppSession,
+    SelectCollection,
     SelectDataset,
     SelectProject,
     SlyTqdm,
@@ -47,9 +49,17 @@ sel_project = SelectProject(
     allowed_types=[sly.ProjectType.IMAGES],
     compact=True,
 )
+radio_items = [RadioGroup.Item("datasets", "Datasets"), RadioGroup.Item("collection", "Collection")]
+mode_radio = RadioGroup(radio_items)
+
+
 sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
 all_datasets_checkbox = Checkbox("All datasets", checked=True)
+
+collection_selector = SelectCollection(compact=True)
+collection_selector.hide()
+
 run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 
 iou_per_class_checkbox = Checkbox("Set different IoU for every class", checked=False)
@@ -79,8 +89,10 @@ report_model_benchmark.hide()
 evaluation_container = Container(
     [
         sel_project,
+        mode_radio,
         all_datasets_checkbox,
         sel_dataset,
+        collection_selector,
         sel_app_session,
         eval_params_card,
         run_speedtest_checkbox,
@@ -151,6 +163,7 @@ def run_evaluation(
             if len(dataset_ids) == 0:
                 raise ValueError("No datasets selected")
 
+    collection_id = collection_id or collection_selector.get_selected_id()
     image_ids = None
     if collection_id is not None:
         imageinfos = g.api.entities_collection.get_items(
@@ -284,6 +297,25 @@ def handle_iou_per_class_checkbox(checked: bool):
     update_eval_params()
 
 
+@mode_radio.value_changed
+def handle_mode_radio(value: str):
+    if value == "datasets":
+        all_datasets_checkbox.show()
+        sel_dataset.show()
+        sel_dataset.set_project_id(g.project_id)
+        sel_dataset.set_dataset_ids([])
+        collection_selector.hide()
+        # collection_selector.set_collection(None)
+    elif value == "collection":
+        all_datasets_checkbox.hide()
+        sel_dataset.hide()
+        sel_dataset.set_dataset_ids([])
+        collection_selector.show()
+    else:
+        raise ValueError(f"Unknown mode: {value}")
+    handle_selectors()
+
+
 def match_classes_and_show_info():
     matched, not_matched = f.get_classes()
     _, matched_model_classes = matched
@@ -329,6 +361,8 @@ def handle_selectors():
     not_matched_text.hide()
     if g.project_id is not None:
         sel_dataset.set_project_id(g.project_id)
+        if collection_selector.project_id != g.project_id:
+            collection_selector.set_project_id(g.project_id)
         update_available_project_classes()
     if g.session_id is not None:
         update_available_model_classes_and_task_type()
