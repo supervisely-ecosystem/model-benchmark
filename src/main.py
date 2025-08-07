@@ -1,8 +1,8 @@
-import supervisely as sly
-import supervisely.app.widgets as widgets
 from fastapi import Request
 
 import src.globals as g
+import supervisely as sly
+import supervisely.app.widgets as widgets
 from src.ui.compare import compare_button, compare_contatiner, run_compare
 from src.ui.evaluation import eval_button, evaluation_container, run_evaluation
 
