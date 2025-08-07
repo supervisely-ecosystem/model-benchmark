@@ -12,6 +12,7 @@ from supervisely.app.widgets import (
     Editor,
     Progress,
     RadioGroup,
+    RadioTabs,
     ReportThumbnail,
     SelectAppSession,
     SelectCollection,
@@ -49,16 +50,16 @@ sel_project = SelectProject(
     allowed_types=[sly.ProjectType.IMAGES],
     compact=True,
 )
-radio_items = [RadioGroup.Item("datasets", "Datasets"), RadioGroup.Item("collection", "Collection")]
-mode_radio = RadioGroup(radio_items)
-
 
 sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
 all_datasets_checkbox = Checkbox("All datasets", checked=True)
 
 collection_selector = SelectCollection(compact=True)
-collection_selector.hide()
+mode_radio = RadioTabs(
+    titles=["Datasets", "Collection"],
+    contents=[Container([all_datasets_checkbox, sel_dataset]), collection_selector],
+)
 
 run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 
@@ -163,7 +164,11 @@ def run_evaluation(
             if len(dataset_ids) == 0:
                 raise ValueError("No datasets selected")
 
-    collection_id = collection_id or collection_selector.get_selected_id()
+    collection_id = (
+        collection_id or collection_selector.get_selected_id()
+        if mode_radio.get_active_tab() == "Collection"
+        else None
+    )
     image_ids = None
     if collection_id is not None:
         imageinfos = g.api.entities_collection.get_items(
@@ -295,25 +300,6 @@ def handle_all_datasets_checkbox(checked: bool):
 @iou_per_class_checkbox.value_changed
 def handle_iou_per_class_checkbox(checked: bool):
     update_eval_params()
-
-
-@mode_radio.value_changed
-def handle_mode_radio(value: str):
-    if value == "datasets":
-        all_datasets_checkbox.show()
-        sel_dataset.show()
-        sel_dataset.set_project_id(g.project_id)
-        sel_dataset.set_dataset_ids([])
-        collection_selector.hide()
-        # collection_selector.set_collection(None)
-    elif value == "collection":
-        all_datasets_checkbox.hide()
-        sel_dataset.hide()
-        sel_dataset.set_dataset_ids([])
-        collection_selector.show()
-    else:
-        raise ValueError(f"Unknown mode: {value}")
-    handle_selectors()
 
 
 def match_classes_and_show_info():
