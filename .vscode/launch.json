@@ -19,20 +19,21 @@
             "justMyCode": false,
             "env": {
                 "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
-                "LOG_LEVEL": "DEBUG"
+                "LOG_LEVEL": "DEBUG",
+                "modal.state.evalDirs": "[\"/model-benchmark/2659_Coffee Leaf Biotic Stress/49331_Serve MMSegmentation/\",\"/model-benchmark/2659_Coffee Leaf Biotic Stress/49331_Serve MMSegmentation/\"]"
             }
         },
         {
-          "name": "Python: Current File",
-          "type": "debugpy",
-          "request": "launch",
-          "program": "${file}",
-          "console": "integratedTerminal",
-          "justMyCode": false,
-          "env": {
-            "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
-            "LOG_LEVEL": "DEBUG"
-          }
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:${PYTHONPATH}",
+                "LOG_LEVEL": "DEBUG"
+            }
         }
     ]
 }

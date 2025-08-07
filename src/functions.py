@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import supervisely as sly
 from supervisely.nn import TaskType
@@ -110,26 +110,23 @@ def with_clean_up_progress(pbar):
 
 
 def check_for_existing_comparisons(eval_dirs, project_id, team_id) -> Optional[str]:
-    eval_dir_basenames = [os.path.basename(d) for d in eval_dirs] if eval_dirs else []
+    eval_dir_basenames = [os.path.basename(d.rstrip("/")) for d in eval_dirs] if eval_dirs else []
     if not eval_dir_basenames:
         return None
 
     project_info = g.api.project.get_info_by_id(project_id)
     project_name_benchmark = f"{project_id}_{project_info.name}"
     project_comparison_dirs = g.api.file.listdir(team_id, "/model-comparison/")
-    if project_name_benchmark not in project_comparison_dirs:
+    if not any([project_name_benchmark in dir_path for dir_path in project_comparison_dirs]):
         return None
 
     dirs = []
     dir_name = " vs ".join(eval_dir_basenames)
     for dir in g.api.file.listdir(team_id, f"/model-comparison/{project_name_benchmark}"):
-        if dir.startswith(dir_name):
+        if dir_name in dir:
             dirs.append(dir)
 
     if dirs:
-        latest_dir = sorted(dirs, reverse=True)[0]
-        latest_dir_path = f"/model-comparison/{project_name_benchmark}/{latest_dir}"
-        return latest_dir_path
+        return sorted(dirs, reverse=True)[0]
 
-    return None
     return None
