@@ -116,17 +116,23 @@ def check_for_existing_comparisons(eval_dirs, project_id, team_id) -> Optional[s
 
     project_info = g.api.project.get_info_by_id(project_id)
     project_name_benchmark = f"{project_id}_{project_info.name}"
-    project_comparison_dirs = g.api.file.listdir(team_id, "/model-comparison/")
-    if not any([project_name_benchmark in dir_path for dir_path in project_comparison_dirs]):
+    project_comparison_dirs = g.api.storage.list(
+        team_id, "/model-comparison/", recursive=False, include_folders=True, include_files=False
+    )
+    project_comparison_dirs = [info.name for info in project_comparison_dirs]
+    if project_name_benchmark not in project_comparison_dirs:
         return None
 
-    dirs = []
     dir_name = " vs ".join(eval_dir_basenames)
-    for dir in g.api.file.listdir(team_id, f"/model-comparison/{project_name_benchmark}"):
-        if dir_name in dir:
-            dirs.append(dir)
-
+    path = f"/model-comparison/{project_name_benchmark}"
+    dirs = [
+        dir
+        for dir in g.api.storage.list(
+            team_id, path, recursive=False, include_folders=True, include_files=False
+        )
+        if dir_name in dir
+    ]
     if dirs:
-        return sorted(dirs, reverse=True)[0]
+        return sorted(dirs, reverse=True)[0].path
 
     return None
