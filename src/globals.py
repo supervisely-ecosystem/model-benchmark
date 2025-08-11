@@ -38,9 +38,12 @@ if eval_dirs is not None:
 
         result_comparison_dir = check_for_existing_comparisons(eval_dirs, project_id, team_id)
         if result_comparison_dir is not None:
-            comparison_link_id = api.file.get_info_by_path(
-                team_id, result_comparison_dir + "Model Comparison Report.lnk"
+            comparison_link_id = api.storage.list(
+                team_id, result_comparison_dir + "Model Comparison Report.lnk", recursive=False
             ).id
+            sly.logger.info(
+                f"Comparison already exists: {result_comparison_dir}. Using existing comparison link ID: {comparison_link_id}"
+            )
             api.task.set_output_report(
                 task_id,
                 comparison_link_id,
