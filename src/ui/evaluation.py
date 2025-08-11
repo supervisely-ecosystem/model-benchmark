@@ -1,12 +1,9 @@
 from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
 
-import yaml
-
-import src.functions as f
-import src.globals as g
-import src.workflow as w
 import supervisely as sly
+import yaml
+from supervisely.api.entities_collection_api import CollectionTypeFilter
 from supervisely.app.widgets import (
     Button,
     Card,
@@ -14,8 +11,11 @@ from supervisely.app.widgets import (
     Container,
     Editor,
     Progress,
+    RadioGroup,
+    RadioTabs,
     ReportThumbnail,
     SelectAppSession,
+    SelectCollection,
     SelectDataset,
     SelectProject,
     SlyTqdm,
@@ -30,6 +30,10 @@ from supervisely.nn.benchmark import (
     SemanticSegmentationEvaluator,
 )
 from supervisely.nn.inference.session import SessionJSON
+
+import src.functions as f
+import src.globals as g
+import src.workflow as w
 
 no_classes_label = Text(
     "Not found any classes in the project that are present in the model", status="error"
@@ -46,9 +50,17 @@ sel_project = SelectProject(
     allowed_types=[sly.ProjectType.IMAGES],
     compact=True,
 )
+
 sel_dataset = SelectDataset(multiselect=True, compact=True)
 sel_dataset.hide()
 all_datasets_checkbox = Checkbox("All datasets", checked=True)
+
+collection_selector = SelectCollection(compact=True)
+mode_radio = RadioTabs(
+    titles=["Datasets", "Collection"],
+    contents=[Container([all_datasets_checkbox, sel_dataset]), collection_selector],
+)
+
 run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 
 iou_per_class_checkbox = Checkbox("Set different IoU for every class", checked=False)
@@ -78,8 +90,10 @@ report_model_benchmark.hide()
 evaluation_container = Container(
     [
         sel_project,
+        mode_radio,
         all_datasets_checkbox,
         sel_dataset,
+        collection_selector,
         sel_app_session,
         eval_params_card,
         run_speedtest_checkbox,
@@ -122,6 +136,7 @@ def run_evaluation(
     project_id: Optional[int] = None,
     params: Optional[Union[str, Dict]] = None,
     dataset_ids: Optional[Tuple[int]] = None,
+    collection_id: Optional[int] = None,
 ):
     work_dir = g.STORAGE_DIR + "/benchmark_" + sly.rand_str(6)
 
@@ -129,10 +144,17 @@ def run_evaluation(
     g.project_id = project_id or g.project_id
 
     project = g.api.project.get_info_by_id(g.project_id)
+    if g.project_classes is None:
+        g.project_classes = f.get_project_classes()
+
     if g.session is None:
         g.session = SessionJSON(g.api, g.session_id)
+
+    model_classes, task_type = f.get_model_info()
     if g.task_type is None:
-        g.task_type = g.session.get_deploy_info()["task_type"]
+        g.task_type = task_type
+    if g.model_classes is None:
+        g.model_classes = model_classes
 
     if dataset_ids is None:
         if all_datasets_checkbox.is_checked():
@@ -142,6 +164,24 @@ def run_evaluation(
             if len(dataset_ids) == 0:
                 raise ValueError("No datasets selected")
 
+    collection_id = (
+        collection_id or collection_selector.get_selected_id()
+        if mode_radio.get_active_tab() == "Collection"
+        else None
+    )
+    image_ids = None
+    if collection_id is not None:
+        imageinfos = g.api.entities_collection.get_items(
+            collection_id, CollectionTypeFilter.DEFAULT
+        )
+        image_ids = [imageinfo.id for imageinfo in imageinfos]
+
+    if dataset_ids is not None or collection_id is not None:
+        if not bool(dataset_ids) ^ bool(collection_id):
+            raise ValueError(
+                "You must select either datasets or a collection, but not both at the same time."
+            )
+
     # ==================== Workflow input ====================
     if sly.is_production():
         w.workflow_input(g.api, project, g.session_id)
@@ -150,7 +190,12 @@ def run_evaluation(
     report_model_benchmark.hide()
 
     if g.selected_classes is None or len(g.selected_classes) == 0:
-        raise RuntimeError("No classes available for evaluation")
+        # raise RuntimeError("No classes available for evaluation")
+        matched, _ = f.get_classes()
+        _, matched_model_classes = matched
+        if not matched_model_classes or len(matched_model_classes) == 0:
+            raise RuntimeError("No classes available for evaluation.")
+        g.selected_classes = [obj_cls.name for obj_cls in matched_model_classes]
 
     eval_pbar.show()
     sec_eval_pbar.show()
@@ -167,6 +212,7 @@ def run_evaluation(
         g.api,
         project.id,
         gt_dataset_ids=dataset_ids,
+        gt_images_ids=image_ids,
         output_dir=work_dir,
         progress=eval_pbar,
         progress_secondary=sec_eval_pbar,
@@ -301,6 +347,8 @@ def handle_selectors():
     not_matched_text.hide()
     if g.project_id is not None:
         sel_dataset.set_project_id(g.project_id)
+        if collection_selector.project_id != g.project_id:
+            collection_selector.set_project_id(g.project_id)
         update_available_project_classes()
     if g.session_id is not None:
         update_available_model_classes_and_task_type()
