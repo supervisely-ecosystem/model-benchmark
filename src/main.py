@@ -58,7 +58,6 @@ if g.eval_dirs is not None:
             models_comparison_report.show()
         else:
             _ = run_compare(g.eval_dirs)
-        app.stop()
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
 
