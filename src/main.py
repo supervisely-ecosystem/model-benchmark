@@ -1,8 +1,8 @@
+import supervisely as sly
+import supervisely.app.widgets as widgets
 from fastapi import Request
 
 import src.globals as g
-import supervisely as sly
-import supervisely.app.widgets as widgets
 from src.ui.compare import compare_button, compare_contatiner, run_compare
 from src.ui.evaluation import eval_button, evaluation_container, run_evaluation
 
@@ -24,6 +24,40 @@ layout = widgets.Container(
 
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
 server = app.get_server()
+
+if g.eval_dirs is not None:
+    import ast
+
+    from src.functions import check_for_existing_comparisons
+
+    try:
+        eval_dirs = [str(x).strip() for x in ast.literal_eval(g.eval_dirs)]
+
+        if not g.project_id:
+            raise ValueError("Project ID is not set. Please set the project ID in the environment.")
+
+        result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.project_id, g.team_id)
+        if result_comparison_dir is not None:
+            comparison_link_id = g.api.file.get_info_by_path(
+                g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
+            )
+            if comparison_link_id is None:
+                raise ValueError("Comparison link ID not found in the storage.")
+            comparison_link_id = comparison_link_id.id
+            sly.logger.info(
+                f"Comparison already exists: {result_comparison_dir} (ID: {comparison_link_id})"
+            )
+            g.api.task.set_output_report(
+                g.task_id,
+                comparison_link_id,
+                "Model Comparison Report",
+                "Click to open the report",
+            )
+        else:
+            _ = run_compare(g.eval_dirs)
+        app.stop()
+    except Exception as e:
+        sly.logger.error(f"Error during model comparison: {e}")
 
 
 @eval_button.click

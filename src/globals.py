@@ -25,39 +25,6 @@ session_id = os.environ.get("modal.state.sessionId", None)
 if session_id is not None:
     session_id = int(session_id)
 eval_dirs = os.environ.get("modal.state.eval_dirs", None)
-if eval_dirs is not None:
-    import ast
-
-    from src.functions import check_for_existing_comparisons
-    from src.ui.compare import run_compare
-
-    try:
-        eval_dirs = [str(x).strip() for x in ast.literal_eval(eval_dirs)]
-
-        if not project_id:
-            raise ValueError("Project ID is not set. Please set the project ID in the environment.")
-
-        result_comparison_dir = check_for_existing_comparisons(eval_dirs, project_id, team_id)
-        if result_comparison_dir is not None:
-            comparison_link_id = api.file.get_info_by_path(
-                team_id, result_comparison_dir + "Model Comparison Report.lnk"
-            )
-            if comparison_link_id is None:
-                raise ValueError("Comparison link ID not found in the storage.")
-            comparison_link_id = comparison_link_id.id
-            sly.logger.info(
-                f"Comparison already exists: {result_comparison_dir} (ID: {comparison_link_id})"
-            )
-            api.task.set_output_report(
-                task_id,
-                comparison_link_id,
-                "Model Comparison Report",
-                "Click to open the report",
-            )
-        else:
-            _ = run_compare(eval_dirs)
-    except Exception as e:
-        sly.logger.error(f"Error during model comparison: {e}")
 
 session = None
 
