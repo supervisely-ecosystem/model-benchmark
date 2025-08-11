@@ -23,7 +23,7 @@ task_id = sly.env.task_id(raise_not_found=False)
 session_id = os.environ.get("modal.state.sessionId", None)
 if session_id is not None:
     session_id = int(session_id)
-eval_dirs = os.environ.get("modal.state.evalDirs", None)
+eval_dirs = os.environ.get("modal.state.eval_dirs", None)
 if eval_dirs is not None:
     import ast
 
