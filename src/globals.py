@@ -1,7 +1,8 @@
 import os
 
-import supervisely as sly
 from dotenv import load_dotenv
+
+import supervisely as sly
 
 if sly.is_development():
     load_dotenv("local.env")

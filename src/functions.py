@@ -1,11 +1,10 @@
 import os
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Optional
 
+import src.globals as g
 import supervisely as sly
 from supervisely.nn import TaskType
 from supervisely.nn.inference import SessionJSON
-
-import src.globals as g
 
 geometry_to_task_type = {
     TaskType.OBJECT_DETECTION: [sly.Rectangle, sly.AnyGeometry],
