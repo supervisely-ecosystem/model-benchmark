@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import src.globals as g
 import supervisely as sly
@@ -106,3 +106,32 @@ def with_clean_up_progress(pbar):
         return wrapper
 
     return decorator
+
+
+def check_for_existing_comparisons(eval_dirs, project_id, team_id) -> Optional[str]:
+    eval_dir_basenames = [os.path.basename(d.rstrip("/")) for d in eval_dirs] if eval_dirs else []
+    if not eval_dir_basenames:
+        return None
+
+    project_info = g.api.project.get_info_by_id(project_id)
+    project_name_benchmark = f"{project_id}_{project_info.name}"
+    project_comparison_dirs = g.api.storage.list(
+        team_id, "/model-comparison/", recursive=False, include_folders=True, include_files=False
+    )
+    project_comparison_dirs = [info.name for info in project_comparison_dirs]
+    if project_name_benchmark not in project_comparison_dirs:
+        return None
+
+    dir_name = " vs ".join(eval_dir_basenames)
+    path = f"/model-comparison/{project_name_benchmark}"
+    dirs = [
+        dir
+        for dir in g.api.storage.list(
+            team_id, path, recursive=False, include_folders=True, include_files=False
+        )
+        if dir_name in dir
+    ]
+    if dirs:
+        return sorted(dirs, reverse=True)[0].path
+
+    return None
