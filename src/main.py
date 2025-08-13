@@ -38,7 +38,7 @@ if g.eval_dirs is not None:
         if not g.project_id:
             raise ValueError("Project ID is not set. Please set the project ID in the environment.")
 
-        result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.project_id, g.team_id)
+        result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.team_id)
         if result_comparison_dir is not None:
             fileinfo = g.api.file.get_info_by_path(
                 g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
