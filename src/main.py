@@ -36,7 +36,6 @@ server = app.get_server()
 
 def run_state_evaluation():
     result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.team_id)
-    result_comparison_dir = None  # for testing purposes
     if result_comparison_dir is not None:
         fileinfo = g.api.file.get_info_by_path(
             g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
