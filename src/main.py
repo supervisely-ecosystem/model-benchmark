@@ -1,3 +1,4 @@
+import time
 from threading import Thread
 
 from fastapi import Request
@@ -58,6 +59,7 @@ def run_state_evaluation(shutdown=True):
         _ = run_compare(g.eval_dirs)
         tabs_card.unlock()
     if shutdown:
+        time.sleep(10)
         sly.logger.info("Shutting down the application after comparison.")
         app.stop()
 
