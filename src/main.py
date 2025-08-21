@@ -1,8 +1,10 @@
-import supervisely as sly
-import supervisely.app.widgets as widgets
+from threading import Thread
+
 from fastapi import Request
 
 import src.globals as g
+import supervisely as sly
+import supervisely.app.widgets as widgets
 from src.functions import check_for_existing_comparisons
 from src.ui.compare import (
     compare_button,
@@ -31,33 +33,39 @@ layout = widgets.Container(
 app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
 server = app.get_server()
 
+
+def run_state_evaluation():
+    result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.team_id)
+    result_comparison_dir = None  # for testing purposes
+    if result_comparison_dir is not None:
+        fileinfo = g.api.file.get_info_by_path(
+            g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
+        )
+        if fileinfo is None:
+            raise ValueError("Comparison link ID not found in the storage.")
+        sly.logger.info(f"Comparison already exists: {result_comparison_dir} (ID: {fileinfo.id})")
+        g.api.task.set_output_report(
+            g.task_id,
+            fileinfo.id,
+            "Model Comparison Report",
+            "Click to open the report",
+        )
+        models_comparison_report.set(fileinfo)
+        models_comparison_report.show()
+    else:
+        tabs_card.lock("Comparison in progress...")
+        _ = run_compare(g.eval_dirs)
+        tabs_card.unlock()
+
+
 if g.eval_dirs is not None:
     if tabs.get_active_tab() != "Model Comparison":
         tabs.set_active_tab("Model Comparison")
     try:
         if not g.project_id:
             raise ValueError("Project ID is not set. Please set the project ID in the environment.")
-
-        result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.team_id)
-        if result_comparison_dir is not None:
-            fileinfo = g.api.file.get_info_by_path(
-                g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
-            )
-            if fileinfo is None:
-                raise ValueError("Comparison link ID not found in the storage.")
-            sly.logger.info(
-                f"Comparison already exists: {result_comparison_dir} (ID: {fileinfo.id})"
-            )
-            g.api.task.set_output_report(
-                g.task_id,
-                fileinfo.id,
-                "Model Comparison Report",
-                "Click to open the report",
-            )
-            models_comparison_report.set(fileinfo)
-            models_comparison_report.show()
-        else:
-            _ = run_compare(g.eval_dirs)
+        thread = Thread(target=run_state_evaluation, daemon=True)
+        thread.start()
     except Exception as e:
         sly.logger.error(f"Error during model comparison: {e}")
 
