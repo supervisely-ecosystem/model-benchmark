@@ -1,6 +1,7 @@
 import ast
 import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from dotenv import load_dotenv
 
@@ -32,8 +33,19 @@ def run_state_evaluation():
         if fileinfo is None:
             raise ValueError("Comparison link ID not found in the storage.")
         sly.logger.info(f"Comparison already exists: {result_comparison_dir} (ID: {fileinfo.id})")
-        api.task.set_output_report(
-            api.task_id, fileinfo.id, REPORT_FILENAME, "Click to open the report"
+        with NamedTemporaryFile() as temp_file:
+            api.file.download(TEAM_ID, fileinfo.path, temp_file.name)
+            report_url = temp_file.read().decode("utf-8")
+
+        api.task._set_custom_output(
+            task_id=api.task_id,
+            file_id=fileinfo.id,
+            file_name=fileinfo.name,
+            file_url=report_url,
+            description="Click to open the report",
+            icon="zmdi zmdi-receipt",
+            color="#dcb0ff",
+            background_color="#faebff",
         )
     else:
         _ = run_compare(EVAL_DIRS)

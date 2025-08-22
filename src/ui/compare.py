@@ -63,7 +63,16 @@ def run_compare(eval_dirs: List[str] = None):
     res_dir = f.get_res_dir(g.eval_dirs)
     res_dir = comp.upload_results(g.team_id, remote_dir=res_dir, progress=comp_pbar)
 
-    g.api.task.set_output_report(g.task_id, comp.lnk.id, comp.lnk.name, "Click to open the report")
+    g.api.task._set_custom_output(
+        task_id=g.api.task_id,
+        file_id=comp.lnk.id,
+        file_name=comp.lnk.name,
+        file_url=f"/model-benchmark?id={comp.report.id}",
+        description="Click to open the report",
+        icon="zmdi zmdi-receipt",
+        color="#dcb0ff",
+        background_color="#faebff",
+    )
 
     models_comparison_report.set(comp.report)
     models_comparison_report.show()
