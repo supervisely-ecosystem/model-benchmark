@@ -9,7 +9,7 @@
     "object detection",
     "instance segmentation"
   ],
-  "icon": "https://github.com/supervisely-ecosystem/model-benchmark/releases/download/v0.0.4/icon3_evaluator-for-model_benchmark.png",
+  "icon": "https://github.com/supervisely-ecosystem/model-benchmark/releases/download/v0.0.4/icon4_evaluator-for-model_benchmark.png",
   "icon_cover": true,
   "headless": true,
   "poster": "",
