@@ -14,7 +14,7 @@
   "headless": true,
   "poster": "",
   "task_location": "workspace_tasks",
-  "main_script": "comparison_subapp/main.py",
+  "main_script": "compare_models/main.py",
   "port": 8000,
   "docker_image": "supervisely/model-benchmark:1.0.25",
   "instance_version": "6.14.4"
