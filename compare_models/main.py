@@ -40,7 +40,7 @@ def run_state_evaluation():
         api.task._set_custom_output(
             task_id=api.task_id,
             file_id=fileinfo.id,
-            file_name=fileinfo.name,
+            file_name=fileinfo.name.rstrip(".lnk"),
             file_url=report_url,
             description="Click to open the report",
             icon="zmdi zmdi-receipt",

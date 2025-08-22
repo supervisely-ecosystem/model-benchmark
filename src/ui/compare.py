@@ -66,7 +66,7 @@ def run_compare(eval_dirs: List[str] = None):
     g.api.task._set_custom_output(
         task_id=g.api.task_id,
         file_id=comp.lnk.id,
-        file_name=comp.lnk.name,
+        file_name=comp.lnk.name.rstrip(".lnk"),
         file_url=f"/model-benchmark?id={comp.report.id}",
         description="Click to open the report",
         icon="zmdi zmdi-receipt",
