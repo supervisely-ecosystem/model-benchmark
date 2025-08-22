@@ -1,11 +1,11 @@
 import os
+from pathlib import Path
 from typing import List, Optional, Tuple
 
+import src.globals as g
 import supervisely as sly
 from supervisely.nn import TaskType
 from supervisely.nn.inference import SessionJSON
-
-import src.globals as g
 
 geometry_to_task_type = {
     TaskType.OBJECT_DETECTION: [sly.Rectangle, sly.AnyGeometry],
@@ -110,25 +110,20 @@ def with_clean_up_progress(pbar):
 
 
 def check_for_existing_comparisons(eval_dirs, team_id) -> Optional[str]:
-    project_name_benchmark = os.path.basename(os.path.dirname(eval_dirs[0]))
-    eval_dir_basenames = [os.path.basename(d.rstrip("/")) for d in eval_dirs] if eval_dirs else []
+    project_name_benchmark = Path(eval_dirs[0]).parent.name
+    eval_dir_basenames = [Path(d).name for d in eval_dirs] if eval_dirs else []
     if not eval_dir_basenames:
-        return None
+        return
 
     project_comparison_dirs = g.api.storage.list(
         team_id, "/model-comparison/", recursive=False, include_folders=True, include_files=False
     )
     project_comparison_dirs = [info.name for info in project_comparison_dirs]
     if project_name_benchmark not in project_comparison_dirs:
-        return None
+        return
 
     dir_name = " vs ".join(eval_dir_basenames)
-    path = f"/model-comparison/{project_name_benchmark}"
-    comparisons = g.api.storage.list(
-        team_id, path, recursive=False, include_folders=True, include_files=False
-    )
-    dirs = list(filter(lambda x: x.name == dir_name, comparisons))
-    if dirs:
-        return sorted(dirs, reverse=True)[0].path
-
-    return None
+    path = str(Path("/model-comparison") / project_name_benchmark / dir_name)
+    if not g.api.storage.dir_exists(team_id, path):
+        return
+    return path
