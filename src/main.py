@@ -15,6 +15,7 @@ from src.ui.compare import (
 )
 from src.ui.evaluation import eval_button, evaluation_container, run_evaluation
 from supervisely._utils import abs_url
+from supervisely.nn.benchmark.comparison.base_visualizer import BaseComparisonVisualizer
 
 tabs = widgets.Tabs(
     labels=["Model Evaluation", "Model Comparison"],
@@ -39,17 +40,15 @@ server = app.get_server()
 def run_state_evaluation(shutdown=True):
     result_comparison_dir = check_for_existing_comparisons(g.eval_dirs, g.team_id)
     if result_comparison_dir is not None:
-        fileinfo = g.api.file.get_info_by_path(
-            g.team_id, result_comparison_dir + "Model Comparison Report.lnk"
-        )
+        filename = BaseComparisonVisualizer.report_name
+        fileinfo = g.api.file.get_info_by_path(g.team_id, result_comparison_dir + filename)
         if fileinfo is None:
             raise ValueError("Comparison link ID not found in the storage.")
         sly.logger.info(f"Comparison already exists: {result_comparison_dir} (ID: {fileinfo.id})")
-        report_link = abs_url("/model-benchmark?id=" + str(fileinfo.id))
         g.api.task.set_output_report(
             g.task_id,
-            report_link,
-            "Model Comparison Report",
+            fileinfo.id,
+            filename,
             "Click to open the report",
         )
         models_comparison_report.set(fileinfo)
