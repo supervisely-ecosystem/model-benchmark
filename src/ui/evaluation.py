@@ -1,15 +1,22 @@
 from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
 
-import supervisely as sly
 import yaml
+
+import src.functions as f
+import src.globals as g
+import src.workflow as w
+import supervisely as sly
 from supervisely.api.entities_collection_api import CollectionTypeFilter
 from supervisely.app.widgets import (
     Button,
     Card,
     Checkbox,
+    Collapse,
     Container,
     Editor,
+    Field,
+    OneOf,
     Progress,
     RadioGroup,
     RadioTabs,
@@ -31,10 +38,6 @@ from supervisely.nn.benchmark import (
 )
 from supervisely.nn.inference.session import SessionJSON
 
-import src.functions as f
-import src.globals as g
-import src.workflow as w
-
 no_classes_label = Text(
     "Not found any classes in the project that are present in the model", status="error"
 )
@@ -43,26 +46,49 @@ total_classes_text = Text(status="info")
 selected_matched_text = Text(status="success")
 not_matched_text = Text(status="warning")
 
-sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
+# ==================== Project ==================================
 sel_project = SelectProject(
     default_id=None,
     workspace_id=g.workspace_id,
     allowed_types=[sly.ProjectType.IMAGES],
     compact=True,
 )
-
-sel_dataset = SelectDataset(multiselect=True, compact=True)
-sel_dataset.hide()
-all_datasets_checkbox = Checkbox("All datasets", checked=True)
-
-collection_selector = SelectCollection(compact=True)
-mode_radio = RadioTabs(
-    titles=["Datasets", "Collection"],
-    contents=[Container([all_datasets_checkbox, sel_dataset]), collection_selector],
+sel_project_field = Field(
+    title="Ground Truth Project",
+    description="Select project with ground truth annotations for evaluation",
+    content=sel_project,
+    icon=Field.Icon(
+        zmdi_class="zmdi zmdi-image",
+        color_rgb=[25, 118, 210],
+        bg_color_rgb=[227, 242, 253],
+    ),
 )
 
-run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
+# ==================== Dataset or Collection ====================
+sel_dataset = SelectDataset(multiselect=True, compact=True)
+collection_selector = SelectCollection(compact=True)
+mode_radio = RadioGroup(
+    items=[
+        RadioGroup.Item("Datasets", content=sel_dataset),
+        RadioGroup.Item("Collection", content=collection_selector),
+    ],
+    direction="vertical",
+)
+one_of = OneOf(conditional_widget=mode_radio)
 
+mode_field = Field(
+    title="Validation Set",
+    description="Select datasets or collection for evaluation",
+    content=Container([mode_radio, one_of], gap=15),
+    icon=Field.Icon(
+        zmdi_class="zmdi zmdi-collection-folder-image",
+        color_rgb=[25, 118, 210],
+        bg_color_rgb=[227, 242, 253],
+    ),
+)
+
+# ==================== Model Session ============================
+sel_app_session = SelectAppSession(g.team_id, tags=g.deployed_nn_tags, show_label=True)
 iou_per_class_checkbox = Checkbox("Set different IoU for every class", checked=False)
 eval_params = Editor(
     initial_text=None,
@@ -70,14 +96,29 @@ eval_params = Editor(
     # height_lines=25,
     height_px=200,
 )
-eval_params_card = Card(
-    title="Evaluation parameters",
-    content=Container([eval_params, iou_per_class_checkbox]),
-    collapsable=True,
+eval_params_card = Collapse(
+    items=[
+        Collapse.Item(
+            "eval_params",
+            "Evaluation Parameters",
+            content=Container([eval_params, iou_per_class_checkbox]),
+        ),
+    ]
 )
-eval_params_card.collapse()
+eval_params_card.set_active_panel([])
+model_field = Field(
+    title="Model Session",
+    description="Select model session for evaluation",
+    content=Container([sel_app_session, eval_params_card]),
+    icon=Field.Icon(
+        zmdi_class="zmdi zmdi-memory",
+        color_rgb=[25, 118, 210],
+        bg_color_rgb=[227, 242, 253],
+    ),
+)
 
-
+# ==================== Run Button, Progress and Results =================
+run_speedtest_checkbox = Checkbox("Run speedtest", checked=True)
 eval_button = Button("Evaluate")
 eval_button.disable()
 
@@ -86,16 +127,13 @@ sec_eval_pbar = Progress("")
 
 report_model_benchmark = ReportThumbnail()
 report_model_benchmark.hide()
+# =======================================================================
 
 evaluation_container = Container(
     [
-        sel_project,
-        mode_radio,
-        all_datasets_checkbox,
-        sel_dataset,
-        collection_selector,
-        sel_app_session,
-        eval_params_card,
+        sel_project_field,
+        mode_field,
+        model_field,
         run_speedtest_checkbox,
         eval_button,
         report_model_benchmark,
@@ -156,31 +194,35 @@ def run_evaluation(
     if g.model_classes is None:
         g.model_classes = model_classes
 
-    if dataset_ids is None:
-        if all_datasets_checkbox.is_checked():
-            dataset_ids = None
-        else:
+    if collection_id is not None:
+        mode_radio.set_value("Collection")
+    elif dataset_ids is not None:
+        mode_radio.set_value("Datasets")
+
+    if mode_radio.get_value() == "Collection":
+        collection_id = collection_id or collection_selector.get_selected_id()
+        dataset_ids = None
+    else:
+        collection_id = None
+        if dataset_ids is None:
             dataset_ids = sel_dataset.get_selected_ids()
             if len(dataset_ids) == 0:
-                raise ValueError("No datasets selected")
+                dataset_ids = None
 
-    collection_id = (
-        collection_id or collection_selector.get_selected_id()
-        if mode_radio.get_active_tab() == "Collection"
-        else None
-    )
     image_ids = None
     if collection_id is not None:
-        imageinfos = g.api.entities_collection.get_items(
-            collection_id, CollectionTypeFilter.DEFAULT
-        )
-        image_ids = [imageinfo.id for imageinfo in imageinfos]
+        infos = g.api.entities_collection.get_items(collection_id, CollectionTypeFilter.DEFAULT)
+        image_ids = [info.id for info in infos]
 
-    if dataset_ids is not None or collection_id is not None:
-        if not bool(dataset_ids) ^ bool(collection_id):
-            raise ValueError(
-                "You must select either datasets or a collection, but not both at the same time."
-            )
+    if image_ids is not None:
+        log_msg = f"Evaluation on {len(image_ids)} images of project {project.name}"
+    elif dataset_ids is not None:
+        log_msg = f"Evaluation on datasets {dataset_ids} of project {project.name}"
+    elif dataset_ids is None and image_ids is None:
+        log_msg = f"Evaluation on the whole project {project.name}"
+    else:
+        raise RuntimeError("Wrong dataset/image selection")
+    sly.logger.info(log_msg)
 
     # ==================== Workflow input ====================
     if sly.is_production():
@@ -190,7 +232,6 @@ def run_evaluation(
     report_model_benchmark.hide()
 
     if g.selected_classes is None or len(g.selected_classes) == 0:
-        # raise RuntimeError("No classes available for evaluation")
         matched, _ = f.get_classes()
         _, matched_model_classes = matched
         if not matched_model_classes or len(matched_model_classes) == 0:
@@ -289,14 +330,6 @@ def handle_sel_app_session(session_id: Optional[int]):
     handle_selectors()
 
 
-@all_datasets_checkbox.value_changed
-def handle_all_datasets_checkbox(checked: bool):
-    if checked:
-        sel_dataset.hide()
-    else:
-        sel_dataset.show()
-
-
 @iou_per_class_checkbox.value_changed
 def handle_iou_per_class_checkbox(checked: bool):
     update_eval_params()
@@ -337,7 +370,7 @@ def update_eval_params():
         eval_params_card.hide()
     else:
         eval_params_card.show()
-        eval_params_card.uncollapse()
+        eval_params_card.set_active_panel(["eval_params"])
 
 
 def handle_selectors():

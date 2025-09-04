@@ -90,6 +90,7 @@ async def evaluate(request: Request):
     req = await request.json()
     try:
         state = req["state"]
+        sly.logger.info(f"Running evaluation. State: {state}")
         session_id = state["session_id"]
         project_id = state["project_id"]
         dataset_ids = state.get("dataset_ids", None)
