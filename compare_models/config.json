@@ -17,5 +17,5 @@
   "main_script": "compare_models/main.py",
   "port": 8000,
   "docker_image": "supervisely/model-benchmark:1.0.25",
-  "instance_version": "6.14.8"
+  "instance_version": "6.15.2"
 }
