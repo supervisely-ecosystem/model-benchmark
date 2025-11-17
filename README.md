@@ -27,15 +27,17 @@ The Evaluator app offers a range of evaluation metrics, including precision, rec
 **Changelog:**
 
 - **v0.1.0** – Public release (for object detection task type)
-- **v0.1.2** – Support for instance segmentation task type
+- **v0.1.2** – Support for Instance Segmentation task type
 - **v0.1.4** – Speedtest benchmark added
 - **v0.1.15** – Model Comparison feature added
+- **v0.1.18** - Support evaluation for Semantic Segmentation task type
+- **v0.2.0** - Support comparison for Semantic Segmentation task type
 
 ## Preparation
 
 Before running the Evaluator for Model Benchmark, please ensure that you have the following:
 
-- A served model in Supervisely (currently available for object detection and instance segmentation models)
+- A served model in Supervisely
 - You have prepared a Ground Truth project with the appropriate annotations (classes should be the same as in the model)
 
 ## How To Run
