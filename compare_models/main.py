@@ -1,6 +1,7 @@
 import time
 
 time.sleep(60)
+print("Starting main.py after sleep")
 
 import ast
 import os
