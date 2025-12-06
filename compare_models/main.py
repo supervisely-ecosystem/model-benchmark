@@ -1,3 +1,7 @@
+import time
+
+time.sleep(60)
+
 import ast
 import os
 from pathlib import Path
