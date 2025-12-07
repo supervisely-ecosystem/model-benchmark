@@ -1,17 +1,3 @@
-import time
-
-time.sleep(60)
-print("Starting main.py after sleep")
-
-from supervisely._utils import logger
-
-logger.info("Imports started in main.py")
-
-from supervisely.task.progress import Progress
-
-progress = Progress("Downloading: ", 1)
-progress.iters_done_report(1)
-
 import ast
 import os
 from pathlib import Path
