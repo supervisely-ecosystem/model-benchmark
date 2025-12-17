@@ -29,6 +29,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN python3 -m pip install --upgrade \
     setuptools==70.3.0 \
     numpy==2.3.3 \
-    supervisely[model-benchmark]==6.73.479
+    supervisely[model-benchmark]==6.73.486
 
-LABEL python_sdk_version=6.73.479
+LABEL python_sdk_version=6.73.486
