@@ -16,6 +16,6 @@
   "task_location": "workspace_tasks",
   "main_script": "compare_models/main.py",
   "port": 8000,
-  "docker_image": "supervisely/model-benchmark:1.0.26",
-  "instance_version": "6.15.2"
+  "docker_image": "supervisely/model-benchmark:1.1.0",
+  "instance_version": "6.15.35"
 }
