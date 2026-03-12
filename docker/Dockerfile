@@ -27,7 +27,7 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN python3 -m pip install --upgrade \
-    setuptools==70.3.0 \
+    setuptools==80.10.1 \
     numpy==2.3.3 \
     supervisely[model-benchmark]==6.73.545
 
