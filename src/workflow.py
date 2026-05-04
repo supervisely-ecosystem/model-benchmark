@@ -1,5 +1,6 @@
 # This module contains functions that are used to configure the input and output of the workflow for the current app,
 # and versioning feature that creates a project version before the task starts.
+from pathlib import Path
 from typing import List, Optional
 
 import supervisely as sly
@@ -110,3 +111,34 @@ def workflow_output(
 
         except Exception as e:
             sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
+
+
+def workflow_existing_comparison(
+    api: sly.Api,
+    team_id: int,
+    eval_dirs: List[str],
+    comparison_dir: str,
+    comparison_link: sly.api.file_api.FileInfo,
+):
+    try:
+        reports_paths = [path.rstrip("/") + "/visualizations/template.vue" for path in eval_dirs]
+        reports = [
+            report
+            for report in (api.file.get_info_by_path(team_id, path) for path in reports_paths)
+            if report is not None
+        ]
+        if reports:
+            workflow_input(api, model_benchmark_reports=reports)
+        else:
+            workflow_input(api, team_files_dirs=eval_dirs)
+    except Exception as e:
+        sly.logger.debug(f"Failed to add workflow input for existing comparison: {repr(e)}")
+
+    try:
+        report_fileinfo = api.file.get_info_by_path(
+            team_id,
+            str(Path(comparison_dir) / "visualizations" / "template.vue"),
+        )
+        workflow_output(api, model_comparison_report=report_fileinfo or comparison_link)
+    except Exception as e:
+        sly.logger.debug(f"Failed to add workflow output for existing comparison: {repr(e)}")
