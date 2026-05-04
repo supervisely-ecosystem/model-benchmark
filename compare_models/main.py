@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from dotenv import load_dotenv
 
 import supervisely as sly
+import src.workflow as w
 from src.functions import check_for_existing_comparisons
 from src.ui.compare import run_compare
 from supervisely import handle_exceptions, main_wrapper
@@ -33,6 +34,8 @@ def run_state_evaluation():
         if fileinfo is None:
             raise ValueError("Comparison link ID not found in the storage.")
         sly.logger.info(f"Comparison already exists: {result_comparison_dir} (ID: {fileinfo.id})")
+        w.workflow_existing_comparison(api, TEAM_ID, EVAL_DIRS, result_comparison_dir, fileinfo)
+
         with NamedTemporaryFile() as temp_file:
             api.file.download(TEAM_ID, fileinfo.path, temp_file.name)
             report_url = temp_file.read().decode("utf-8")
