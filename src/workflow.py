@@ -100,8 +100,8 @@ def workflow_output(
             comparison_relation_settings = sly.WorkflowSettings(
                 title="Model Comparison",
                 icon="assignment",
-                icon_color="#ffc084",
-                icon_bg_color="#fff2e6",
+                icon_color="#dcb0ff",
+                icon_bg_color="#faebff",
                 url=f"/model-benchmark?id={model_comparison_report.id}",
                 url_title="Open Comparison Report",
             )
