@@ -170,4 +170,4 @@ def workflow_existing_comparison(
             model_comparison_report_id=report_fileinfo.id if report_fileinfo else None,
         )
     except Exception as e:
-        sly.logger.debug(f"Failed to add workflow output for existing comparison: {repr(e)}")
+        sly.logger.warning(f"Failed to add workflow output for existing comparison: {repr(e)}")
