@@ -305,7 +305,12 @@ def run_evaluation(
 
     # ==================== Workflow output ====================
     if sly.is_production():
-        w.workflow_output(g.api, res_dir, bm.report)
+        w.workflow_output(
+            g.api,
+            res_dir,
+            model_benchmark_report=bm.lnk,
+            model_benchmark_report_id=bm.report.id,
+        )
     # =======================================================
 
     sly.logger.info(

@@ -8,25 +8,29 @@ import supervisely as sly
 
 def _add_output_report(
     api: sly.Api,
-    report: sly.api.file_api.FileInfo,
+    report_file: sly.api.file_api.FileInfo,
     title: str,
     url_title: str,
     log_name: str,
+    report_id: Optional[int] = None,
 ):
     try:
+        if report_file is None:
+            raise ValueError(f"{log_name} report FileInfo is None")
+        report_id = report_id or report_file.id
         relation_settings = sly.WorkflowSettings(
             title=title,
             icon="assignment",
             icon_color="#dcb0ff",
             icon_bg_color="#faebff",
-            url=f"/model-benchmark?id={report.id}",
+            url=f"/model-benchmark?id={report_id}",
             url_title=url_title,
         )
         meta = sly.WorkflowMeta(relation_settings=relation_settings)
-        api.app.workflow.add_output_file(report, meta=meta)
-        sly.logger.debug(f"{log_name} Report ID - {report.id}")
+        api.app.workflow.add_output_file(report_file, meta=meta)
+        sly.logger.debug(f"{log_name} Report File ID - {report_file.id}, Report ID - {report_id}")
     except Exception as e:
-        sly.logger.debug(f"Failed to add output to the workflow: {repr(e)}")
+        sly.logger.warning(f"Failed to add output to the workflow: {repr(e)}")
 
 
 def workflow_input(
@@ -59,14 +63,15 @@ def workflow_input(
                 f"Workflow Input: Project ID - {project_info.id}, Project Version ID - {project_version_id}"
             )
         except Exception as e:
-            sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
+            sly.logger.warning(f"Failed to add input to the workflow: {repr(e)}")
 
         # Add input model session to the workflow
         try:
-            api.app.workflow.add_input_task(session_id)
-            sly.logger.debug(f"Workflow Input: Session ID - {session_id}")
+            if session_id is not None:
+                api.app.workflow.add_input_task(session_id)
+                sly.logger.debug(f"Workflow Input: Session ID - {session_id}")
         except Exception as e:
-            sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
+            sly.logger.warning(f"Failed to add input to the workflow: {repr(e)}")
 
     if team_files_dirs:
         # Add input evaluation results folders to the workflow
@@ -75,23 +80,29 @@ def workflow_input(
                 api.app.workflow.add_input_folder(team_files_dir)
                 sly.logger.debug(f"Workflow Input: Team Files dir - {team_files_dir}")
         except Exception as e:
-            sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
+            sly.logger.warning(f"Failed to add input to the workflow: {repr(e)}")
 
     if model_benchmark_reports:
         # Add input model benchmark reports to the workflow
         try:
             for model_benchmark_report in model_benchmark_reports:
+                if model_benchmark_report is None:
+                    continue
                 api.app.workflow.add_input_file(model_benchmark_report)
-                sly.logger.debug(f"Workflow Input: Model Benchmark Report ID - {model_benchmark_report.id}")
+                sly.logger.debug(
+                    f"Workflow Input: Model Benchmark Report ID - {model_benchmark_report.id}"
+                )
         except Exception as e:
-            sly.logger.debug(f"Failed to add input to the workflow: {repr(e)}")
+            sly.logger.warning(f"Failed to add input to the workflow: {repr(e)}")
 
 
 def workflow_output(
     api: sly.Api,
     eval_team_files_dir: Optional[str] = None,
     model_benchmark_report: Optional[sly.api.file_api.FileInfo] = None,
+    model_benchmark_report_id: Optional[int] = None,
     model_comparison_report: Optional[sly.api.file_api.FileInfo] = None,
+    model_comparison_report_id: Optional[int] = None,
 ):
     if model_benchmark_report:
         _add_output_report(
@@ -100,6 +111,7 @@ def workflow_output(
             title="Model Benchmark",
             url_title="Open Benchmark Report",
             log_name="Model Evaluation",
+            report_id=model_benchmark_report_id,
         )
 
     if model_comparison_report:
@@ -109,7 +121,33 @@ def workflow_output(
             title="Model Comparison",
             url_title="Open Comparison Report",
             log_name="Model Comparison",
+            report_id=model_comparison_report_id,
         )
+
+
+def workflow_comparison_input(
+    api: sly.Api,
+    team_id: int,
+    eval_dirs: List[str],
+):
+    reports = []
+    try:
+        reports_paths = [
+            path.rstrip("/") + "/visualizations/Model Evaluation Report.lnk"
+            for path in eval_dirs
+        ]
+        reports = [
+            report
+            for report in (api.file.get_info_by_path(team_id, path) for path in reports_paths)
+            if report is not None
+        ]
+    except Exception as e:
+        sly.logger.warning(f"Failed to get model benchmark reports FileInfos: {repr(e)}")
+
+    if reports:
+        workflow_input(api, model_benchmark_reports=reports)
+    else:
+        workflow_input(api, team_files_dirs=eval_dirs)
 
 
 def workflow_existing_comparison(
@@ -119,25 +157,17 @@ def workflow_existing_comparison(
     comparison_dir: str,
     comparison_link: sly.api.file_api.FileInfo,
 ):
-    try:
-        reports_paths = [path.rstrip("/") + "/visualizations/template.vue" for path in eval_dirs]
-        reports = [
-            report
-            for report in (api.file.get_info_by_path(team_id, path) for path in reports_paths)
-            if report is not None
-        ]
-        if reports:
-            workflow_input(api, model_benchmark_reports=reports)
-        else:
-            workflow_input(api, team_files_dirs=eval_dirs)
-    except Exception as e:
-        sly.logger.debug(f"Failed to add workflow input for existing comparison: {repr(e)}")
+    workflow_comparison_input(api, team_id, eval_dirs)
 
     try:
         report_fileinfo = api.file.get_info_by_path(
             team_id,
             str(Path(comparison_dir) / "visualizations" / "template.vue"),
         )
-        workflow_output(api, model_comparison_report=report_fileinfo or comparison_link)
+        workflow_output(
+            api,
+            model_comparison_report=comparison_link,
+            model_comparison_report_id=report_fileinfo.id if report_fileinfo else None,
+        )
     except Exception as e:
         sly.logger.debug(f"Failed to add workflow output for existing comparison: {repr(e)}")
